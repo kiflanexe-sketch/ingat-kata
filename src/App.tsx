@@ -10,7 +10,7 @@ type Card = {
   lastReviewed: number | null;
   status: 'active' | 'reserve'; 
   source: string; 
-  originLang?: string; // Tambahan properti untuk mode gabungan
+  originLang?: string; 
 };
 
 type StudyItem = {
@@ -27,7 +27,7 @@ type LangStats = {
   reserve: number;
 };
 
-// --- DATABASE KOSAKATA ---
+// --- DATABASE KOSAKATA (SEED DATA) ---
 const WORD_DATABASE: Record<string, Record<string, {f: string, b: string}[]>> = {
   'Inggris 🇬🇧': {
     'Pemula (A1)': [
@@ -539,32 +539,16 @@ const StudyView = ({ queue, currentLang, currentIndex, onResult, onComplete }: a
   const questionText = direction === 'forward' ? card.front : card.back;
   const answerText = direction === 'forward' ? card.back : card.front;
   
-  // --- LOGIKA DINAMIS UNTUK MODE GABUNGAN & PLACEHOLDER BARU ---
+  // --- LOGIKA DINAMIS UNTUK MODE GABUNGAN ---
   const langName = item.originLang || currentLang;
-  const cleanLangName = langName.split(' ')[0]; // Bersihkan flag (Inggris 🇬🇧 -> Inggris)
-  
-  // Jika mode Gabungan, kita ingin menampilkan nama bahasa yang spesifik
-  const displayLang = langName === 'Gabungan' ? 'Bahasa Asing' : cleanLangName;
+  const displayLang = langName === 'Gabungan' ? 'Bahasa Asing' : langName.split(' ')[0];
 
-  // Placeholder Cerdas untuk Polyglot Mode & Single Mode
-  // Jika forward (Asing -> Indo), label pertanyaan adalah Bahasa Asing
+  // Placeholder Cerdas untuk Polyglot Mode
   const questionLabel = direction === 'forward' ? displayLang : 'Bahasa Indonesia';
   const answerLabel = direction === 'forward' ? 'Bahasa Indonesia' : displayLang;
-  
-  let placeholder = '';
-  if (direction === 'forward') {
-      placeholder = 'Ketik arti dalam Bhs Indonesia...';
-  } else {
-      // Jika mode gabungan dan arahnya Indo -> Asing, kita harus kasih tahu user ini bahasa apa
-      if (displayLang === 'Bahasa Asing') {
-          // Fallback jika originLang hilang (harusnya tidak terjadi dengan fix di createQueue)
-          placeholder = 'Ketik dalam Bahasa Asing...';
-      } else {
-          // Hapus duplikasi kata "Bahasa" jika displayLang sudah mengandung kata itu (jarang terjadi di database kita, tapi aman)
-          const langNameOnly = displayLang.replace(/^Bahasa\s+/i, '');
-          placeholder = `Ketik dalam Bahasa ${langNameOnly}...`;
-      }
-  }
+  const placeholder = direction === 'forward' 
+    ? 'Ketik arti dalam Bhs Indonesia...' 
+    : `Ketik dalam Bahasa ${displayLang}...`; 
 
   const progress = ((currentIndex) / queue.length) * 100;
 
@@ -608,7 +592,7 @@ const StudyView = ({ queue, currentLang, currentIndex, onResult, onComplete }: a
   );
 };
 
-// --- ADD VIEW (Updated: Fixed Saving Logic & Modal) ---
+// --- ADD VIEW (Updated: Bulk Logic) ---
 const AddView = ({ onBack, onSave, onBulkSave, currentLang, onShowConfirm, onShowAlert }: any) => {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
   const [front, setFront] = useState('');
@@ -743,12 +727,7 @@ export default function App() {
   const dueCardsCount = activeCards.filter(c => c.nextReview <= Date.now()).length;
   const learnedCardsCount = activeCards.filter(c => c.box >= 4).length;
 
-  // Update createQueue to pass originLang
-  const createQueue = (cardList: Card[]) => cardList.map(card => ({ 
-    card, 
-    direction: Math.random() > 0.5 ? 'forward' as const : 'backward' as const,
-    originLang: card.originLang 
-  }));
+  const createQueue = (cardList: Card[]) => cardList.map(card => ({ card, direction: Math.random() > 0.5 ? 'forward' as const : 'backward' as const }));
   
   const startSession = () => {
     const due = activeCards.filter(c => currentLang === "Gabungan" ? true : c.nextReview <= Date.now()).sort((a, b) => a.nextReview - b.nextReview);
@@ -818,7 +797,17 @@ export default function App() {
     let parsed: {f:string, b:string}[] = [];
     lines.forEach(l => { const p = l.split('<>'); if(p.length===2 && p[0].trim() && p[1].trim()) parsed.push({f: p[0].trim(), b: p[1].trim()}); });
     parsed = shuffleArray(parsed);
-    const newCards: Card[] = parsed.map(p => { return { id: Date.now()+Math.random().toString(), front: p.f, back: p.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: 'active', source: 'custom'}; });
+    
+    // LOGIKA "5 KATA DULU" DIKEMBALIKAN
+    const currentActiveCount = cards.filter(c => c.status === 'active').length;
+    let slotsForActive = currentActiveCount < 5 ? 5 - currentActiveCount : 0;
+
+    const newCards: Card[] = parsed.map(p => {
+       const shouldActivate = slotsForActive > 0;
+       if (shouldActivate) slotsForActive--;
+       
+       return { id: Date.now()+Math.random().toString(), front: p.f, back: p.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: shouldActivate ? 'active' : 'reserve', source: 'custom'};
+    });
     if(newCards.length>0) setCards([...cards, ...newCards]);
     return newCards.length;
   };
@@ -837,8 +826,10 @@ export default function App() {
     if (!currentLang) return;
     const rawWords = WORD_DATABASE[currentLang][level];
     const shuffled = shuffleArray(rawWords);
-    const activeCount = activeCards.length;
-    let slots = activeCount === 0 ? 5 : 0; 
+    
+    const currentActiveCount = cards.filter(c => c.status === 'active').length;
+    let slots = currentActiveCount < 5 ? 5 - currentActiveCount : 0; 
+
     const newCards: Card[] = shuffled.map((w, idx) => {
       const active = slots > 0; if(active) slots--;
       return { id: `preset-${level}-${Date.now()}-${idx}`, front: w.f, back: w.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: active ? 'active' : 'reserve', source: `preset-${level}` };
