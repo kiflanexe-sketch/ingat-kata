@@ -310,7 +310,10 @@ const Icon = {
   LogOut: () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>),
   Star: () => (<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>),
   Book: () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>),
-  Shuffle: () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l14.2-13"/><path d="M22 22v-5h-5"/><path d="M2 6h1.4c1.3 0 2.5.6 3.3 1.7l3.2 2.9"/><path d="M13.7 15.7l3.2 2.9c.8 1.1 2 1.7 3.3 1.7H22"/><path d="M22 2v5h-5"/></svg>)
+  Shuffle: () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l14.2-13"/><path d="M22 22v-5h-5"/><path d="M2 6h1.4c1.3 0 2.5.6 3.3 1.7l3.2 2.9"/><path d="M13.7 15.7l3.2 2.9c.8 1.1 2 1.7 3.3 1.7H22"/><path d="M22 2v5h-5"/></svg>),
+  Edit: () => (<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>),
+  MoveDown: () => (<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 18L12 22L16 18"/><path d="M12 2L12 22"/></svg>),
+  MoveUp: () => (<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 6L12 2L8 6"/><path d="M12 22L12 2"/></svg>)
 };
 
 const ONE_MINUTE = 60 * 1000;
@@ -326,7 +329,6 @@ function shuffleArray<T>(array: T[]): T[] {
   return arr;
 }
 
-// Helper function for fuzzy answer checking
 function checkAnswerSmart(input: string, correctAnswer: string): boolean {
   const cleanInput = input.trim().toLowerCase();
   const cleanAnswer = correctAnswer.trim().toLowerCase();
@@ -342,7 +344,6 @@ function checkAnswerSmart(input: string, correctAnswer: string): boolean {
   return generateVariations(cleanAnswer).has(cleanInput);
 }
 
-// Helper to get stats
 const getLanguageStats = (lang: string): LangStats | null => {
   try {
     const data = localStorage.getItem(`ingatkata-deck-${lang}`);
@@ -359,7 +360,6 @@ const getLanguageStats = (lang: string): LangStats | null => {
   } catch (e) { return null; }
 };
 
-// Helper to get saved languages
 const getSavedLanguages = (): string[] => {
   const langs: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -432,7 +432,7 @@ const MaterialManager = ({ currentLang, cards, onImportLevel, onBack, onShowAler
               </div>
             );
           })}
-           <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800 text-sm">💡 <strong>Tip:</strong> Kamu bisa menambahkan beberapa level sekaligus.</div>
+           <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800 text-sm">💡 <strong>Tip:</strong> Kamu bisa menambahkan beberapa level sekaligus. Kata-kata akan masuk ke "Antrian" (Reserve) dan muncul secara bertahap saat kamu belajar.</div>
         </div>
       </div>
     </div>
@@ -451,7 +451,6 @@ const HomeView = ({ currentLang, dueCount, learnedCount, reserveCount, lastAccur
     else { addBtnLabel = "Fokus Dulu (Nilai < 50%)"; addBtnColor = "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"; canAdd = false; }
   }
 
-  // TAMPILAN MODE GABUNGAN (POLYGLOT)
   if (currentLang === "Gabungan") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-8 p-4 animate-fade-in relative">
@@ -538,16 +537,12 @@ const StudyView = ({ queue, currentLang, currentIndex, onResult, onComplete }: a
   const questionText = direction === 'forward' ? card.front : card.back;
   const answerText = direction === 'forward' ? card.back : card.front;
   
-  // --- LOGIKA DINAMIS UNTUK MODE GABUNGAN ---
   const langName = item.originLang || currentLang;
   const displayLang = langName === 'Gabungan' ? 'Bahasa Asing' : langName.split(' ')[0];
 
-  // Placeholder Cerdas untuk Polyglot Mode
   const questionLabel = direction === 'forward' ? displayLang : 'Bahasa Indonesia';
   const answerLabel = direction === 'forward' ? 'Bahasa Indonesia' : displayLang;
-  const placeholder = direction === 'forward' 
-    ? 'Ketik arti dalam Bhs Indonesia...' 
-    : `Ketik dalam Bahasa ${displayLang}...`; 
+  const placeholder = direction === 'forward' ? 'Ketik arti dalam Bhs Indonesia...' : `Ketik dalam Bahasa ${displayLang}...`;
 
   const progress = ((currentIndex) / queue.length) * 100;
 
@@ -591,7 +586,7 @@ const StudyView = ({ queue, currentLang, currentIndex, onResult, onComplete }: a
   );
 };
 
-// --- ADD VIEW (Updated: Bulk Logic) ---
+// --- ADD VIEW ---
 const AddView = ({ onBack, onSave, onBulkSave, currentLang, onShowConfirm, onShowAlert }: any) => {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
   const [front, setFront] = useState('');
@@ -604,26 +599,14 @@ const AddView = ({ onBack, onSave, onBulkSave, currentLang, onShowConfirm, onSho
   }, [lastSaved]);
 
   const handleBack = () => {
-    if ((front || back || bulkText) && !lastSaved) {
-      onShowConfirm("Konfirmasi", "Anda memiliki perubahan yang belum disimpan. Yakin ingin kembali?", onBack);
-    } else {
-      onBack();
-    }
+    if ((front || back || bulkText) && !lastSaved) onShowConfirm("Konfirmasi", "Anda memiliki perubahan yang belum disimpan. Yakin ingin kembali?", onBack);
+    else onBack();
   };
 
   const handleSaveSingle = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const doSave = () => {
-        onSave(front, back);
-        setLastSaved(`"${front}" berhasil disimpan!`);
-        setFront(''); 
-        setBack('');
-    };
-
-    if (front && back) {
-        doSave();
-    }
+    const doSave = () => { onSave(front, back); setLastSaved(`"${front}" berhasil disimpan!`); setFront(''); setBack(''); };
+    if (front && back) doSave();
   };
 
   return (
@@ -651,17 +634,147 @@ const AddView = ({ onBack, onSave, onBulkSave, currentLang, onShowConfirm, onSho
   );
 };
 
-// --- LIST VIEW (Same as before) ---
-const ListView = ({ cards, onBack, onDelete }: { cards: Card[], onBack: () => void, onDelete: (id: string) => void }) => {
+// --- LIST VIEW (Updated: Selection Mode & Action Bar) ---
+const ListView = ({ cards, onBack, onDelete, onBulkDelete, onBulkMove }: { cards: Card[], onBack: () => void, onDelete: (id: string) => void, onBulkDelete: (ids: string[]) => void, onBulkMove: (ids: string[], target: 'active'|'reserve') => void }) => {
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
   const activeCards = cards.filter(c => c.status === 'active');
   const reserveCards = cards.filter(c => c.status === 'reserve');
+
+  const toggleSelection = (id: string) => {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
+    setSelectedIds(newSet);
+  };
+
+  const toggleSelectAll = (subset: Card[]) => {
+    const subsetIds = subset.map(c => c.id);
+    const allSelected = subsetIds.every(id => selectedIds.has(id));
+    const newSet = new Set(selectedIds);
+    if (allSelected) {
+      subsetIds.forEach(id => newSet.delete(id));
+    } else {
+      subsetIds.forEach(id => newSet.add(id));
+    }
+    setSelectedIds(newSet);
+  };
+
+  const handleBulkAction = (action: 'delete' | 'to_active' | 'to_reserve') => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+
+    if (action === 'delete') {
+      if (confirm(`Hapus ${ids.length} kata terpilih?`)) {
+        onBulkDelete(ids);
+        setSelectedIds(new Set());
+        setIsSelectionMode(false);
+      }
+    } else if (action === 'to_active') {
+      onBulkMove(ids, 'active');
+      setSelectedIds(new Set());
+      setIsSelectionMode(false);
+    } else if (action === 'to_reserve') {
+      onBulkMove(ids, 'reserve');
+      setSelectedIds(new Set());
+      setIsSelectionMode(false);
+    }
+  };
+
   return (
-    <div className="max-w-2xl mx-auto p-4 animate-fade-in">
-      <div className="flex items-center justify-between mb-6"><button onClick={onBack} className="text-gray-500 hover:text-gray-800 flex items-center gap-2"><Icon.ArrowLeft /> Kembali</button><h2 className="text-xl font-bold text-gray-800">Daftar Kata</h2></div>
-      <div className="space-y-6 pb-20">
-        <div><h3 className="text-sm font-bold text-indigo-600 uppercase tracking-wider mb-3">Aktif ({activeCards.length})</h3><div className="space-y-2">{activeCards.map(c=>(<div key={c.id} className="bg-white p-3 rounded-xl border border-indigo-100 shadow-sm flex justify-between items-center"><div><div className="font-bold text-gray-800">{c.front}</div><div className="text-sm text-gray-500">{c.back}</div><div className="text-xs text-gray-400 mt-1">{c.source.replace('preset-', '')}</div></div><button onClick={()=>onDelete(c.id)} className="text-red-300"><Icon.Trash2 /></button></div>))}</div></div>
-        <div><h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Antrian ({reserveCards.length})</h3><div className="space-y-2">{reserveCards.map(c=>(<div key={c.id} className="bg-gray-50 p-3 rounded-xl border border-gray-200 flex justify-between items-center opacity-75"><div><div className="font-bold text-gray-600">{c.front}</div><div className="text-sm text-gray-400">{c.back}</div></div><button onClick={()=>onDelete(c.id)} className="text-gray-300"><Icon.Trash2 /></button></div>))}</div></div>
+    <div className="max-w-2xl mx-auto p-4 animate-fade-in pb-32">
+      <div className="flex items-center justify-between mb-6">
+        <button onClick={onBack} className="text-gray-500 hover:text-gray-800 flex items-center gap-2"><Icon.ArrowLeft /> Kembali</button>
+        <div className="flex items-center gap-3">
+           <button 
+             onClick={() => { setIsSelectionMode(!isSelectionMode); setSelectedIds(new Set()); }} 
+             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors ${isSelectionMode ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+           >
+             {isSelectionMode ? 'Batal Pilih' : 'Pilih'} <Icon.Edit />
+           </button>
+           <h2 className="text-xl font-bold text-gray-800">Daftar Kata</h2>
+        </div>
       </div>
+
+      <div className="space-y-8">
+        {/* SECTION AKTIF */}
+        <div>
+          <div className="flex justify-between items-center mb-3">
+             <h3 className="text-sm font-bold text-indigo-600 uppercase tracking-wider">AKTIF ({activeCards.length})</h3>
+             {isSelectionMode && activeCards.length > 0 && (
+               <button onClick={() => toggleSelectAll(activeCards)} className="text-xs font-bold text-indigo-500 hover:text-indigo-700">
+                 {activeCards.every(c => selectedIds.has(c.id)) ? 'Batal Semua' : 'Pilih Semua'}
+               </button>
+             )}
+          </div>
+          <div className="space-y-2">
+            {activeCards.map(c => (
+              <div key={c.id} className={`bg-white p-3 rounded-xl border transition-all flex items-center gap-3 ${selectedIds.has(c.id) ? 'border-indigo-500 ring-1 ring-indigo-500 bg-indigo-50' : 'border-indigo-100 shadow-sm'}`} onClick={() => isSelectionMode && toggleSelection(c.id)}>
+                {isSelectionMode && (
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedIds.has(c.id) ? 'border-indigo-500 bg-indigo-500' : 'border-gray-300'}`}>
+                    {selectedIds.has(c.id) && <Icon.Check className="text-white w-3 h-3" />}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="font-bold text-gray-800">{c.front}</div>
+                  <div className="text-sm text-gray-500">{c.back}</div>
+                  <div className="text-xs text-gray-400 mt-1">{c.source.replace('preset-', '')}</div>
+                </div>
+                {!isSelectionMode && <button onClick={(e) => { e.stopPropagation(); onDelete(c.id); }} className="text-red-300 hover:text-red-500"><Icon.Trash2 /></button>}
+              </div>
+            ))}
+            {activeCards.length === 0 && <p className="text-sm text-gray-400 italic">Tidak ada kata aktif.</p>}
+          </div>
+        </div>
+
+        {/* SECTION ANTRIAN */}
+        <div>
+          <div className="flex justify-between items-center mb-3">
+             <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">ANTRIAN ({reserveCards.length})</h3>
+             {isSelectionMode && reserveCards.length > 0 && (
+               <button onClick={() => toggleSelectAll(reserveCards)} className="text-xs font-bold text-gray-500 hover:text-gray-700">
+                 {reserveCards.every(c => selectedIds.has(c.id)) ? 'Batal Semua' : 'Pilih Semua'}
+               </button>
+             )}
+          </div>
+          <div className="space-y-2">
+            {reserveCards.map(c => (
+              <div key={c.id} className={`bg-gray-50 p-3 rounded-xl border transition-all flex items-center gap-3 ${selectedIds.has(c.id) ? 'border-indigo-500 ring-1 ring-indigo-500 bg-indigo-50 opacity-100' : 'border-gray-200 opacity-75'}`} onClick={() => isSelectionMode && toggleSelection(c.id)}>
+                 {isSelectionMode && (
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedIds.has(c.id) ? 'border-indigo-500 bg-indigo-500' : 'border-gray-300'}`}>
+                    {selectedIds.has(c.id) && <Icon.Check className="text-white w-3 h-3" />}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="font-bold text-gray-600">{c.front}</div>
+                  <div className="text-sm text-gray-400">{c.back}</div>
+                </div>
+                {!isSelectionMode && <button onClick={(e) => { e.stopPropagation(); onDelete(c.id); }} className="text-gray-300 hover:text-gray-500"><Icon.Trash2 /></button>}
+              </div>
+            ))}
+             {reserveCards.length === 0 && <p className="text-sm text-gray-400 italic">Antrian kosong.</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* FLOATING ACTION BAR */}
+      {isSelectionMode && selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-0 right-0 px-6 flex justify-center animate-slide-up">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 flex gap-2 items-center">
+             <div className="px-3 font-bold text-gray-500 text-sm">{selectedIds.size} Dipilih</div>
+             <div className="h-6 w-px bg-gray-200 mx-1"></div>
+             <button onClick={() => handleBulkAction('to_active')} className="p-3 text-green-600 hover:bg-green-50 rounded-xl flex flex-col items-center gap-1 min-w-[60px]">
+               <Icon.MoveUp /> <span className="text-[10px] font-bold">Ke Aktif</span>
+             </button>
+             <button onClick={() => handleBulkAction('to_reserve')} className="p-3 text-orange-500 hover:bg-orange-50 rounded-xl flex flex-col items-center gap-1 min-w-[60px]">
+               <Icon.MoveDown /> <span className="text-[10px] font-bold">Ke Antrian</span>
+             </button>
+             <button onClick={() => handleBulkAction('delete')} className="p-3 text-red-500 hover:bg-red-50 rounded-xl flex flex-col items-center gap-1 min-w-[60px]">
+               <Icon.Trash2 /> <span className="text-[10px] font-bold">Hapus</span>
+             </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -674,52 +787,16 @@ export default function App() {
   const [studyQueue, setStudyQueue] = useState<StudyItem[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [lastSessionAccuracy, setLastSessionAccuracy] = useState<number | null>(null);
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, title: string, message: string, onConfirm: ()=>void, type: 'alert'|'confirm'}>({ isOpen: false, title: '', message: '', onConfirm: ()=>{}, type: 'alert' });
 
-  // State Modal Global
-  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, title: string, message: string, onConfirm: ()=>void, type: 'alert'|'confirm'}>({
-    isOpen: false, title: '', message: '', onConfirm: ()=>{}, type: 'alert'
-  });
+  const showAlert = (title: string, message: string) => { setModalConfig({ isOpen: true, title, message, onConfirm: () => setModalConfig(p => ({...p, isOpen: false})), type: 'alert' }); };
+  const showConfirm = (title: string, message: string, onYes: () => void) => { setModalConfig({ isOpen: true, title, message, onConfirm: () => { onYes(); setModalConfig(p => ({...p, isOpen: false})); }, type: 'confirm' }); };
 
-  // Helper Modal
-  const showAlert = (title: string, message: string) => {
-    setModalConfig({ isOpen: true, title, message, onConfirm: () => setModalConfig(p => ({...p, isOpen: false})), type: 'alert' });
-  };
-  const showConfirm = (title: string, message: string, onYes: () => void) => {
-    setModalConfig({ isOpen: true, title, message, onConfirm: () => { onYes(); setModalConfig(p => ({...p, isOpen: false})); }, type: 'confirm' });
-  };
+  useEffect(() => { const savedLangs = getSavedLanguages(); if (savedLangs.length > 0) setView('lang-select'); else setView('onboarding'); }, []);
+  useEffect(() => { if (currentLang && currentLang !== "Gabungan") { const savedCards = localStorage.getItem(`ingatkata-deck-${currentLang}`); if (savedCards) setCards(JSON.parse(savedCards).map((c: any) => ({ ...c, status: c.status || 'active', source: c.source || 'legacy' }))); else setCards([]); } }, [currentLang]);
+  useEffect(() => { if (currentLang && currentLang !== "Gabungan" && cards.length > 0) localStorage.setItem(`ingatkata-deck-${currentLang}`, JSON.stringify(cards)); }, [cards, currentLang]);
 
-  useEffect(() => {
-    const savedLangs = getSavedLanguages();
-    if (savedLangs.length > 0) setView('lang-select'); else setView('onboarding');
-  }, []);
-
-  useEffect(() => {
-    if (currentLang) {
-      if (currentLang === "Gabungan") return;
-      const savedCards = localStorage.getItem(`ingatkata-deck-${currentLang}`);
-      if (savedCards) {
-        const parsed = JSON.parse(savedCards);
-        const migrated = parsed.map((c: any) => ({ ...c, status: c.status || 'active', source: c.source || 'legacy' }));
-        setCards(migrated);
-        setView('home');
-      } else {
-        setCards([]);
-      }
-    }
-  }, [currentLang]);
-
-  useEffect(() => {
-    if (currentLang && currentLang !== "Gabungan" && cards.length > 0) {
-      localStorage.setItem(`ingatkata-deck-${currentLang}`, JSON.stringify(cards));
-    }
-  }, [cards, currentLang]);
-
-  const handleOnboardingComplete = (lang: string) => {
-    localStorage.setItem(`ingatkata-deck-${lang}`, JSON.stringify([]));
-    setCurrentLang(lang);
-    setCards([]);
-    setView('home');
-  };
+  const handleOnboardingComplete = (lang: string) => { localStorage.setItem(`ingatkata-deck-${lang}`, JSON.stringify([])); setCurrentLang(lang); setCards([]); setView('home'); };
 
   const activeCards = cards.filter(c => c.status === 'active');
   const reserveCards = cards.filter(c => c.status === 'reserve');
@@ -727,31 +804,17 @@ export default function App() {
   const learnedCardsCount = activeCards.filter(c => c.box >= 4).length;
 
   const createQueue = (cardList: Card[]) => cardList.map(card => ({ card, direction: Math.random() > 0.5 ? 'forward' as const : 'backward' as const }));
-  
   const startSession = () => {
     const due = activeCards.filter(c => currentLang === "Gabungan" ? true : c.nextReview <= Date.now()).sort((a, b) => a.nextReview - b.nextReview);
     const cardsToStudy = currentLang === "Gabungan" ? shuffleArray(activeCards) : due;
-    if (cardsToStudy.length === 0) {
-      if (currentLang === "Gabungan") return showAlert("Info", "Belum ada kata aktif untuk dilatih.");
-      return;
-    }
-    setStudyQueue(createQueue(cardsToStudy).map(item => item)); 
-    setCurrentCardIndex(0); setView('study');
+    if (cardsToStudy.length === 0) { if (currentLang === "Gabungan") return showAlert("Info", "Belum ada kata aktif."); return; }
+    setStudyQueue(createQueue(cardsToStudy).map(item => item)); setCurrentCardIndex(0); setView('study');
   };
 
-  // --- LOGIKA POLYGLOT ---
   const handleStartMixedSession = () => {
-    const langs = getSavedLanguages();
-    let allActiveCards: (Card & { originLang: string })[] = [];
-    langs.forEach(lang => {
-      const data = localStorage.getItem(`ingatkata-deck-${lang}`);
-      if (data) {
-        const deck: Card[] = JSON.parse(data);
-        const active = deck.filter(c => c.status === 'active').map(c => ({ ...c, originLang: lang }));
-        allActiveCards = [...allActiveCards, ...active];
-      }
-    });
-    if (allActiveCards.length === 0) { showAlert("Info", "Anda belum memiliki kata aktif di bahasa manapun!"); return; }
+    const langs = getSavedLanguages(); let allActiveCards: (Card & { originLang: string })[] = [];
+    langs.forEach(lang => { const data = localStorage.getItem(`ingatkata-deck-${lang}`); if (data) allActiveCards = [...allActiveCards, ...JSON.parse(data).filter((c:Card) => c.status === 'active').map((c:Card) => ({ ...c, originLang: lang }))]; });
+    if (allActiveCards.length === 0) { showAlert("Info", "Belum ada kata aktif."); return; }
     setCards(allActiveCards); setCurrentLang("Gabungan"); setView('home');
   };
 
@@ -759,118 +822,60 @@ export default function App() {
   const handleRepeatWrong = () => { const wrong = activeCards.filter(c => c.box === 0); if(wrong.length===0) return showAlert("Info", "Tidak ada kartu salah"); setStudyQueue(createQueue(shuffleArray(wrong))); setCurrentCardIndex(0); setView('study'); };
 
   const handleCardResult = (item: StudyItem, isCorrect: boolean) => {
-    if (currentLang === "Gabungan") {
-       if (item.originLang) {
-          const deckKey = `ingatkata-deck-${item.originLang}`;
-          const stored = localStorage.getItem(deckKey);
-          if (stored) {
-             const deck: Card[] = JSON.parse(stored);
-             const { card } = item;
-             let newBox = isCorrect ? Math.min(card.box + 1, SRS_INTERVALS.length - 1) : 0;
-             let nextReview = isCorrect ? Date.now() + SRS_INTERVALS[newBox] : Date.now() + ONE_MINUTE;
-             const updatedDeck = deck.map(c => c.id === card.id ? { ...c, box: newBox, nextReview, lastReviewed: Date.now() } : c);
-             localStorage.setItem(deckKey, JSON.stringify(updatedDeck));
-          }
-       }
-    } else {
-      const { card } = item;
-      let newBox = isCorrect ? Math.min(card.box + 1, SRS_INTERVALS.length - 1) : 0;
-      let nextReview = isCorrect ? Date.now() + SRS_INTERVALS[newBox] : Date.now() + ONE_MINUTE;
-      const updatedCards = cards.map(c => c.id === card.id ? { ...c, box: newBox, nextReview, lastReviewed: Date.now() } : c);
-      setCards(updatedCards);
-    }
+    if (currentLang === "Gabungan") { if (item.originLang) { const deckKey = `ingatkata-deck-${item.originLang}`; const stored = localStorage.getItem(deckKey); if (stored) { const deck = JSON.parse(stored); const updatedDeck = deck.map((c:Card) => c.id === item.card.id ? { ...c, box: isCorrect ? Math.min(c.box+1, 5) : 0, nextReview: isCorrect ? Date.now() + SRS_INTERVALS[Math.min(c.box+1, 5)] : Date.now() + ONE_MINUTE } : c); localStorage.setItem(deckKey, JSON.stringify(updatedDeck)); } } } 
+    else { const updatedCards = cards.map(c => c.id === item.card.id ? { ...c, box: isCorrect ? Math.min(c.box+1, 5) : 0, nextReview: isCorrect ? Date.now() + SRS_INTERVALS[Math.min(c.box+1, 5)] : Date.now() + ONE_MINUTE } : c); setCards(updatedCards); }
     if (currentCardIndex < studyQueue.length - 1) setCurrentCardIndex(prev => prev + 1);
   };
 
-  const handleSessionComplete = (correct: number, total: number) => {
-    setLastSessionAccuracy(total > 0 ? correct / total : 0);
-    showAlert("Sesi Selesai!", `Akurasi: ${Math.round((correct/total)*100)}%`);
-    setView('home'); setStudyQueue([]);
-  };
-
+  const handleSessionComplete = (correct: number, total: number) => { setLastSessionAccuracy(total > 0 ? correct / total : 0); showAlert("Sesi Selesai!", `Akurasi: ${Math.round((correct/total)*100)}%`); setView('home'); setStudyQueue([]); };
   const handleAddCard = (f: string, b: string) => setCards([...cards, { id: Date.now().toString(), front: f, back: b, box: 0, nextReview: Date.now(), lastReviewed: null, status: 'active', source: 'custom' }]);
-  const handleDeleteCard = (id: string) => { showConfirm("Hapus Kartu", "Yakin hapus kartu ini?", () => setCards(cards.filter(c => c.id !== id))); };
+  const handleDeleteCard = (id: string) => { showConfirm("Hapus Kartu", "Yakin hapus?", () => setCards(cards.filter(c => c.id !== id))); };
   
+  // BULK ADD LOGIC (FIXED: 5 Active Only)
   const handleBulkAdd = (text: string) => {
     const lines = text.split('\n');
     let parsed: {f:string, b:string}[] = [];
     lines.forEach(l => { const p = l.split('<>'); if(p.length===2 && p[0].trim() && p[1].trim()) parsed.push({f: p[0].trim(), b: p[1].trim()}); });
     parsed = shuffleArray(parsed);
-    
-    // LOGIKA "5 KATA DULU" DIKEMBALIKAN
     const currentActiveCount = cards.filter(c => c.status === 'active').length;
-    let slotsForActive = currentActiveCount < 5 ? 5 - currentActiveCount : 0;
-
-    const newCards: Card[] = parsed.map(p => {
-       const shouldActivate = slotsForActive > 0;
-       if (shouldActivate) slotsForActive--;
-       
-       return { id: Date.now()+Math.random().toString(), front: p.f, back: p.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: shouldActivate ? 'active' : 'reserve', source: 'custom'};
-    });
-    if(newCards.length>0) setCards([...cards, ...newCards]);
-    return newCards.length;
+    let slots = currentActiveCount < 5 ? 5 - currentActiveCount : 0;
+    const newCards: Card[] = parsed.map(p => { const active = slots > 0; if(active) slots--; return { id: Date.now()+Math.random().toString(), front: p.f, back: p.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: active?'active':'reserve', source: 'custom'}; });
+    if(newCards.length>0) setCards([...cards, ...newCards]); return newCards.length;
   };
 
-  const handleSmartAdd = () => {
-     let toAdd = (!lastSessionAccuracy || lastSessionAccuracy >= 0.8) ? 5 : (lastSessionAccuracy >= 0.5 ? 2 : 0);
-     if(toAdd === 0) return;
-     const reserves = reserveCards.slice(0, toAdd);
-     if(reserves.length===0) return showAlert("Info", "Gudang habis");
-     const ids = new Set(reserves.map(c=>c.id));
-     setCards(cards.map(c => ids.has(c.id) ? {...c, status: 'active', nextReview: Date.now()} : c));
-     showAlert("Sukses", `+${reserves.length} kata baru aktif!`);
+  const handleSmartAdd = () => { 
+    let toAdd = (!lastSessionAccuracy || lastSessionAccuracy >= 0.8) ? 5 : (lastSessionAccuracy >= 0.5 ? 2 : 0); 
+    if(toAdd === 0) return; 
+    const reserves = reserveCards.slice(0, toAdd); 
+    if(reserves.length===0) return showAlert("Info", "Gudang habis"); 
+    const ids = new Set(reserves.map(c=>c.id)); 
+    setCards(cards.map(c => ids.has(c.id) ? {...c, status: 'active', nextReview: Date.now()} : c)); 
+    showAlert("Sukses", `+${reserves.length} kata baru aktif!`); 
   };
 
   const handleImportLevel = (level: string) => {
     if (!currentLang) return;
     const rawWords = WORD_DATABASE[currentLang][level];
     const shuffled = shuffleArray(rawWords);
-    
     const currentActiveCount = cards.filter(c => c.status === 'active').length;
-    let slots = currentActiveCount < 5 ? 5 - currentActiveCount : 0; 
+    let slots = currentActiveCount < 5 ? 5 - currentActiveCount : 0;
+    const newCards: Card[] = shuffled.map((w, idx) => { const active = slots > 0; if(active) slots--; return { id: `preset-${level}-${Date.now()}-${idx}`, front: w.f, back: w.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: active ? 'active' : 'reserve', source: `preset-${level}` }; });
+    setCards([...cards, ...newCards]); setView('home');
+  };
 
-    const newCards: Card[] = shuffled.map((w, idx) => {
-      const active = slots > 0; if(active) slots--;
-      return { id: `preset-${level}-${Date.now()}-${idx}`, front: w.f, back: w.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: active ? 'active' : 'reserve', source: `preset-${level}` };
-    });
-    setCards([...cards, ...newCards]);
-    setView('home');
+  // HANDLERS FOR BULK LIST ACTIONS
+  const handleBulkDelete = (ids: string[]) => {
+    const idSet = new Set(ids);
+    setCards(cards.filter(c => !idSet.has(c.id)));
+  };
+
+  const handleBulkMove = (ids: string[], target: 'active' | 'reserve') => {
+    const idSet = new Set(ids);
+    setCards(cards.map(c => idSet.has(c.id) ? { ...c, status: target, nextReview: target === 'active' ? Date.now() : c.nextReview } : c));
   };
 
   if (view === 'loading') return <div className="min-h-screen flex items-center justify-center text-indigo-600">Memuat...</div>;
-
-  if (view === 'lang-select') {
-    const savedLangs = getSavedLanguages();
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-indigo-50 animate-fade-in">
-         <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center border border-indigo-100">
-            <div className="flex justify-center mb-4 text-indigo-600"><Icon.Brain /></div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard Saya</h1>
-            <div className="space-y-4">
-              {savedLangs.map(lang => {
-                const stats = getLanguageStats(lang);
-                if (!stats) return null;
-                const progress = stats.totalDeck > 0 ? (stats.mastered / stats.totalDeck) * 100 : 0;
-                return (
-                  <button key={lang} onClick={() => setCurrentLang(lang)} className="w-full bg-white border-2 border-gray-100 hover:border-indigo-500 hover:shadow-md p-4 rounded-xl transition-all text-left group relative overflow-hidden">
-                    <div className="flex justify-between items-center mb-2"><span className="font-bold text-lg text-gray-800">{lang}</span><div className="flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded-lg"><Icon.Star /> {stats.mastered} Master</div></div>
-                    <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-2"><div className="bg-green-500 h-full rounded-full transition-all duration-500" style={{width: `${progress}%`}}></div></div>
-                    <div className="flex justify-between text-xs text-gray-400 font-medium"><span>Aktif: {stats.active}</span><span>Total: {stats.totalDeck}</span></div>
-                  </button>
-                );
-              })}
-              {savedLangs.length > 1 && (
-                <button onClick={handleStartMixedSession} className="w-full p-4 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-between group">
-                  <span className="flex items-center gap-2"><Icon.Shuffle /> Tantangan Polyglot</span><span className="group-hover:translate-x-1 transition-transform">Mulai →</span>
-                </button>
-              )}
-              <div className="border-t border-gray-100 my-4 pt-4"><button onClick={() => setView('onboarding')} className="w-full p-4 rounded-xl border-2 border-dashed border-indigo-200 text-indigo-600 font-bold hover:bg-indigo-50 flex justify-center items-center gap-2"><Icon.Plus /> Pelajari Bahasa Baru</button></div>
-            </div>
-         </div>
-      </div>
-    );
-  }
-
+  if (view === 'lang-select') return <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-indigo-50 animate-fade-in"><div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center border border-indigo-100"><div className="flex justify-center mb-4 text-indigo-600"><Icon.Brain /></div><h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard Saya</h1><div className="space-y-4">{getSavedLanguages().map(lang => { const stats = getLanguageStats(lang); if (!stats) return null; return (<button key={lang} onClick={() => setCurrentLang(lang)} className="w-full bg-white border-2 border-gray-100 hover:border-indigo-500 hover:shadow-md p-4 rounded-xl transition-all text-left group relative overflow-hidden"><div className="flex justify-between items-center mb-2"><span className="font-bold text-lg text-gray-800">{lang}</span><div className="flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded-lg"><Icon.Star /> {stats.mastered} Master</div></div><div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-2"><div className="bg-green-500 h-full rounded-full transition-all duration-500" style={{width: `${(stats.totalDeck>0?(stats.mastered/stats.totalDeck)*100:0)}%`}}></div></div><div className="flex justify-between text-xs text-gray-400 font-medium"><span>Aktif: {stats.active}</span><span>Total: {stats.totalDeck}</span></div></button>); })}{getSavedLanguages().length > 1 && (<button onClick={handleStartMixedSession} className="w-full p-4 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-between group"><span className="flex items-center gap-2"><Icon.Shuffle /> Tantangan Polyglot</span><span className="group-hover:translate-x-1 transition-transform">Mulai →</span></button>)}<div className="border-t border-gray-100 my-4 pt-4"><button onClick={() => setView('onboarding')} className="w-full p-4 rounded-xl border-2 border-dashed border-indigo-200 text-indigo-600 font-bold hover:bg-indigo-50 flex justify-center items-center gap-2"><Icon.Plus /> Pelajari Bahasa Baru</button></div></div></div></div>;
   if (view === 'onboarding') return <OnboardingView hasExistingDecks={getSavedLanguages().length > 0} onCancel={() => setView('lang-select')} onComplete={handleOnboardingComplete} />;
 
   return (
@@ -878,7 +883,7 @@ export default function App() {
       <Modal isOpen={modalConfig.isOpen} title={modalConfig.title} message={modalConfig.message} onConfirm={modalConfig.onConfirm} onCancel={() => setModalConfig(p => ({...p, isOpen: false}))} type={modalConfig.type} />
       {view === 'home' && currentLang && <HomeView currentLang={currentLang} dueCount={dueCardsCount} learnedCount={learnedCardsCount} reserveCount={reserveCards.length} lastAccuracy={lastSessionAccuracy} totalCards={cards.length} onStart={startSession} onAdd={()=>setView('add')} onList={()=>setView('list')} onRepeatAll={handleRepeatAll} onRepeatWrong={handleRepeatWrong} onSmartAdd={handleSmartAdd} onChangeLang={() => { setCurrentLang(null); setView('lang-select'); }} onManageMaterial={() => setView('material')} />}
       {view === 'add' && currentLang && <AddView currentLang={currentLang} onBack={()=>setView('home')} onSave={handleAddCard} onBulkSave={handleBulkAdd} onShowConfirm={showConfirm} onShowAlert={showAlert} />}
-      {view === 'list' && <ListView cards={cards} onBack={()=>setView('home')} onDelete={handleDeleteCard} />}
+      {view === 'list' && <ListView cards={cards} onBack={()=>setView('home')} onDelete={handleDeleteCard} onBulkDelete={handleBulkDelete} onBulkMove={handleBulkMove} />}
       {view === 'study' && currentLang && <StudyView queue={studyQueue} currentLang={currentLang} currentIndex={currentCardIndex} onResult={handleCardResult} onComplete={handleSessionComplete} />}
       {view === 'material' && currentLang && <MaterialManager currentLang={currentLang} cards={cards} onImportLevel={handleImportLevel} onBack={() => setView('home')} onShowAlert={showAlert} />}
     </div>
