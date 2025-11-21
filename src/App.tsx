@@ -10,7 +10,6 @@ type Card = {
   lastReviewed: number | null;
   status: 'active' | 'reserve'; 
   source: string; 
-  originLang?: string; 
 };
 
 type StudyItem = {
@@ -27,7 +26,7 @@ type LangStats = {
   reserve: number;
 };
 
-// --- DATABASE KOSAKATA (SEED DATA) ---
+// --- DATABASE KOSAKATA ---
 const WORD_DATABASE: Record<string, Record<string, {f: string, b: string}[]>> = {
   'Inggris 🇬🇧': {
     'Pemula (A1)': [
@@ -433,7 +432,7 @@ const MaterialManager = ({ currentLang, cards, onImportLevel, onBack, onShowAler
               </div>
             );
           })}
-           <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800 text-sm">💡 <strong>Tip:</strong> Kamu bisa menambahkan beberapa level sekaligus. Kata-kata akan masuk ke "Antrian" (Reserve) dan muncul secara bertahap saat kamu belajar.</div>
+           <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800 text-sm">💡 <strong>Tip:</strong> Kamu bisa menambahkan beberapa level sekaligus.</div>
         </div>
       </div>
     </div>
