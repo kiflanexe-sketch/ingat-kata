@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-// --- TIPE DATA ---
+// --- TIPE DATA (INTERFACES) ---
 type Card = {
   id: string;
   front: string; 
@@ -329,6 +329,7 @@ function shuffleArray<T>(array: T[]): T[] {
   return arr;
 }
 
+// Helper function for fuzzy answer checking
 function checkAnswerSmart(input: string, correctAnswer: string): boolean {
   const cleanInput = input.trim().toLowerCase();
   const cleanAnswer = correctAnswer.trim().toLowerCase();
@@ -344,6 +345,7 @@ function checkAnswerSmart(input: string, correctAnswer: string): boolean {
   return generateVariations(cleanAnswer).has(cleanInput);
 }
 
+// Helper to get stats
 const getLanguageStats = (lang: string): LangStats | null => {
   try {
     const data = localStorage.getItem(`ingatkata-deck-${lang}`);
@@ -360,6 +362,7 @@ const getLanguageStats = (lang: string): LangStats | null => {
   } catch (e) { return null; }
 };
 
+// Helper to get saved languages
 const getSavedLanguages = (): string[] => {
   const langs: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -837,10 +840,19 @@ export default function App() {
     let parsed: {f:string, b:string}[] = [];
     lines.forEach(l => { const p = l.split('<>'); if(p.length===2 && p[0].trim() && p[1].trim()) parsed.push({f: p[0].trim(), b: p[1].trim()}); });
     parsed = shuffleArray(parsed);
+    
+    // LOGIKA "5 KATA DULU" DIKEMBALIKAN (Pastikan ini ada!)
     const currentActiveCount = cards.filter(c => c.status === 'active').length;
     let slots = currentActiveCount < 5 ? 5 - currentActiveCount : 0;
-    const newCards: Card[] = parsed.map(p => { const active = slots > 0; if(active) slots--; return { id: Date.now()+Math.random().toString(), front: p.f, back: p.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: active?'active':'reserve', source: 'custom'}; });
-    if(newCards.length>0) setCards([...cards, ...newCards]); return newCards.length;
+    
+    const newCards: Card[] = parsed.map(p => { 
+      const active = slots > 0; 
+      if(active) slots--; 
+      return { id: Date.now()+Math.random().toString(), front: p.f, back: p.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: active?'active':'reserve', source: 'custom'}; 
+    });
+    
+    if(newCards.length>0) setCards([...cards, ...newCards]); 
+    return newCards.length;
   };
 
   const handleSmartAdd = () => { 
