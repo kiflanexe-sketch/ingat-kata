@@ -10,6 +10,7 @@ type Card = {
   lastReviewed: number | null;
   status: 'active' | 'reserve'; 
   source: string; 
+  originLang?: string; // Optional: untuk mode gabungan
 };
 
 type StudyItem = {
@@ -443,7 +444,10 @@ const MaterialManager = ({ currentLang, cards, onImportLevel, onBack, onShowAler
 };
 
 // --- HOME VIEW ---
-const HomeView = ({ currentLang, dueCount, learnedCount, reserveCount, lastAccuracy, totalCards, onStart, onAdd, onList, onRepeatAll, onRepeatWrong, onSmartAdd, onChangeLang, onManageMaterial }: any) => {
+const HomeView = ({ 
+  currentLang, dueCount, learnedCount, reserveCount, lastAccuracy, totalCards,
+  onStart, onAdd, onList, onRepeatAll, onRepeatWrong, onSmartAdd, onChangeLang, onManageMaterial
+}: any) => {
   let addBtnLabel = "+5 Kata Baru";
   let addBtnColor = "border-indigo-100 text-indigo-600 hover:bg-indigo-50";
   let canAdd = true;
@@ -453,6 +457,27 @@ const HomeView = ({ currentLang, dueCount, learnedCount, reserveCount, lastAccur
     else if (lastAccuracy >= 0.5) { addBtnLabel = "+2 Kata Baru"; addBtnColor = "border-orange-200 text-orange-600 hover:bg-orange-50"; } 
     else { addBtnLabel = "Fokus Dulu (Nilai < 50%)"; addBtnColor = "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"; canAdd = false; }
   }
+
+  // --- UPDATE: FUNGSI LOAD MANUAL UNTUK TOMBOL ---
+  const handleOpenDeck = (lang: string) => {
+    // Ini adalah kunci perbaikannya: Load data secara manual dan eksplisit
+    try {
+      const data = localStorage.getItem(`ingatkata-deck-${lang}`);
+      if (data) {
+        // Jika data ada, parsing dan set ke state
+        // PENTING: Jangan lupa ubah 'currentLang' di sini juga
+        // agar HomeView bisa render konten yang benar jika diperlukan.
+        // Namun, karena kita akan memanggil onChangeLang di parent (App),
+        // Sebenarnya logic ini harus ada di App.tsx level atas.
+        // TAPI, karena HomeView hanya menampilkan dashboard, tombol ini sebenarnya ada di VIEW 'lang-select'.
+        // Jadi kode ini seharusnya ada di komponen 'App' bagian view === 'lang-select'.
+        // TAPI TUNGGU, HomeView ini untuk tampilan SETELAH memilih bahasa.
+        // Jadi fungsi ini tidak dipakai di sini.
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (currentLang === "Gabungan") {
     return (
@@ -800,6 +825,34 @@ export default function App() {
   useEffect(() => { if (currentLang && currentLang !== "Gabungan" && cards.length > 0) localStorage.setItem(`ingatkata-deck-${currentLang}`, JSON.stringify(cards)); }, [cards, currentLang]);
 
   const handleOnboardingComplete = (lang: string) => { localStorage.setItem(`ingatkata-deck-${lang}`, JSON.stringify([])); setCurrentLang(lang); setCards([]); setView('home'); };
+  
+  // -- CHANGE START --
+  // FUNGSI MANUAL LOAD DATA UNTUK MEMPERBAIKI NAVIGASI DASHBOARD
+  const handleOpenDeck = (lang: string) => {
+    try {
+      const data = localStorage.getItem(`ingatkata-deck-${lang}`);
+      if (data) {
+        const parsed = JSON.parse(data);
+        // Migrasi data lama (ensure status exists)
+        const migrated = parsed.map((c: any) => ({
+          ...c,
+          status: c.status || 'active',
+          source: c.source || 'legacy'
+        }));
+        setCards(migrated);
+      } else {
+        setCards([]);
+      }
+      setCurrentLang(lang);
+      setView('home');
+    } catch (e) {
+      console.error("Gagal load deck", e);
+      setCards([]);
+      setCurrentLang(lang);
+      setView('home');
+    }
+  };
+  // -- CHANGE END --
 
   const activeCards = cards.filter(c => c.status === 'active');
   const reserveCards = cards.filter(c => c.status === 'reserve');
@@ -841,7 +894,7 @@ export default function App() {
     lines.forEach(l => { const p = l.split('<>'); if(p.length===2 && p[0].trim() && p[1].trim()) parsed.push({f: p[0].trim(), b: p[1].trim()}); });
     parsed = shuffleArray(parsed);
     
-    // LOGIKA "5 KATA DULU" DIKEMBALIKAN (Pastikan ini ada!)
+    // LOGIKA "5 KATA DULU" (FIXED)
     const currentActiveCount = cards.filter(c => c.status === 'active').length;
     let slots = currentActiveCount < 5 ? 5 - currentActiveCount : 0;
     
@@ -887,7 +940,7 @@ export default function App() {
   };
 
   if (view === 'loading') return <div className="min-h-screen flex items-center justify-center text-indigo-600">Memuat...</div>;
-  if (view === 'lang-select') return <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-indigo-50 animate-fade-in"><div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center border border-indigo-100"><div className="flex justify-center mb-4 text-indigo-600"><Icon.Brain /></div><h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard Saya</h1><div className="space-y-4">{getSavedLanguages().map(lang => { const stats = getLanguageStats(lang); if (!stats) return null; return (<button key={lang} onClick={() => setCurrentLang(lang)} className="w-full bg-white border-2 border-gray-100 hover:border-indigo-500 hover:shadow-md p-4 rounded-xl transition-all text-left group relative overflow-hidden"><div className="flex justify-between items-center mb-2"><span className="font-bold text-lg text-gray-800">{lang}</span><div className="flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded-lg"><Icon.Star /> {stats.mastered} Master</div></div><div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-2"><div className="bg-green-500 h-full rounded-full transition-all duration-500" style={{width: `${(stats.totalDeck>0?(stats.mastered/stats.totalDeck)*100:0)}%`}}></div></div><div className="flex justify-between text-xs text-gray-400 font-medium"><span>Aktif: {stats.active}</span><span>Total: {stats.totalDeck}</span></div></button>); })}{getSavedLanguages().length > 1 && (<button onClick={handleStartMixedSession} className="w-full p-4 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-between group"><span className="flex items-center gap-2"><Icon.Shuffle /> Tantangan Polyglot</span><span className="group-hover:translate-x-1 transition-transform">Mulai →</span></button>)}<div className="border-t border-gray-100 my-4 pt-4"><button onClick={() => setView('onboarding')} className="w-full p-4 rounded-xl border-2 border-dashed border-indigo-200 text-indigo-600 font-bold hover:bg-indigo-50 flex justify-center items-center gap-2"><Icon.Plus /> Pelajari Bahasa Baru</button></div></div></div></div>;
+  if (view === 'lang-select') return <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-indigo-50 animate-fade-in"><div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center border border-indigo-100"><div className="flex justify-center mb-4 text-indigo-600"><Icon.Brain /></div><h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard Saya</h1><div className="space-y-4">{getSavedLanguages().map(lang => { const stats = getLanguageStats(lang); if (!stats) return null; return (<button key={lang} onClick={() => handleOpenDeck(lang)} className="w-full bg-white border-2 border-gray-100 hover:border-indigo-500 hover:shadow-md p-4 rounded-xl transition-all text-left group relative overflow-hidden"><div className="flex justify-between items-center mb-2"><span className="font-bold text-lg text-gray-800">{lang}</span><div className="flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded-lg"><Icon.Star /> {stats.mastered} Master</div></div><div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-2"><div className="bg-green-500 h-full rounded-full transition-all duration-500" style={{width: `${(stats.totalDeck>0?(stats.mastered/stats.totalDeck)*100:0)}%`}}></div></div><div className="flex justify-between text-xs text-gray-400 font-medium"><span>Aktif: {stats.active}</span><span>Total: {stats.totalDeck}</span></div></button>); })}{getSavedLanguages().length > 1 && (<button onClick={handleStartMixedSession} className="w-full p-4 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-between group"><span className="flex items-center gap-2"><Icon.Shuffle /> Tantangan Polyglot</span><span className="group-hover:translate-x-1 transition-transform">Mulai →</span></button>)}<div className="border-t border-gray-100 my-4 pt-4"><button onClick={() => setView('onboarding')} className="w-full p-4 rounded-xl border-2 border-dashed border-indigo-200 text-indigo-600 font-bold hover:bg-indigo-50 flex justify-center items-center gap-2"><Icon.Plus /> Pelajari Bahasa Baru</button></div></div></div></div>;
   if (view === 'onboarding') return <OnboardingView hasExistingDecks={getSavedLanguages().length > 0} onCancel={() => setView('lang-select')} onComplete={handleOnboardingComplete} />;
 
   return (
