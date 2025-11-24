@@ -10,7 +10,7 @@ type Card = {
   lastReviewed: number | null;
   status: 'active' | 'reserve'; 
   source: string; 
-  originLang?: string; // Optional: untuk mode gabungan
+  originLang?: string; 
 };
 
 type StudyItem = {
@@ -458,27 +458,6 @@ const HomeView = ({
     else { addBtnLabel = "Fokus Dulu (Nilai < 50%)"; addBtnColor = "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"; canAdd = false; }
   }
 
-  // --- UPDATE: FUNGSI LOAD MANUAL UNTUK TOMBOL ---
-  const handleOpenDeck = (lang: string) => {
-    // Ini adalah kunci perbaikannya: Load data secara manual dan eksplisit
-    try {
-      const data = localStorage.getItem(`ingatkata-deck-${lang}`);
-      if (data) {
-        // Jika data ada, parsing dan set ke state
-        // PENTING: Jangan lupa ubah 'currentLang' di sini juga
-        // agar HomeView bisa render konten yang benar jika diperlukan.
-        // Namun, karena kita akan memanggil onChangeLang di parent (App),
-        // Sebenarnya logic ini harus ada di App.tsx level atas.
-        // TAPI, karena HomeView hanya menampilkan dashboard, tombol ini sebenarnya ada di VIEW 'lang-select'.
-        // Jadi kode ini seharusnya ada di komponen 'App' bagian view === 'lang-select'.
-        // TAPI TUNGGU, HomeView ini untuk tampilan SETELAH memilih bahasa.
-        // Jadi fungsi ini tidak dipakai di sini.
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   if (currentLang === "Gabungan") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-8 p-4 animate-fade-in relative">
@@ -825,34 +804,18 @@ export default function App() {
   useEffect(() => { if (currentLang && currentLang !== "Gabungan" && cards.length > 0) localStorage.setItem(`ingatkata-deck-${currentLang}`, JSON.stringify(cards)); }, [cards, currentLang]);
 
   const handleOnboardingComplete = (lang: string) => { localStorage.setItem(`ingatkata-deck-${lang}`, JSON.stringify([])); setCurrentLang(lang); setCards([]); setView('home'); };
-  
-  // -- CHANGE START --
-  // FUNGSI MANUAL LOAD DATA UNTUK MEMPERBAIKI NAVIGASI DASHBOARD
+
   const handleOpenDeck = (lang: string) => {
     try {
       const data = localStorage.getItem(`ingatkata-deck-${lang}`);
       if (data) {
         const parsed = JSON.parse(data);
-        // Migrasi data lama (ensure status exists)
-        const migrated = parsed.map((c: any) => ({
-          ...c,
-          status: c.status || 'active',
-          source: c.source || 'legacy'
-        }));
+        const migrated = parsed.map((c: any) => ({ ...c, status: c.status || 'active', source: c.source || 'legacy' }));
         setCards(migrated);
-      } else {
-        setCards([]);
-      }
-      setCurrentLang(lang);
-      setView('home');
-    } catch (e) {
-      console.error("Gagal load deck", e);
-      setCards([]);
-      setCurrentLang(lang);
-      setView('home');
-    }
+      } else { setCards([]); }
+      setCurrentLang(lang); setView('home');
+    } catch (e) { console.error("Gagal load deck", e); setCards([]); setCurrentLang(lang); setView('home'); }
   };
-  // -- CHANGE END --
 
   const activeCards = cards.filter(c => c.status === 'active');
   const reserveCards = cards.filter(c => c.status === 'reserve');
@@ -893,19 +856,10 @@ export default function App() {
     let parsed: {f:string, b:string}[] = [];
     lines.forEach(l => { const p = l.split('<>'); if(p.length===2 && p[0].trim() && p[1].trim()) parsed.push({f: p[0].trim(), b: p[1].trim()}); });
     parsed = shuffleArray(parsed);
-    
-    // LOGIKA "5 KATA DULU" (FIXED)
     const currentActiveCount = cards.filter(c => c.status === 'active').length;
     let slots = currentActiveCount < 5 ? 5 - currentActiveCount : 0;
-    
-    const newCards: Card[] = parsed.map(p => { 
-      const active = slots > 0; 
-      if(active) slots--; 
-      return { id: Date.now()+Math.random().toString(), front: p.f, back: p.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: active?'active':'reserve', source: 'custom'}; 
-    });
-    
-    if(newCards.length>0) setCards([...cards, ...newCards]); 
-    return newCards.length;
+    const newCards: Card[] = parsed.map(p => { const active = slots > 0; if(active) slots--; return { id: Date.now()+Math.random().toString(), front: p.f, back: p.b, box: 0, nextReview: Date.now(), lastReviewed: null, status: active?'active':'reserve', source: 'custom'}; });
+    if(newCards.length>0) setCards([...cards, ...newCards]); return newCards.length;
   };
 
   const handleSmartAdd = () => { 
