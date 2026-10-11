@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Button } from './ui.tsx';
 
 export type ModalConfig = {
   title: string;
@@ -11,6 +12,7 @@ export type ModalConfig = {
 
 type Props = { config: ModalConfig | null; onClose: () => void };
 
+// Sheet dari bawah di HP, dialog di tengah pada layar lebar.
 export const Modal = ({ config, onClose }: Props) => {
   const confirmRef = useRef<HTMLButtonElement>(null);
 
@@ -24,20 +26,20 @@ export const Modal = ({ config, onClose }: Props) => {
 
   if (!config) return null;
   const confirm = () => { onClose(); config.onConfirm?.(); };
-  const label = config.confirmLabel ?? (config.type === 'alert' ? 'Mengerti' : 'Ya, Lanjutkan');
+  const label = config.confirmLabel ?? (config.type === 'alert' ? 'Oke' : 'Lanjutkan');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in" onClick={onClose}>
-      <div role={config.type === 'alert' ? 'alertdialog' : 'dialog'} aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-message" className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
-        <h3 id="modal-title" className="text-lg font-bold text-gray-800 mb-2">{config.title}</h3>
-        <p id="modal-message" className="text-gray-600 mb-6 whitespace-pre-line">{config.message}</p>
-        <div className="flex gap-3 justify-end">
-          {config.type === 'confirm' && (
-            <button onClick={onClose} className="px-4 py-2 text-gray-600 font-semibold hover:bg-gray-100 rounded-lg transition-colors">Batal</button>
-          )}
-          <button ref={confirmRef} onClick={confirm} className={`px-4 py-2 text-white font-bold rounded-lg transition-colors ${config.danger ? 'bg-red-600 hover:bg-red-700' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
-            {label}
-          </button>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4" style={{ backgroundColor: 'rgb(36 38 43 / 0.4)' }} onClick={onClose}>
+      <div
+        role={config.type === 'alert' ? 'alertdialog' : 'dialog'} aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-message"
+        className="w-full sm:max-w-sm bg-card rounded-t-sheet sm:rounded-sheet shadow-sheet px-5 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+        onClick={e => e.stopPropagation()}
+      >
+        <h2 id="modal-title" className="text-section text-ink mb-2">{config.title}</h2>
+        <p id="modal-message" className="text-body text-muted mb-6 whitespace-pre-line">{config.message}</p>
+        <div className="flex flex-col-reverse sm:flex-row gap-2">
+          {config.type === 'confirm' && <Button variant="secondary" onClick={onClose}>Batal</Button>}
+          <Button ref={confirmRef} variant={config.danger ? 'danger' : 'primary'} onClick={confirm}>{label}</Button>
         </div>
       </div>
     </div>
