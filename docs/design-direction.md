@@ -36,7 +36,7 @@ diganti dengan aplikasi to-do atau kursus video, desain ini tidak lagi cocok.
 | `card` | `#FFFEFA` | kartu kata, input, sheet | |
 | `ink` | `#24262B` | teks utama | 14,2:1 di paper |
 | `muted` | `#5C5A55` | teks kedua | 6,4:1 |
-| `subtle` | `#6E6A62` | meta, label kotak | 5,0:1 |
+| `subtle` | `#67635B` | meta, label kotak | 5,6:1; 4,9:1 di atas baris terpilih |
 | `line` | `#E4DED1` | divider (dekoratif) | |
 | `control` | `#8E887C` | garis input dan checkbox | 3,3:1 (syarat 3:1 komponen UI) |
 | `primary` ("tinta") | `#2E4A78` | satu aksi utama per layar, tautan | 8,3:1; teks putih di atasnya 8,9:1 |

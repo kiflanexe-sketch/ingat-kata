@@ -1,6 +1,7 @@
 # Audit desain UI: IngatKata
 
-Status: **Fase 1 disetujui.** Usulan Fase 2 ada di [`design-direction.md`](design-direction.md).
+Status: **selesai (Fase 4).** Fase 1 dan arah desain Fase 2 ([`design-direction.md`](design-direction.md)) disetujui,
+lalu diterapkan. Hasil verifikasi ada di bagian [Fase 4](#fase-4-verifikasi) di bawah.
 
 ## Metode
 
@@ -184,7 +185,97 @@ desainnya masih cocok?
    Indonesia (kotak, antrian, jatuh tempo), perbaiki label yang salah arah ("Kembali ke
    Dashboard", ikon jam, ikon roda gigi). (Pola 5, 6)
 
-## Langkah berikutnya
+## Fase 4: verifikasi
 
-Setelah audit ini disetujui, Fase 2 berisi usulan arah desain (palet dengan cek
-kontras, skala tipografi, radius, spacing, motion) untuk disetujui sebelum implementasi.
+### Ringkasan perubahan
+
+| Area | Sebelum | Sesudah |
+|---|---|---|
+| Token | Kelas Tailwind bawaan langsung di komponen (88 indigo, 125 gray, 7 keluarga warna) | Variabel CSS di `src/index.css` dipetakan di `tailwind.config.js`; 0 warna bawaan Tailwind tersisa di `src/` |
+| Warna | Indigo, ungu, oranye, hijau, merah, biru tanpa arti | Kertas `#FAF7F0`, tinta `#2E4A78` untuk satu aksi utama, pastel hanya untuk kotak 0-5, benar, salah, jatuh tempo |
+| Kontras | 5 pasangan gagal AA (terendah 1,5:1) | Semua pasangan teks yang dipakai >= 4,9:1 (token `subtle` digelapkan ke `#67635B` saat verifikasi), garis input 3,3:1 |
+| Tipografi | Ukuran judul acak 2xl-5xl, tanpa keputusan font | Skala 12/14/16/20/24/48 px; serif kamus per aksara untuk kata, `lang` dan `dir="auto"` di setiap kata asing |
+| Radius | xl/2xl/3xl/full di mana-mana | card 4px (hanya kartu kata), control 8px, sheet 16px, pill (hanya chip) |
+| Container | Card bersarang, card per baris, banner berwarna | Baris dengan divider; container hanya kartu kata, input, sheet, bar aksi massal, dan panel pratinjau pulihkan |
+| Dekorasi | Gradien, `hover:scale`, shadow-lg/xl/2xl, `shadow-indigo-200`, `animate-bounce`, kelas animasi tak terdefinisi, emoji | Semua dihapus; animasi tersisa: progress, warna state 150ms; semuanya mati di `prefers-reduced-motion` |
+| Beranda | Hero logo + 3 stat card + 3 tombol sama besar | Angka jatuh tempo + satu aksi utama (dipilih aturan jatah kata, beserta alasannya) + rak kotak 0-5 + daftar aksi lain |
+| Belajar | Teks besar di tengah layar kosong, input di tengah (tertutup keyboard di HP) | Kartu indeks bergaris di atas, input tepat di bawahnya; umpan balik menyebut akibat pada jadwal |
+| Copy | "Mulai Petualangan Baru", "Target Tercapai!", Bulk/Custom/Reserve/Master, Anda/kamu | Satu kosakata: kotak, jatuh tempo, antrian, hafal, paket kata, sekaligus, kata sendiri; "kamu" |
+| Bendera | Di semua label bahasa | Hanya di kunci penyimpanan; tampilan memakai nama bahasa dan contoh kata dalam aksara aslinya |
+
+Perbandingan HP sebelum/sesudah: [`screenshots/perbandingan-mobile.png`](screenshots/perbandingan-mobile.png).
+Semua layar desktop dan HP: `screenshots/before/` dan `screenshots/after/` (nama file sama;
+`after/` menambah layar Pengaturan, jawaban benar, kata Arab, kata panjang, dan daftar 60 kata).
+
+### Pemeriksaan
+
+- `npm run build` (type-check app, config, test) lolos.
+- `npm run lint` lolos tanpa error dan peringatan.
+- `npm test`: 31 unit test lolos.
+- 30 langkah uji alur di browser (impor paket, review, ulangan kartu salah, ringkasan,
+  latihan, edit/hapus, tambah sekaligus, pengaturan arah, latihan campuran, cadangan,
+  pulihkan gabungkan, file salah) lolos di dev server dan di build produksi dengan
+  service worker aktif, tanpa error konsol.
+- PWA di Chromium: tidak ada installability error, manifest tanpa error, reload dan
+  navigasi offline berfungsi.
+
+### Pencarian ulang pola Fase 1
+
+| Pola | Hasil |
+|---|---|
+| 1. Palet AI | 0 gradien, 0 blur/glow, 0 teks bergradien, 0 warna bawaan Tailwind |
+| 2. Card | 1 bentuk kartu (kartu kata, `StudyView.tsx`), sisanya divider. Sengaja dipertahankan: input, sheet/modal, bar aksi massal, dan panel pratinjau pulihkan di `SettingsView.tsx` (keputusan yang menunggu konfirmasi perlu dibatasi jelas dari teks sekitarnya) |
+| 3. Komposisi default | Tidak ada hero, deret stat card, atau deret quick action |
+| 4. Hierarki seragam | Satu tombol isi penuh per layar; aksi lain berupa tombol garis atau baris tautan |
+| 5. Dekorasi | 0 `animate-*`, 0 `hover:scale`, 3 shadow bertoken (kartu kata, sheet, bar aksi) dan 1 shadow tipis pada tab terpilih di Tambah kata (menandai state terpilih) |
+| 6. Konten generik | 0 emoji, 0 "Anda", tidak ada copy pemasaran; tidak ada data palsu |
+| 7. Tidak spesifik | Lihat uji tukar di bawah |
+
+Sisa yang sengaja dipertahankan:
+
+- **Ikon set Lucide** (panah, tempat sampah, pensil, speaker) tetap dipakai karena fungsional
+  dan dikenali; tidak lagi dipakai sebagai dekorasi atau logo.
+- **Satu kolom 34rem di laptop.** Tampak lapang di layar lebar, tetapi pemakaian utama di HP
+  dan tablet, dan baris teks tetap nyaman dibaca. Tata letak dua kolom untuk laptop bisa
+  dipertimbangkan kalau pemakaian laptop ternyata besar.
+- **Font sistem** sesuai keputusanmu; tampilan kanji/hangul/Arab mengikuti font perangkat.
+
+### Uji tukar ulang
+
+| Halaman | Masih cocok untuk produk lain? | Kenapa sekarang milik IngatKata |
+|---|---|---|
+| Pilih bahasa | Tidak | Contoh kata dalam aksara asli (私, 안녕, سلام), level CEFR/JLPT, penjelasan jarak ulang 1-3-7-14-30 hari |
+| Bahasamu | Sebagian | Jatuh tempo per bahasa dan "hafal" adalah konsep Leitner; strukturnya (daftar) memang umum |
+| Beranda | Tidak | Rak kotak 0-5 dan aturan jatah kata yang ditulis dengan alasannya hanya masuk akal untuk sistem kotak |
+| Belajar | Tidak | Kartu indeks bergaris, chip kotak, kata dalam serif kamus per aksara, umpan balik berupa perpindahan kotak |
+| Ringkasan | Sebagian | Menjelaskan akibat akurasi pada jatah kata baru; tata letaknya sederhana |
+| Paket kata | Tidak | Level CEFR/JLPT dengan contoh kata dari paketnya |
+| Daftar kata | Sebagian | Chip kotak dan jadwal ulang per kata; daftar dengan cari/edit tetap pola umum |
+| Tambah kata | Sebagian | Contoh kata dari paket bahasa itu, input kata memakai font aksara; form tetap form |
+| Pengaturan & data | Sebagian | Penjelasan bahwa data hanya ada di perangkat dan cara pindah perangkat |
+
+### Keputusan desain dan alasannya
+
+1. **Kartu indeks hanya di layar Belajar.** Itu objek domain produk (Leitner = kotak berisi
+   kartu); memakainya di mana-mana akan menjadi tema dekoratif.
+2. **Satu warna aksi.** Tenang dan tekun berarti sedikit sinyal yang bersaing; tinta biru tua
+   kontras tinggi (8,3:1) tetapi tidak berteriak.
+3. **Pastel hanya untuk makna, selalu dengan angka.** Kontras pastel terhadap kertas rendah,
+   jadi informasi tidak pernah bergantung pada warna saja.
+4. **Isi rata atas di layar Belajar.** Keyboard HP menutup separuh bawah layar.
+5. **Umpan balik menyebut jadwal** ("Naik ke kotak 3, muncul lagi 7 hari lagi") agar mekanisme
+   Leitner dipahami tanpa halaman penjelasan.
+6. **Sheet dari bawah di HP** untuk konfirmasi, karena jempol ada di bawah.
+7. **Ikon aplikasi berupa kartu indeks**, bukan logo, sesuai permintaan tanpa logo; PWA tetap
+   butuh ikon.
+
+### TODO(konten)
+
+Tidak ada testimoni, statistik, atau data contoh yang dikarang, jadi tidak ada penanda
+`TODO(konten):` di kode. Hal yang sebaiknya kamu periksa dengan data atau penutur asli:
+
+- Ketepatan terjemahan paket kata bawaan, terutama Korea dan Arab (beberapa romanisasi sudah
+  dibetulkan, tetapi belum diperiksa penutur asli).
+- Label level Korea dan Arab masih "Pemula / Menengah / Mahir"; bisa dipetakan ke TOPIK atau
+  standar lain bila ada rujukan.
+- Deskripsi aplikasi di `public/manifest.webmanifest` dan `index.html` bila ingin kalimat lain.
