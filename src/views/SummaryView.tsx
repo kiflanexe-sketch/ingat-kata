@@ -1,49 +1,56 @@
 import type { AnswerRecord, SessionMode } from '../types.ts';
 import { formatDueIn, percent } from '../lib/format.ts';
-import { IconAlertCircle, IconCheck } from '../components/Icon.tsx';
+import { Button, Page, Word } from '../components/ui.tsx';
 
 type Props = {
   results: AnswerRecord[];
   mode: SessionMode;
+  lang: string;
   nextDueIn: number | null;
   onHome: () => void;
   onPracticeWrong: () => void;
 };
 
-export const SummaryView = ({ results, mode, nextDueIn, onHome, onPracticeWrong }: Props) => {
+export const SummaryView = ({ results, mode, lang, nextDueIn, onHome, onPracticeWrong }: Props) => {
   const correct = results.filter(r => r.correct).length;
   const wrong = results.filter(r => !r.correct);
   const accuracy = results.length > 0 ? correct / results.length : 0;
 
   return (
-    <div className="max-w-md mx-auto p-6 min-h-screen flex flex-col justify-center animate-fade-in">
-      <div className="text-center space-y-2 mb-8">
-        <p className="text-sm font-bold text-indigo-500 uppercase tracking-wider">{mode === 'practice' ? 'Latihan selesai' : 'Sesi selesai'}</p>
-        <h1 className="text-5xl font-bold text-gray-800">{percent(accuracy)}</h1>
-        <p className="text-gray-500">{correct} benar dari {results.length} kartu</p>
-        {mode === 'review' && nextDueIn !== null && <p className="text-sm text-gray-400">Ulangan berikutnya {formatDueIn(nextDueIn)}.</p>}
-      </div>
-
-      {wrong.length > 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
-          <h2 className="text-sm font-bold text-red-500 mb-3 flex items-center gap-2"><IconAlertCircle size={16} /> Perlu diulang ({wrong.length})</h2>
-          <ul className="divide-y divide-gray-100">
-            {wrong.map((r, i) => (
-              <li key={`${r.card.id}-${i}`} className="py-2 flex justify-between gap-4 text-sm">
-                <span className="font-bold text-gray-800">{r.card.front}</span>
-                <span className="text-gray-500 text-right">{r.card.back}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <div className="p-3 bg-green-100 text-green-700 rounded-xl border border-green-200 text-sm mb-6 flex items-center gap-2"><IconCheck size={18} /> Semua kartu dijawab benar.</div>
+    <Page className="pt-10">
+      <p className="text-secondary text-muted">{mode === 'practice' ? 'Latihan selesai' : 'Sesi selesai'}</p>
+      <p className="mt-1 text-number tabular-nums text-ink">{percent(accuracy)}</p>
+      <p className="mt-2 text-body text-ink">{correct} dari {results.length} kartu benar.</p>
+      {mode === 'review' && nextDueIn !== null && <p className="text-secondary text-muted">Kartu berikutnya jatuh tempo {formatDueIn(nextDueIn)}.</p>}
+      {mode === 'review' && (
+        <p className="mt-3 text-secondary text-muted">
+          {accuracy >= 0.8 ? 'Akurasi 80% ke atas: 5 kata baru bisa dibuka dari antrian.' : accuracy >= 0.5 ? 'Akurasi 50-80%: 2 kata baru bisa dibuka dari antrian.' : 'Akurasi di bawah 50%: kata baru ditahan dulu.'}
+        </p>
       )}
 
-      <div className="space-y-3">
-        {wrong.length > 0 && <button onClick={onPracticeWrong} className="w-full py-3 rounded-xl bg-white border-2 border-red-100 text-red-500 font-bold hover:bg-red-50 transition-colors">Latih {wrong.length} kata yang salah</button>}
-        <button onClick={onHome} autoFocus className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200">Kembali ke Beranda</button>
+      <section className="mt-10">
+        {wrong.length > 0 ? (
+          <>
+            <h2 className="text-section text-ink mb-2">Perlu diulang ({wrong.length})</h2>
+            <ul>
+              {wrong.map((r, i) => (
+                <li key={`${r.card.id}-${i}`} className="py-3 border-t border-line">
+                  <Word text={r.card.front} lang={r.card.originLang ?? lang} size="row" className="text-ink" />
+                  <span className="block text-secondary text-muted">{r.card.back}</span>
+                  {r.given.trim() && <span className="block text-meta text-subtle">Jawabanmu: {r.given.trim()}</span>}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="text-body text-ok">Semua kartu dijawab benar.</p>
+        )}
+      </section>
+
+      <div className="mt-8 space-y-2">
+        <Button onClick={onHome} autoFocus>Selesai</Button>
+        {wrong.length > 0 && <Button variant="secondary" onClick={onPracticeWrong}>Latih {wrong.length} kata yang salah</Button>}
       </div>
-    </div>
+    </Page>
   );
 };

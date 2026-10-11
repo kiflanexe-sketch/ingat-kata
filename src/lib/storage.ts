@@ -1,5 +1,5 @@
 import type { Card, LangStats } from '../types.ts';
-import { MAX_BOX, isDue, isMastered } from './srs.ts';
+import { MAX_BOX, isDue, isMastered, mergeCards, nextDueAt, type DirectionSetting } from './srs.ts';
 
 const DECK_PREFIX = 'ingatkata-deck-';
 const META_PREFIX = 'ingatkata-meta-';
@@ -93,17 +93,63 @@ export function deckStats(lang: string, cards: Card[], now: number): LangStats {
     active: cards.filter(c => c.status === 'active').length,
     reserve: cards.filter(c => c.status === 'reserve').length,
     due: cards.filter(c => isDue(c, now)).length,
+    nextDue: nextDueAt(cards, now),
+    boxes: cards.filter(c => c.status === 'active').map(c => c.box),
   };
+}
+
+// --- Pengaturan ---
+
+const SETTINGS_KEY = 'ingatkata-settings';
+
+export type Settings = {
+  direction: DirectionSetting; // arah pertanyaan
+  autoSpeak: boolean; // ucapkan kata asing otomatis setelah menjawab
+  lastBackupAt: number | null;
+};
+
+export const DEFAULT_SETTINGS: Settings = { direction: 'both', autoSpeak: true, lastBackupAt: null };
+
+function sanitizeSettings(raw: unknown): Omit<Settings, 'lastBackupAt'> {
+  const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  return {
+    direction: r.direction === 'forward' || r.direction === 'backward' ? r.direction : 'both',
+    autoSpeak: typeof r.autoSpeak === 'boolean' ? r.autoSpeak : DEFAULT_SETTINGS.autoSpeak,
+  };
+}
+
+export function loadSettings(): Settings {
+  try {
+    const raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+    return { ...sanitizeSettings(raw), lastBackupAt: typeof raw.lastBackupAt === 'number' ? raw.lastBackupAt : null };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+export function saveSettings(settings: Settings) {
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch { /* abaikan */ }
+}
+
+// Minta browser tidak menghapus data saat ruang penyimpanan menipis.
+export async function requestPersistentStorage(): Promise<boolean> {
+  try {
+    if (!navigator.storage?.persist) return false;
+    return (await navigator.storage.persisted()) || (await navigator.storage.persist());
+  } catch {
+    return false;
+  }
 }
 
 // --- Cadangan ---
 
-type Backup = {
+type BackupFile = {
   app: 'ingatkata';
-  version: 1;
+  version: 2;
   exportedAt: string;
   decks: Record<string, Card[]>;
   meta: Record<string, DeckMeta>;
+  settings: Omit<Settings, 'lastBackupAt'>;
 };
 
 export function exportBackup(): string {
@@ -113,11 +159,18 @@ export function exportBackup(): string {
     decks[lang] = loadDeck(lang);
     meta[lang] = loadMeta(lang);
   }
-  const backup: Backup = { app: 'ingatkata', version: 1, exportedAt: new Date().toISOString(), decks, meta };
-  return JSON.stringify(backup, null, 2);
+  const { direction, autoSpeak } = loadSettings();
+  const settings = { direction, autoSpeak };
+  const backup: BackupFile = { app: 'ingatkata', version: 2, exportedAt: new Date().toISOString(), decks, meta, settings };
+  return JSON.stringify(backup);
 }
 
-export type ParsedBackup = { decks: Record<string, Card[]>; meta: Record<string, DeckMeta> };
+export type ParsedBackup = {
+  decks: Record<string, Card[]>;
+  meta: Record<string, DeckMeta>;
+  settings: Omit<Settings, 'lastBackupAt'> | null; // null untuk cadangan versi 1
+  exportedAt: string | null;
+};
 
 export function parseBackup(text: string): ParsedBackup | null {
   try {
@@ -131,17 +184,38 @@ export function parseBackup(text: string): ParsedBackup | null {
       const m = data.meta?.[lang];
       meta[lang] = { lastAccuracy: typeof m?.lastAccuracy === 'number' ? m.lastAccuracy : null };
     }
-    return Object.keys(decks).length > 0 ? { decks, meta } : null;
+    if (Object.keys(decks).length === 0) return null;
+    return {
+      decks,
+      meta,
+      settings: data.settings ? sanitizeSettings(data.settings) : null,
+      exportedAt: typeof data.exportedAt === 'string' ? data.exportedAt : null,
+    };
   } catch {
     return null;
   }
 }
 
-export function restoreBackup(backup: ParsedBackup): boolean {
+export type RestoreMode = 'merge' | 'replace';
+
+// 'merge': deck digabung kartu per kartu (yang terakhir diulang menang).
+// 'replace': isi perangkat ini disamakan persis dengan cadangan.
+export function restoreBackup(backup: ParsedBackup, mode: RestoreMode): boolean {
   let ok = true;
-  for (const [lang, cards] of Object.entries(backup.decks)) {
-    ok = saveDeck(lang, cards) && ok;
-    saveMeta(lang, backup.meta[lang] ?? { lastAccuracy: null });
+  if (mode === 'replace') {
+    for (const lang of listDeckLangs()) if (!(lang in backup.decks)) deleteDeck(lang);
   }
+  for (const [lang, cards] of Object.entries(backup.decks)) {
+    const incomingMeta = backup.meta[lang] ?? { lastAccuracy: null };
+    if (mode === 'merge' && deckExists(lang)) {
+      ok = saveDeck(lang, mergeCards(loadDeck(lang), cards)) && ok;
+      const local = loadMeta(lang);
+      saveMeta(lang, { lastAccuracy: local.lastAccuracy ?? incomingMeta.lastAccuracy });
+    } else {
+      ok = saveDeck(lang, cards) && ok;
+      saveMeta(lang, incomingMeta);
+    }
+  }
+  if (backup.settings) saveSettings({ ...loadSettings(), ...backup.settings });
   return ok;
 }

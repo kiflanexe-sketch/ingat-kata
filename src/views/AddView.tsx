@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { parseBulk } from '../lib/bulk.ts';
-import { displayLangName } from '../data/languages.ts';
-import { IconArrowLeft, IconCheck } from '../components/Icon.tsx';
+import { displayLangName, speechCodeFor } from '../data/languages.ts';
+import { WORD_DATABASE } from '../data/words.ts';
+import { Button, Page, Title, TopBar } from '../components/ui.tsx';
 
 export type SaveResult = { ok: true } | { ok: false; reason: string };
 export type BulkResult = { added: number; active: number; skipped: number; invalidLines: number[] };
@@ -21,6 +22,8 @@ export const AddView = ({ lang, onBack, onSave, onBulkSave, onConfirmLeave }: Pr
   const [bulkText, setBulkText] = useState('');
   const [message, setMessage] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
   const name = displayLangName(lang);
+  const presetLevels = Object.values(WORD_DATABASE[lang] ?? {});
+  const example = presetLevels[0]?.[1];
   const preview = mode === 'bulk' && bulkText.trim() ? parseBulk(bulkText) : null;
 
   useEffect(() => {
@@ -39,7 +42,7 @@ export const AddView = ({ lang, onBack, onSave, onBulkSave, onConfirmLeave }: Pr
     if (!front.trim() || !back.trim()) return;
     const result = onSave(front, back);
     if (!result.ok) { setMessage({ tone: 'error', text: result.reason }); return; }
-    setMessage({ tone: 'ok', text: `"${front.trim()}" berhasil disimpan!` });
+    setMessage({ tone: 'ok', text: `"${front.trim()}" tersimpan dan langsung aktif.` });
     setFront('');
     setBack('');
   };
@@ -60,34 +63,48 @@ export const AddView = ({ lang, onBack, onSave, onBulkSave, onConfirmLeave }: Pr
   };
 
   const switchMode = (m: 'single' | 'bulk') => { setMode(m); setMessage(null); };
+  const field = 'w-full min-h-12 px-3 rounded-control border-[1.5px] border-control bg-card text-body placeholder:text-subtle focus:border-primary outline-none';
+  const tab = (m: 'single' | 'bulk', label: string) => (
+    <button role="tab" aria-selected={mode === m} onClick={() => switchMode(m)}
+      className={`flex-1 min-h-11 rounded-control text-secondary font-semibold transition-colors duration-state ${mode === m ? 'bg-card text-ink shadow-[0_1px_2px_rgb(36_38_43/0.12)]' : 'text-muted hover:text-ink'}`}>{label}</button>
+  );
 
   return (
-    <div className="max-w-md mx-auto p-6 animate-fade-in">
-      <button onClick={handleBack} className="mb-6 text-gray-500 hover:text-gray-800 flex items-center gap-2"><IconArrowLeft /> Kembali</button>
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Tambah Kata Manual</h2>
-      <div className="flex mb-6 bg-gray-100 p-1 rounded-xl" role="tablist">
-        <button role="tab" aria-selected={mode === 'single'} onClick={() => switchMode('single')} className={`flex-1 py-2 rounded-lg text-sm font-semibold ${mode === 'single' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500'}`}>Manual</button>
-        <button role="tab" aria-selected={mode === 'bulk'} onClick={() => switchMode('bulk')} className={`flex-1 py-2 rounded-lg text-sm font-semibold ${mode === 'bulk' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500'}`}>Bulk</button>
+    <Page>
+      <TopBar onBack={handleBack} backLabel={name} />
+      <Title>Tambah kata</Title>
+      <div className="flex p-1 mb-6 rounded-control" style={{ backgroundColor: 'rgb(228 222 209 / 0.6)' }} role="tablist" aria-label="Cara menambah">
+        {tab('single', 'Satu kata')}
+        {tab('bulk', 'Sekaligus')}
       </div>
       {mode === 'single' ? (
         <form onSubmit={handleSaveSingle} className="space-y-4">
-          <div><label htmlFor="add-front" className="text-sm text-gray-500 mb-1 block">{lang}</label><input id="add-front" className="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none" value={front} onChange={e => setFront(e.target.value)} placeholder={`Contoh kata ${name} (Latin/Asli)`} autoFocus required /></div>
-          <div><label htmlFor="add-back" className="text-sm text-gray-500 mb-1 block">Indonesia</label><input id="add-back" className="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none" value={back} onChange={e => setBack(e.target.value)} placeholder="Arti (pisahkan beberapa arti dengan /)" required /></div>
-          <button type="submit" className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg transition-all active:scale-95">Simpan</button>
+          <div>
+            <label htmlFor="add-front" className="block text-secondary font-semibold text-ink mb-1">Kata dalam bahasa {name}</label>
+            <input id="add-front" lang={speechCodeFor(lang)?.slice(0, 2)} dir="auto" className={`${field} font-word text-answer`} value={front} onChange={e => setFront(e.target.value)} placeholder={example ? `Mis. ${example.f}` : 'Kata asing'} autoFocus required autoCapitalize="off" />
+          </div>
+          <div>
+            <label htmlFor="add-back" className="block text-secondary font-semibold text-ink mb-1">Arti dalam bahasa Indonesia</label>
+            <input id="add-back" lang="id" className={field} value={back} onChange={e => setBack(e.target.value)} placeholder={example ? `Mis. ${example.b}` : 'Arti'} required />
+            <p className="mt-1 text-meta text-subtle">Beberapa arti dipisah garis miring, mis. Perlu/Penting.</p>
+          </div>
+          <Button type="submit">Simpan</Button>
         </form>
       ) : (
-        <form onSubmit={handleBulk} className="space-y-4">
-          <label htmlFor="add-bulk" className="text-sm text-gray-500 block">Satu pasangan per baris. Pemisah: <code>&lt;&gt;</code>, tab (salin dari spreadsheet), <code>=</code>, atau <code>-</code> berspasi.</label>
-          <textarea id="add-bulk" className="w-full h-48 p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm" value={bulkText} onChange={e => setBulkText(e.target.value)} placeholder={'apple <> apel\nto run <> berlari'} required />
-          {preview && <p className="text-xs text-gray-500">{preview.pairs.length} pasangan terbaca{preview.invalidLines.length > 0 && `, ${preview.invalidLines.length} baris tidak terbaca`}.</p>}
-          <button type="submit" className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg">Import</button>
+        <form onSubmit={handleBulk} className="space-y-3">
+          <label htmlFor="add-bulk" className="block text-secondary text-muted">
+            Satu pasangan per baris. Pemisah: <code className="text-ink">&lt;&gt;</code>, tab (salinan spreadsheet), <code className="text-ink">=</code>, atau <code className="text-ink">-</code> berspasi. Kata baru masuk antrian.
+          </label>
+          <textarea id="add-bulk" className={`${field} h-48 py-2 font-mono text-secondary`} value={bulkText} onChange={e => setBulkText(e.target.value)} placeholder={'apple <> apel\nto run <> berlari'} required />
+          {preview && <p className="text-meta text-subtle">{preview.pairs.length} pasangan terbaca{preview.invalidLines.length > 0 && `, ${preview.invalidLines.length} baris tidak terbaca`}.</p>}
+          <Button type="submit">Tambahkan semua</Button>
         </form>
       )}
       {message && (
-        <div role={message.tone === 'error' ? 'alert' : 'status'} className={`mt-4 p-3 rounded-xl text-center text-sm font-medium animate-fade-in flex items-center justify-center gap-2 ${message.tone === 'ok' ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-700'}`}>
-          {message.tone === 'ok' && <IconCheck size={18} />} {message.text}
-        </div>
+        <p role={message.tone === 'error' ? 'alert' : 'status'} className={`mt-4 rounded-control px-4 py-3 text-secondary ${message.tone === 'ok' ? 'bg-ok-soft text-ok' : 'bg-bad-soft text-bad'}`}>
+          {message.text}
+        </p>
       )}
-    </div>
+    </Page>
   );
 };

@@ -55,7 +55,7 @@ export function nextDueAt(cards: Card[], now: number): number | null {
   return next;
 }
 
-const pairKey = (front: string, back: string) => `${front.trim().toLowerCase()}\u0000${back.trim().toLowerCase()}`;
+export const pairKey = (front: string, back: string) => `${front.trim().toLowerCase()}\u0000${back.trim().toLowerCase()}`;
 
 export function hasPair(cards: Card[], front: string, back: string): boolean {
   const key = pairKey(front, back);
@@ -103,5 +103,37 @@ export function shuffleArray<T>(array: T[]): T[] {
   return arr;
 }
 
-export const buildQueue = (cards: Card[]): StudyItem[] =>
-  cards.map(card => ({ card, direction: Math.random() > 0.5 ? 'forward' : 'backward' }));
+export type DirectionSetting = 'both' | 'forward' | 'backward';
+
+export const buildQueue = (cards: Card[], setting: DirectionSetting = 'both'): StudyItem[] =>
+  cards.map(card => ({ card, direction: setting === 'both' ? (Math.random() > 0.5 ? 'forward' : 'backward') : setting }));
+
+// Gabungkan deck dari dua perangkat: untuk id yang sama, menang yang terakhir diulang;
+// pasangan kata yang sama dengan id berbeda juga disatukan dengan aturan yang sama.
+export function mergeCards(local: Card[], incoming: Card[]): Card[] {
+  const newer = (a: Card, b: Card) => {
+    const sa = a.lastReviewed ?? -Infinity;
+    const sb = b.lastReviewed ?? -Infinity;
+    if (sa !== sb) return sa > sb;
+    return a.status === 'active' && b.status === 'reserve';
+  };
+  const byId = new Map(local.map(c => [c.id, c]));
+  for (const c of incoming) {
+    const existing = byId.get(c.id);
+    if (!existing || newer(c, existing)) byId.set(c.id, c);
+  }
+  const byPair = new Map<string, Card>();
+  for (const c of byId.values()) {
+    const key = pairKey(c.front, c.back);
+    const existing = byPair.get(key);
+    if (!existing || newer(c, existing)) byPair.set(key, c);
+  }
+  return Array.from(byPair.values());
+}
+
+// Jumlah kartu per kotak 0..MAX_BOX.
+export function boxCounts(boxes: number[]): number[] {
+  const counts = Array<number>(MAX_BOX + 1).fill(0);
+  boxes.forEach(b => { counts[Math.min(MAX_BOX, Math.max(0, b))]++; });
+  return counts;
+}

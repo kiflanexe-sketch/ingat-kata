@@ -26,3 +26,12 @@ export function speakableText(front: string, code: string): string {
   if (inParens && NATIVE_SCRIPT_IN_PARENS.has(code)) return inParens[1].trim();
   return front.replace(/\s*[(（][^)）]*[)）]\s*/g, ' ').trim();
 }
+
+// Contoh kata dalam aksara aslinya, untuk penanda bahasa di layar pilih bahasa.
+export function sampleWord(front: string, lang: string): string {
+  const code = speechCodeFor(lang);
+  return code ? speakableText(front, code) : front;
+}
+
+// "Pemula (A1)" -> "A1", "Pemula" -> "Pemula".
+export const levelShortName = (level: string) => level.match(/\(([^)]+)\)/)?.[1] ?? level;

@@ -39,4 +39,6 @@ export type LangStats = {
   active: number;
   reserve: number;
   due: number;
+  nextDue: number | null;
+  boxes: number[]; // kotak tiap kartu aktif
 };

@@ -7,8 +7,11 @@ import {
   activateFromReserve, addWords, applyReview, buildQueue, hasPair, isDue, needsRelearn, nextDueAt, shuffleArray, smartAddCount,
 } from './lib/srs.ts';
 import {
-  deckExists, deckStats, deleteDeck, exportBackup, listDeckLangs, loadDeck, loadMeta, parseBackup, restoreBackup, saveDeck, saveMeta,
+  deckExists, deckStats, deleteDeck, exportBackup, listDeckLangs, loadDeck, loadMeta, loadSettings, parseBackup, requestPersistentStorage,
+  restoreBackup, saveDeck, saveMeta, saveSettings, type ParsedBackup, type RestoreMode, type Settings,
 } from './lib/storage.ts';
+import { ONE_DAY } from './lib/srs.ts';
+import { formatAgo } from './lib/format.ts';
 import { Modal, type ModalConfig } from './components/Modal.tsx';
 import { DeckListView } from './views/DeckListView.tsx';
 import { OnboardingView } from './views/OnboardingView.tsx';
@@ -18,14 +21,28 @@ import { SummaryView } from './views/SummaryView.tsx';
 import { AddView, type SaveResult } from './views/AddView.tsx';
 import { ListView } from './views/ListView.tsx';
 import { MaterialView } from './views/MaterialView.tsx';
+import { SettingsView } from './views/SettingsView.tsx';
 
-type View = 'decks' | 'onboarding' | 'home' | 'study' | 'summary' | 'add' | 'list' | 'material';
+type View = 'decks' | 'onboarding' | 'settings' | 'home' | 'study' | 'summary' | 'add' | 'list' | 'material';
 type Deck = { lang: string; cards: Card[]; lastAccuracy: number | null };
 type Session = { mode: SessionMode; queue: StudyItem[]; index: number; results: AnswerRecord[] };
 type Summary = { mode: SessionMode; results: AnswerRecord[] };
 
 // Di mode Gabungan id kartu hanya unik per bahasa.
 const sameCard = (a: Card, b: Card) => a.id === b.id && a.originLang === b.originLang;
+
+const BACKUP_REMINDER_AFTER = 7 * ONE_DAY;
+
+const backupFileName = () => `ingatkata-cadangan-${new Date().toISOString().slice(0, 10)}.json`;
+
+// Web Share dengan file: tersedia di Android dan iOS, jarang di desktop.
+const detectFileShare = () => {
+  try {
+    return typeof navigator.canShare === 'function' && navigator.canShare({ files: [new File(['{}'], 'cek.json', { type: 'application/json' })] });
+  } catch {
+    return false;
+  }
+};
 
 export default function App() {
   const [view, setView] = useState<View>(() => (listDeckLangs().length > 0 ? 'decks' : 'onboarding'));
@@ -34,12 +51,21 @@ export default function App() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [modal, setModal] = useState<ModalConfig | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [settings, setSettings] = useState<Settings>(loadSettings);
+  const [canShareBackup] = useState(detectFileShare);
 
   // Jumlah kartu jatuh tempo ikut bergerak walau layar dibiarkan terbuka.
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 30 * 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Data hanya ada di browser; minta agar tidak dihapus otomatis saat ruang menipis.
+  useEffect(() => {
+    if (listDeckLangs().length > 0) void requestPersistentStorage();
+  }, []);
+
+  const updateSettings = (next: Settings) => { setSettings(next); saveSettings(next); };
 
   const showAlert = (title: string, message: string) => setModal({ type: 'alert', title, message });
   const showConfirm = (title: string, message: string, onConfirm: () => void, opts: Partial<ModalConfig> = {}) =>
@@ -52,7 +78,7 @@ export default function App() {
     if (next.lang === MIXED_DECK) return;
     saveMeta(next.lang, { lastAccuracy: next.lastAccuracy });
     if (!saveDeck(next.lang, next.cards)) {
-      showAlert('Gagal menyimpan', 'Penyimpanan browser penuh atau diblokir. Perubahan terakhir mungkin hilang saat halaman ditutup. Cadangkan datamu dari Dashboard.');
+      showAlert('Gagal menyimpan', 'Penyimpanan browser penuh atau diblokir. Perubahan terakhir mungkin hilang saat halaman ditutup. Simpan file cadangan dari Pengaturan & data.');
     }
   };
   const updateCards = (fn: (cards: Card[]) => Card[]) => { if (deck) commit({ ...deck, cards: fn(deck.cards) }); };
@@ -75,6 +101,7 @@ export default function App() {
       showAlert('Gagal membuat deck', 'Penyimpanan browser tidak bisa dipakai. Coba matikan mode privat atau kosongkan ruang penyimpanan.');
       return;
     }
+    void requestPersistentStorage();
     openDeck(lang);
   };
 
@@ -91,7 +118,7 @@ export default function App() {
 
   const startSession = (mode: SessionMode, cards: Card[]) => {
     if (cards.length === 0) return;
-    setSession({ mode, queue: buildQueue(cards), index: 0, results: [] });
+    setSession({ mode, queue: buildQueue(cards, settings.direction), index: 0, results: [] });
     setView('study');
   };
 
@@ -222,46 +249,70 @@ export default function App() {
 
   // --- Cadangan ---
 
-  const backup = () => {
-    const blob = new Blob([exportBackup()], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+  const markBackedUp = () => updateSettings({ ...settings, lastBackupAt: Date.now() });
+
+  const downloadBackup = () => {
+    const url = URL.createObjectURL(new Blob([exportBackup()], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ingatkata-cadangan-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = backupFileName();
     a.click();
     URL.revokeObjectURL(url);
+    markBackedUp();
   };
 
-  const restore = async (file: File) => {
-    const parsed = parseBackup(await file.text());
-    if (!parsed) return showAlert('File tidak dikenali', 'Pilih file cadangan .json yang dibuat dari tombol "Cadangkan data".');
-    const langs = Object.keys(parsed.decks);
-    const replaced = langs.filter(deckExists);
-    const message = [
-      `File berisi ${langs.length} bahasa: ${langs.join(', ')}.`,
-      replaced.length > 0 ? `Deck ${replaced.join(', ')} di perangkat ini akan diganti isi cadangan.` : '',
-    ].filter(Boolean).join('\n');
-    showConfirm('Pulihkan cadangan', message, () => {
-      const ok = restoreBackup(parsed);
-      setNow(Date.now());
-      setView('decks');
-      if (!ok) showAlert('Sebagian gagal', 'Penyimpanan browser penuh. Beberapa deck mungkin tidak terpulihkan.');
-    }, { confirmLabel: 'Pulihkan' });
+  const shareBackup = async () => {
+    const file = new File([exportBackup()], backupFileName(), { type: 'application/json' });
+    try {
+      await navigator.share({ files: [file], title: 'Cadangan IngatKata' });
+      markBackedUp();
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') showAlert('Gagal membagikan', 'Coba "Simpan file cadangan" sebagai gantinya.');
+    }
+  };
+
+  const readBackupFile = async (file: File) => parseBackup(await file.text());
+
+  const restore = (backup: ParsedBackup, mode: RestoreMode) => {
+    const ok = restoreBackup(backup, mode);
+    setSettings(loadSettings());
+    setNow(Date.now());
+    void requestPersistentStorage();
+    const langs = Object.keys(backup.decks).length;
+    if (ok) showAlert('Cadangan dipulihkan', `${langs} bahasa ${mode === 'merge' ? 'digabungkan dengan' : 'menggantikan'} data di perangkat ini.`);
+    else showAlert('Sebagian gagal', 'Penyimpanan browser penuh. Beberapa deck mungkin tidak terpulihkan.');
+    setView('decks');
   };
 
   // --- Render ---
 
   const modalEl = <Modal config={modal} onClose={() => setModal(null)} />;
 
+  if (view === 'settings') {
+    return (
+      <>
+        {modalEl}
+        <SettingsView settings={settings} now={now} canShareBackup={canShareBackup} onChange={updateSettings} onBack={goToDecks}
+          onDownload={downloadBackup} onShare={() => void shareBackup()} onReadFile={readBackupFile} onRestore={restore} />
+      </>
+    );
+  }
+
   if (view === 'onboarding' || view === 'decks' || !deck) {
     const langs = listDeckLangs();
+    const stats = langs.map(l => deckStats(l, loadDeck(l), now));
+    const totalCards = stats.reduce((n, s) => n + s.total, 0);
+    const stale = settings.lastBackupAt === null || now - settings.lastBackupAt > BACKUP_REMINDER_AFTER;
+    const reminder = totalCards >= 10 && stale
+      ? (settings.lastBackupAt === null ? `${totalCards} katamu belum pernah dicadangkan.` : `Cadangan terakhir ${formatAgo(settings.lastBackupAt, now)}.`)
+      : null;
     return (
       <>
         {modalEl}
         {view === 'onboarding' || langs.length === 0 ? (
-          <OnboardingView existingLangs={langs} onPick={pickLanguage} onCancel={langs.length > 0 ? () => setView('decks') : undefined} />
+          <OnboardingView existingLangs={langs} onPick={pickLanguage} onCancel={langs.length > 0 ? () => setView('decks') : undefined} onSettings={() => setView('settings')} />
         ) : (
-          <DeckListView stats={langs.map(l => deckStats(l, loadDeck(l), now))} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => setView('onboarding')} onBackup={backup} onRestore={restore} />
+          <DeckListView stats={stats} now={now} backupReminder={reminder} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => setView('onboarding')} onSettings={() => setView('settings')} />
         )}
       </>
     );
@@ -273,7 +324,7 @@ export default function App() {
   const studyItem = session?.queue[session.index];
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 selection:bg-indigo-100">
+    <div className="min-h-screen">
       {modalEl}
       {view === 'home' && deck.lang === MIXED_DECK && (
         <PolyglotHomeView
@@ -284,7 +335,7 @@ export default function App() {
       )}
       {view === 'home' && deck.lang !== MIXED_DECK && (
         <HomeView
-          stats={stats} relearnCount={deck.cards.filter(needsRelearn).length} nextDueIn={nextDueIn} lastAccuracy={deck.lastAccuracy}
+          stats={stats} now={now} relearnCount={deck.cards.filter(needsRelearn).length} lastAccuracy={deck.lastAccuracy} hasPresets={!!WORD_DATABASE[deck.lang]}
           onStart={startReview} onAdd={() => setView('add')} onList={() => setView('list')} onRepeatAll={practiceAll} onRepeatWrong={practiceWrong}
           onSmartAdd={smartAdd} onChangeLang={goToDecks} onManageMaterial={() => setView('material')}
         />
@@ -292,18 +343,18 @@ export default function App() {
       {view === 'study' && session && studyItem && (
         <StudyView
           key={session.index} item={studyItem} index={session.index} total={session.queue.length} mode={session.mode} lang={deck.lang}
-          alternatives={alternativesFor(studyItem)} onGrade={gradeCurrent} onNext={nextCard} onQuit={() => finishSession(session)}
+          alternatives={alternativesFor(studyItem)} autoSpeak={settings.autoSpeak} onGrade={gradeCurrent} onNext={nextCard} onQuit={() => finishSession(session)}
         />
       )}
       {view === 'summary' && summary && (
-        <SummaryView results={summary.results} mode={summary.mode} nextDueIn={deck.lang === MIXED_DECK ? null : nextDueIn} onHome={() => setView('home')} onPracticeWrong={practiceWrongFromSummary} />
+        <SummaryView results={summary.results} mode={summary.mode} lang={deck.lang} nextDueIn={deck.lang === MIXED_DECK ? null : nextDueIn} onHome={() => setView('home')} onPracticeWrong={practiceWrongFromSummary} />
       )}
       {view === 'add' && (
         <AddView lang={deck.lang} onBack={() => setView('home')} onSave={addCard} onBulkSave={bulkAdd}
           onConfirmLeave={leave => showConfirm('Belum disimpan', 'Ada isian yang belum disimpan. Yakin ingin kembali?', leave, { confirmLabel: 'Kembali' })} />
       )}
       {view === 'list' && (
-        <ListView lang={deck.lang} cards={deck.cards} now={now} onBack={() => setView('home')} onDelete={deleteCard} onBulkDelete={bulkDelete} onBulkMove={bulkMove} onEdit={editCard} onDeleteDeck={removeDeck} />
+        <ListView lang={deck.lang} cards={deck.cards} now={now} onBack={() => setView('home')} onDelete={deleteCard} onBulkDelete={bulkDelete} onBulkMove={bulkMove} onEdit={editCard} onDeleteDeck={removeDeck} onAdd={() => setView('add')} />
       )}
       {view === 'material' && (
         <MaterialView lang={deck.lang} cards={deck.cards} onImportLevel={importLevel} onBack={() => setView('home')} onAddCustom={() => setView('add')} />

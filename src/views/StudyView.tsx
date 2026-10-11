@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { AnswerRecord, SessionMode, StudyItem } from '../types.ts';
 import { checkAnswer } from '../lib/answer.ts';
-import { MAX_BOX } from '../lib/srs.ts';
+import { MAX_BOX, SRS_INTERVALS } from '../lib/srs.ts';
+import { formatDueIn } from '../lib/format.ts';
 import { canSpeak, speak } from '../lib/speech.ts';
 import { displayLangName } from '../data/languages.ts';
-import { IconCheck, IconVolume, IconX } from '../components/Icon.tsx';
+import { BoxChip, Button, Word } from '../components/ui.tsx';
+import { IconVolume, IconX } from '../components/Icon.tsx';
 
 type Props = {
   item: StudyItem;
@@ -13,6 +15,7 @@ type Props = {
   mode: SessionMode;
   lang: string;
   alternatives: string[];
+  autoSpeak: boolean;
   onGrade: (record: AnswerRecord) => void;
   onNext: () => void;
   onQuit: () => void;
@@ -20,8 +23,17 @@ type Props = {
 
 type Phase = 'answering' | 'correct' | 'wrong';
 
+// Akibat jawaban pada jadwal, ditulis supaya kotak Leitner terasa nyata.
+function consequence(item: StudyItem, mode: SessionMode, correct: boolean): string {
+  if (item.retry) return 'Pengulangan, tidak dinilai.';
+  if (!correct) return item.card.box > 0 ? `Kembali ke kotak 0 dari kotak ${item.card.box}, muncul lagi sebentar lagi.` : 'Tetap di kotak 0, muncul lagi sebentar lagi.';
+  if (mode === 'practice') return `Latihan: tetap di kotak ${item.card.box}.`;
+  const box = Math.min(item.card.box + 1, MAX_BOX);
+  return `Naik ke kotak ${box}, muncul lagi ${formatDueIn(SRS_INTERVALS[box])}.`;
+}
+
 // Dipasang ulang per kartu (key = index), jadi state lokal selalu mulai bersih.
-export const StudyView = ({ item, index, total, mode, lang, alternatives, onGrade, onNext, onQuit }: Props) => {
+export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSpeak, onGrade, onNext, onQuit }: Props) => {
   const [input, setInput] = useState('');
   const [phase, setPhase] = useState<Phase>('answering');
   const [note, setNote] = useState<string | undefined>();
@@ -29,18 +41,16 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, onGrad
   const { card, direction } = item;
   const cardLang = card.originLang ?? lang;
   const foreignName = displayLangName(cardLang);
-  const questionText = direction === 'forward' ? card.front : card.back;
-  const answerText = direction === 'forward' ? card.back : card.front;
-  const questionLabel = direction === 'forward' ? foreignName : 'Bahasa Indonesia';
-  const answerLabel = direction === 'forward' ? 'Bahasa Indonesia' : foreignName;
-  const placeholder = direction === 'forward' ? 'Ketik arti dalam Bhs Indonesia...' : `Ketik dalam bahasa ${foreignName}...`;
+  const forward = direction === 'forward';
+  const questionText = forward ? card.front : card.back;
+  const answerText = forward ? card.back : card.front;
+  const answerLabel = forward ? 'bahasa Indonesia' : foreignName;
   const speakable = canSpeak(cardLang);
-  const progress = (index / total) * 100;
 
   // Jawaban benar lanjut otomatis; beri waktu lebih bila ada catatan untuk dibaca.
   useEffect(() => {
     if (phase !== 'correct') return;
-    const timer = setTimeout(onNext, note ? 2500 : 900);
+    const timer = setTimeout(onNext, note ? 2800 : 1400);
     return () => clearTimeout(timer);
   }, [phase, note, onNext]);
 
@@ -48,7 +58,7 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, onGrad
     setPhase(correct ? 'correct' : 'wrong');
     setNote(resultNote);
     onGrade({ card, direction, correct, given });
-    if (speakable && (direction === 'backward' || !correct)) speak(card.front, cardLang);
+    if (autoSpeak && speakable && (!forward || !correct)) speak(card.front, cardLang);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -60,55 +70,75 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, onGrad
   };
 
   const speakButton = speakable ? (
-    <button type="button" onClick={() => speak(card.front, cardLang)} className="p-2 rounded-full text-indigo-500 hover:bg-indigo-50" aria-label={`Dengarkan pengucapan ${card.front}`}><IconVolume /></button>
+    <button type="button" onClick={() => speak(card.front, cardLang)} className="inline-flex items-center gap-1.5 min-h-11 px-2 text-secondary font-semibold text-primary" aria-label={`Dengarkan pengucapan ${card.front}`}>
+      <IconVolume size={18} /> Dengar
+    </button>
   ) : null;
 
   return (
-    <div className="max-w-xl mx-auto w-full min-h-screen flex flex-col p-4 animate-fade-in">
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={onQuit} className="p-1 text-gray-400 hover:text-gray-700" aria-label="Akhiri sesi"><IconX /></button>
-        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={index}><div className="h-full bg-indigo-500 transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div></div>
-      </div>
-      <div className="flex justify-between text-sm text-gray-400 mb-8 font-medium">
-        <span>{item.retry ? 'Ulangan kartu yang salah' : `Kartu ${index + 1} dari ${total}`}{mode === 'practice' && ' · Latihan'}</span>
-        <span>Kotak {card.box}/{MAX_BOX}</span>
-      </div>
-      <div className="flex-1 flex flex-col items-center justify-center space-y-8">
-        <div className="text-center space-y-4">
-          <span className="text-indigo-500 font-bold tracking-wider text-sm uppercase">{questionLabel}</span>
-          <div className="flex items-center justify-center gap-2">
-            <h2 className="text-5xl font-bold text-gray-800 break-words">{questionText}</h2>
-            {direction === 'forward' && speakButton}
-          </div>
+    <main className="mx-auto w-full max-w-content px-5 pb-10">
+      <div className="flex items-center gap-3 min-h-14">
+        <button onClick={onQuit} className="-ml-2 p-2 text-muted hover:text-ink" aria-label="Akhiri sesi"><IconX /></button>
+        <div className="flex-1 h-1.5 bg-line rounded-pill overflow-hidden" role="progressbar" aria-label="Kemajuan sesi" aria-valuemin={0} aria-valuemax={total} aria-valuenow={index}>
+          <div className="h-full bg-primary transition-[width] duration-200" style={{ width: `${(index / total) * 100}%` }} />
         </div>
-        <div className="w-full relative">
-          {phase !== 'wrong' ? (
-            <form onSubmit={handleSubmit} className="relative">
-              <input type="text" value={input} onChange={e => setInput(e.target.value)} placeholder={placeholder} aria-label={`Jawaban dalam ${answerLabel}`} autoComplete="off" autoCapitalize="off" spellCheck={false}
-                className={`w-full p-5 pr-16 text-center text-2xl rounded-2xl border-2 outline-none transition-all shadow-sm ${phase === 'answering' ? 'border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100' : 'border-green-500 bg-green-50 text-green-700'}`}
-                autoFocus readOnly={phase === 'correct'} />
-              <button type="submit" className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 bg-gray-100 rounded-lg text-gray-400 hover:bg-indigo-100 hover:text-indigo-600 transition-colors" aria-label="Periksa jawaban"><IconCheck size={24} /></button>
-            </form>
-          ) : (
-            <div className="w-full p-6 rounded-2xl bg-red-50 border-2 border-red-200 text-center space-y-4 animate-shake">
-              <div><p className="text-red-500 font-medium mb-1">Jawaban Kamu:</p><p className="text-xl line-through text-red-400">{input.trim() || '(tidak dijawab)'}</p></div>
-              <div className="py-2 border-t border-red-100">
-                <p className="text-green-600 font-medium mb-1">Jawaban Benar ({answerLabel}):</p>
-                <div className="flex items-center justify-center gap-2"><p className="text-3xl font-bold text-gray-800">{answerText}</p>{direction === 'backward' && speakButton}</div>
-              </div>
-              <button onClick={onNext} autoFocus className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all">Lanjut</button>
+        <span className="text-secondary text-muted tabular-nums">{index + 1} / {total}</span>
+      </div>
+      {(mode === 'practice' || item.retry) && (
+        <p className="text-meta text-subtle mb-2">{item.retry ? 'Mengulang kartu yang tadi salah' : 'Latihan: jawaban benar tidak menaikkan kotak'}</p>
+      )}
+
+      <div className="index-card rounded-card border border-line shadow-card px-5 pb-5 mt-2">
+        <div className="flex items-center justify-between h-11 text-meta text-muted">
+          <span>{forward ? `${foreignName} → Indonesia` : `Indonesia → ${foreignName}`}</span>
+          <BoxChip box={card.box} />
+        </div>
+        {/* Tinggi baris 64px = dua garis kartu, jadi kata duduk di atas garis biru. */}
+        <h1 className="pt-[18px] text-center text-ink">
+          <Word text={questionText} lang={forward ? cardLang : undefined} className="!leading-[64px]" />
+        </h1>
+        <div className="flex justify-center items-center h-16">{forward && speakButton}</div>
+      </div>
+
+      {phase !== 'wrong' && (
+        <form onSubmit={handleSubmit} className="mt-4">
+          <label htmlFor="answer" className="sr-only">Jawaban dalam {answerLabel}</label>
+          <input id="answer" type="text" value={input} onChange={e => setInput(e.target.value)} placeholder={`Arti dalam ${answerLabel}`}
+            autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} autoFocus readOnly={phase === 'correct'} enterKeyHint="done"
+            lang={forward ? 'id' : undefined} dir="auto"
+            className={`w-full min-h-14 px-4 text-answer rounded-control border-[1.5px] bg-card outline-none transition-colors duration-state placeholder:text-subtle ${phase === 'correct' ? 'border-ok bg-ok-soft text-ok' : 'border-control focus:border-primary'}`} />
+          {phase === 'answering' && (
+            <div className="mt-3 flex items-center gap-3">
+              <Button type="submit" className="flex-1" disabled={!input.trim()}>Periksa</Button>
+              <button type="button" onClick={() => grade(false, '')} className="min-h-12 px-3 text-secondary font-semibold text-muted hover:text-ink">Tidak tahu</button>
             </div>
           )}
+        </form>
+      )}
+
+      {phase === 'correct' && (
+        <div role="status" className="mt-3 rounded-control bg-ok-soft text-ok px-4 py-3">
+          <p><strong>Benar.</strong> {consequence(item, mode, true)}</p>
+          {note && <p className="mt-1 text-secondary">{note}</p>}
+          {!forward && <div className="mt-1 -ml-2">{speakButton}</div>}
+          <button onClick={onNext} className="mt-1 min-h-11 text-secondary font-semibold underline underline-offset-4">Lanjut</button>
         </div>
-        {phase === 'correct' && (
-          <div className="text-center space-y-2" role="status">
-            <div className="text-green-600 font-bold text-xl flex items-center justify-center gap-2 animate-bounce"><IconCheck size={24} /> Benar!</div>
-            {note && <p className="text-sm text-gray-600">{note}</p>}
-            {direction === 'backward' && <div className="flex justify-center">{speakButton}</div>}
+      )}
+
+      {phase === 'wrong' && (
+        <div role="alert" className="mt-4">
+          <div className="rounded-control bg-bad-soft px-4 py-3">
+            <p className="text-bad"><strong>{input.trim() ? 'Belum tepat.' : 'Tidak apa-apa.'}</strong> {consequence(item, mode, false)}</p>
+            {input.trim() && <p className="mt-2 text-secondary text-muted">Jawabanmu: <s>{input.trim()}</s></p>}
+            <p className="mt-2 text-secondary text-muted">Jawaban ({answerLabel}):</p>
+            <div className="flex items-center flex-wrap gap-x-2">
+              <Word text={answerText} lang={forward ? undefined : cardLang} size="row" className="text-ink font-semibold" />
+              {!forward && speakButton}
+            </div>
           </div>
-        )}
-        {phase === 'answering' && <button onClick={() => grade(false, '')} className="text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors">Saya tidak tahu</button>}
-      </div>
-    </div>
+          <Button className="mt-4" onClick={onNext} autoFocus>Lanjut</Button>
+        </div>
+      )}
+    </main>
   );
 };

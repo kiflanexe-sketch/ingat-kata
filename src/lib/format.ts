@@ -13,3 +13,11 @@ export function formatDueIn(ms: number): string {
 }
 
 export const percent = (ratio: number) => `${Math.round(ratio * 100)}%`;
+
+// "hari ini", "kemarin", "5 hari lalu".
+export function formatAgo(timestamp: number, now: number): string {
+  const days = Math.floor((now - timestamp) / DAY);
+  if (days <= 0) return 'hari ini';
+  if (days === 1) return 'kemarin';
+  return `${days} hari lalu`;
+}
