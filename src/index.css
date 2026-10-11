@@ -1,3 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Token desain IngatKata. Lihat docs/design-direction.md. */
+:root {
+  --paper: #faf7f0;
+  --card: #fffefa;
+  --ink: #24262b;
+  --muted: #5c5a55;
+  --subtle: #67635b;
+  --line: #e4ded1;
+  --control: #8e887c;
+
+  --primary: #2e4a78;
+  --primary-hover: #243b61;
+  --primary-soft: #e2e9f4;
+  --ok: #2c6644;
+  --ok-soft: #e1f0e5;
+  --bad: #9e3530;
+  --bad-soft: #f8e2df;
+  --due: #7d5410;
+  --due-soft: #faebcb;
+
+  /* Kotak Leitner 0-5: hangat (baru/salah) ke sejuk (hafal). */
+  --box-0: #f2d5d1;
+  --box-1: #f5e1ca;
+  --box-2: #f0e8c4;
+  --box-3: #daebd4;
+  --box-4: #cfe4e5;
+  --box-5: #d2dcf0;
+
+  /* Garis kartu indeks, dekoratif saja. */
+  --rule: #d3e1f0;
+  --margin: #e3a29d;
+
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Hiragino Sans", "Apple SD Gothic Neo",
+    "Noto Sans JP", "Noto Sans KR", "Noto Sans Arabic", sans-serif;
+  --font-word: "Iowan Old Style", Charter, "Noto Serif", Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP",
+    AppleMyungjo, "Noto Serif KR", "Noto Naskh Arabic", "Geeza Pro", serif;
+
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--primary-soft);
+  }
+}
+
+@layer components {
+  /* Satu-satunya kartu di aplikasi: kartu indeks dengan garis merah dan garis biru. */
+  .index-card {
+    background-color: var(--card);
+    background-image: linear-gradient(var(--margin), var(--margin)),
+      repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+    background-size: 100% 2px, 100% 100%;
+    background-position: 0 44px, 0 46px;
+    background-repeat: no-repeat;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
