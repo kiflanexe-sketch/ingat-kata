@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IngatKata: arah desain</title>
+<style>
+  :root {
+    --paper: #FAF7F0; --card: #FFFEFA; --ink: #24262B; --muted: #5C5A55; --subtle: #6E6A62;
+    --line: #E4DED1; --control: #8E887C;
+    --primary: #2E4A78; --primary-soft: #E2E9F4;
+    --ok: #2C6644; --ok-soft: #E1F0E5; --bad: #9E3530; --bad-soft: #F8E2DF; --due: #7D5410; --due-soft: #FAEBCB;
+    --box0: #F2D5D1; --box1: #F5E1CA; --box2: #F0E8C4; --box3: #DAEBD4; --box4: #CFE4E5; --box5: #D2DCF0;
+    --rule: #D3E1F0; --margin: #E3A29D;
+    --r-card: 4px; --r-control: 8px; --r-sheet: 16px;
+    --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Hiragino Sans", "Apple SD Gothic Neo", "Noto Sans JP", "Noto Sans KR", "Noto Sans Arabic", sans-serif;
+    --font-word: "Iowan Old Style", "Charter", "Noto Serif", Georgia, "Hiragino Mincho ProN", "Noto Serif JP", "AppleMyungjo", "Noto Serif KR", "Noto Naskh Arabic", "Geeza Pro", serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--paper); color: var(--ink); font: 16px/1.5 var(--font-ui); padding: 40px; }
+  h1 { font-size: 1.5rem; font-weight: 650; margin-bottom: 4px; }
+  h2 { font-size: 1rem; font-weight: 650; margin: 40px 0 12px; }
+  .note { color: var(--muted); font-size: .875rem; max-width: 70ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .sw { width: 128px; font-size: .75rem; color: var(--muted); }
+  .sw i { display: block; height: 48px; border-radius: var(--r-control); border: 1px solid var(--line); margin-bottom: 6px; }
+  .sw b { color: var(--ink); font-weight: 600; display: block; }
+  .type div { margin-bottom: 10px; }
+  .word { font-family: var(--font-word); font-weight: 500; }
+  .phone { width: 360px; height: 720px; background: var(--paper); border: 1px solid var(--line); border-radius: 28px; overflow: hidden; position: relative; padding: 20px 20px; display: flex; flex-direction: column; }
+  .cap { font-size: .75rem; color: var(--subtle); margin-top: 8px; width: 360px; }
+  .bar { display: flex; justify-content: space-between; align-items: center; font-size: .875rem; color: var(--muted); margin-bottom: 28px; }
+  .bar strong { color: var(--ink); font-weight: 600; font-size: 1rem; }
+  .big { font-size: 3rem; font-weight: 650; line-height: 1; font-variant-numeric: tabular-nums; }
+  .btn { display: block; width: 100%; text-align: center; font: 600 1rem var(--font-ui); padding: 14px; border-radius: var(--r-control); border: 0; background: var(--primary); color: #fff; }
+  .btn2 { background: transparent; color: var(--primary); padding: 12px 0; text-align: left; border-radius: 0; border-top: 1px solid var(--line); }
+  .muted { color: var(--muted); } .small { font-size: .875rem; } .xs { font-size: .75rem; }
+  .shelf { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; align-items: end; height: 64px; margin: 8px 0 4px; }
+  .shelf span { border-radius: 3px 3px 0 0; }
+  .shelfl { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; font-size: .75rem; color: var(--subtle); text-align: center; }
+  .index { background: var(--card); border-radius: var(--r-card); border: 1px solid var(--line); box-shadow: 0 1px 0 var(--line), 0 6px 16px -10px rgba(36,38,43,.25); padding: 0 20px 20px; position: relative;
+           background-image: linear-gradient(var(--margin), var(--margin)), repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+           background-size: 100% 2px, 100% 100%; background-position: 0 44px, 0 46px; background-repeat: no-repeat, no-repeat; }
+  .index .lbl { font-size: .75rem; color: var(--muted); height: 44px; display: flex; align-items: center; justify-content: space-between; }
+  .index .w { font-family: var(--font-word); font-size: 2.75rem; font-weight: 500; text-align: center; padding: 28px 0 20px; line-height: 1.2; }
+  .input { width: 100%; font: 1.25rem var(--font-ui); padding: 14px 16px; border: 1.5px solid var(--control); border-radius: var(--r-control); background: var(--card); color: var(--ink); margin-top: 16px; }
+  .chip { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: .75rem; font-weight: 600; }
+  .list div { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .dots { display: flex; gap: 3px; } .dots span { width: 18px; height: 6px; border-radius: 2px; background: var(--line); }
+  .fb { border-radius: var(--r-control); padding: 12px 14px; margin-top: 16px; font-size: .9375rem; }
+  .ar { direction: rtl; }
+</style>
+</head>
+<body>
+  <h1>IngatKata: arah desain (usulan Fase 2)</h1>
+  <p class="note">Kertas, tinta biru, dan kartu indeks bergaris. Warna pastel hanya untuk makna: kotak Leitner 0-5, benar, salah, jatuh tempo. Semua pasangan teks lolos WCAG AA.</p>
+
+  <h2>Palet</h2>
+  <div class="row">
+    <div class="sw"><i style="background:var(--paper)"></i><b>paper #FAF7F0</b>latar halaman</div>
+    <div class="sw"><i style="background:var(--card)"></i><b>card #FFFEFA</b>kartu, input, sheet</div>
+    <div class="sw"><i style="background:var(--ink)"></i><b>ink #24262B</b>teks utama 14,2:1</div>
+    <div class="sw"><i style="background:var(--muted)"></i><b>muted #5C5A55</b>teks kedua 6,4:1</div>
+    <div class="sw"><i style="background:var(--subtle)"></i><b>subtle #6E6A62</b>meta 5,0:1</div>
+    <div class="sw"><i style="background:var(--line)"></i><b>line #E4DED1</b>divider</div>
+    <div class="sw"><i style="background:var(--control)"></i><b>control #8E887C</b>garis input 3,3:1</div>
+    <div class="sw"><i style="background:var(--primary)"></i><b>tinta #2E4A78</b>aksi utama 8,3:1</div>
+  </div>
+  <div class="row" style="margin-top:16px">
+    <div class="sw"><i style="background:var(--ok-soft);border-color:var(--ok)"></i><b>benar #2C6644</b>di atas #E1F0E5 5,8:1</div>
+    <div class="sw"><i style="background:var(--bad-soft);border-color:var(--bad)"></i><b>salah #9E3530</b>di atas #F8E2DF 5,6:1</div>
+    <div class="sw"><i style="background:var(--due-soft);border-color:var(--due)"></i><b>jatuh tempo #7D5410</b>di atas #FAEBCB 5,7:1</div>
+    <div class="sw"><i style="background:var(--primary-soft)"></i><b>tinta lembut #E2E9F4</b>pilihan aktif</div>
+    <div class="sw"><i style="background:linear-gradient(90deg,var(--box0) 0 16.6%,var(--box1) 0 33.3%,var(--box2) 0 50%,var(--box3) 0 66.6%,var(--box4) 0 83.3%,var(--box5) 0)"></i><b>kotak 0 sampai 5</b>teks ink di atasnya >= 11:1</div>
+    <div class="sw"><i style="background:var(--card);background-image:linear-gradient(var(--margin),var(--margin)),repeating-linear-gradient(to bottom,transparent 0 9px,var(--rule) 9px 10px);background-size:100% 2px,100% 100%;background-position:0 10px,0 12px;background-repeat:no-repeat"></i><b>garis kartu indeks</b>dekoratif, bukan teks</div>
+  </div>
+
+  <h2>Tipografi</h2>
+  <div class="type">
+    <div class="word" style="font-size:2.75rem">Apple · 食べる · 사랑 · <span class="ar">شكرا</span></div>
+    <div class="xs muted">Kata di kartu: serif kamus (Iowan/Charter/Georgia, Mincho, Myungjo, Naskh), 44px, menyusut untuk kata panjang</div>
+    <div class="big">12</div>
+    <div class="xs muted">Angka utama: 48px / 650, angka tabular</div>
+    <div style="font-size:1.5rem;font-weight:650">Judul layar 24px / 650</div>
+    <div style="font-size:1rem;font-weight:650">Judul bagian 16px / 650</div>
+    <div>Teks isi 16px / 400, tinggi baris 1,5</div>
+    <div class="small muted">Teks kedua 14px / 400</div>
+    <div class="xs" style="color:var(--subtle)">Meta dan label kotak 12px / 500</div>
+  </div>
+
+  <h2>Tiga layar inti (HP 360 px)</h2>
+  <div class="row">
+    <div>
+      <div class="phone">
+        <div class="bar"><span>‹ Bahasa</span><strong>Inggris</strong><span>Daftar kata</span></div>
+        <div class="small muted">Jatuh tempo sekarang</div>
+        <div class="big" style="margin:6px 0 4px">12 <span style="font-size:1.25rem;font-weight:500">kartu</span></div>
+        <div class="small muted" style="margin-bottom:20px">Sekitar 4 menit. Akurasi review terakhir 85%.</div>
+        <button class="btn">Mulai mengulang</button>
+        <div style="margin-top:36px;font-weight:650">Kotak kartu</div>
+        <div class="shelf">
+          <span style="height:30%;background:var(--box0)"></span><span style="height:55%;background:var(--box1)"></span><span style="height:100%;background:var(--box2)"></span>
+          <span style="height:62%;background:var(--box3)"></span><span style="height:40%;background:var(--box4)"></span><span style="height:18%;background:var(--box5)"></span>
+        </div>
+        <div class="shelfl"><span>0<br>4</span><span>1<br>7</span><span>2<br>13</span><span>3<br>8</span><span>4<br>5</span><span>5<br>2</span></div>
+        <div class="xs" style="color:var(--subtle);margin-top:8px">7 kata hafal (kotak 4-5) · 28 di antrian</div>
+        <div style="margin-top:auto">
+          <button class="btn btn2">Tambah kata</button>
+          <button class="btn btn2">Paket kata (A1, B1, C1)</button>
+          <button class="btn btn2">Latihan semua kata aktif</button>
+        </div>
+      </div>
+      <p class="cap">Beranda: satu angka yang menjawab "perlu belajar sekarang?", satu tombol. Kotak Leitner menggantikan tiga stat card.</p>
+    </div>
+    <div>
+      <div class="phone">
+        <div class="bar"><span>✕</span><div class="dots"><span style="background:var(--primary)"></span><span style="background:var(--primary)"></span><span style="background:var(--primary)"></span><span></span><span></span><span></span></div><span>4 / 12</span></div>
+        <div class="index">
+          <div class="lbl"><span>Jepang → Indonesia</span><span class="chip" style="background:var(--box2)">Kotak 2</span></div>
+          <div class="w">食べる</div>
+          <div class="xs muted" style="text-align:center">Taberu · 🔊 dengar</div>
+        </div>
+        <input class="input" value="makan">
+        <div class="fb" style="background:var(--ok-soft);color:var(--ok)"><b>Benar.</b> Naik ke kotak 3, muncul lagi 7 hari lagi.</div>
+        <div class="fb" style="background:var(--bad-soft);color:var(--bad)"><b>Belum tepat.</b> Jawabanmu: <s>minum</s><br><span style="color:var(--ink)">Jawaban: <b>Makan</b></span></div>
+        <p class="xs" style="color:var(--subtle);margin-top:12px">Kartu dan input ada di separuh atas supaya tidak tertutup keyboard.</p>
+      </div>
+      <p class="cap">Belajar: satu-satunya kartu di aplikasi, bergaris seperti kartu indeks. Umpan balik menyebut akibatnya pada jadwal.</p>
+    </div>
+    <div>
+      <div class="phone">
+        <div style="font-size:1.5rem;font-weight:650;margin:8px 0 20px">Bahasamu</div>
+        <div class="list">
+          <div><span><b>Inggris</b><br><span class="xs" style="color:var(--subtle)">35 aktif · 7 hafal</span></span><span class="chip" style="background:var(--due-soft);color:var(--due)">12 jatuh tempo</span></div>
+          <div><span><b>Jepang</b><br><span class="xs" style="color:var(--subtle)">20 aktif · 3 hafal</span></span><span class="small muted">besok</span></div>
+          <div><span><b>Arab</b><br><span class="xs" style="color:var(--subtle)">5 aktif</span></span><span class="chip" style="background:var(--due-soft);color:var(--due)">2 jatuh tempo</span></div>
+        </div>
+        <div style="margin-top:28px">
+          <div style="font-weight:650">Campur semua bahasa</div>
+          <div class="small muted" style="margin:4px 0 12px">60 kata aktif dari 3 bahasa. Latihan, tidak mengubah kotak.</div>
+          <button class="btn" style="background:transparent;color:var(--primary);border:1.5px solid var(--primary)">Mulai latihan campuran</button>
+        </div>
+        <div style="margin-top:auto" class="small">
+          <div style="color:var(--primary);padding:12px 0;border-top:1px solid var(--line)">+ Bahasa baru</div>
+          <div class="muted" style="padding:12px 0;border-top:1px solid var(--line)">Cadangkan data · Pulihkan</div>
+        </div>
+      </div>
+      <p class="cap">Dashboard: baris dengan divider, bukan card di dalam card. Jatuh tempo per bahasa jadi info utama.</p>
+    </div>
+  </div>
+</body>
+</html>

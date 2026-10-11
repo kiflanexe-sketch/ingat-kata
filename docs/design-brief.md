@@ -82,15 +82,13 @@ Diurutkan dari yang paling menentukan tindakan pengguna:
    sama terbacanya.
 5. **Pribadi dan ringan.** Tanpa akun, tanpa server, data milik pengguna.
 
-## Yang tidak bisa disimpulkan dari kode
+## Jawaban pemilik produk
 
-1. **Perangkat utama**: HP (keyboard menutup separuh layar) atau laptop? Ini menentukan
-   tata letak layar Belajar.
-2. **Audiens spesifik**: pelajar sekolah/kampus, santri, persiapan JLPT atau kerja ke
-   luar negeri, atau umum?
-3. **Aset brand**: apakah ada logo atau warna yang harus dipakai? Saat ini "logo" hanya
-   ikon otak bawaan set ikon.
-4. **Karakter yang diinginkan**: mekanismenya tenang dan tekun, tetapi sebagian copy
-   ceria ("Mulai Petualangan Baru", emoji 🎉). Arah mana yang dimau?
-5. **Sapaan**: "kamu" dipakai hampir di semua layar, "Anda" masih tersisa di beranda Polyglot. Usulan saya
-   "kamu" di semua tempat.
+1. **Perangkat**: HP dan tablet (Android/iOS), sebagian juga membuka dari laptop.
+2. **Audiens**: pelajar, pekerja, dan umum.
+3. **Brand**: tidak perlu logo, tidak ada warna brand khusus.
+4. **Karakter**: tenang dan tekun; warna pastel lembut cocok, keputusan akhir diserahkan.
+5. **Sapaan**: "kamu" di semua layar (usulan, belum dibantah).
+
+Dengan ini dugaan "HP sebagai perangkat utama" dikonfirmasi, dan dugaan konteks
+keagamaan untuk paket Arab tidak dipakai sebagai arah desain.

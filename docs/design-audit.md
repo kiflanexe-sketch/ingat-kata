@@ -1,7 +1,6 @@
 # Audit desain UI: IngatKata
 
-Status: **Fase 1 selesai, menunggu persetujuan.** Belum ada kode tampilan yang diubah
-karena audit ini.
+Status: **Fase 1 disetujui.** Usulan Fase 2 ada di [`design-direction.md`](design-direction.md).
 
 ## Metode
 
