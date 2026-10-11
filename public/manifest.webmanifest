@@ -1,0 +1,19 @@
+{
+  "name": "IngatKata",
+  "short_name": "IngatKata",
+  "description": "Hafalan kosakata bahasa asing dari bahasa Indonesia dengan kotak Leitner.",
+  "lang": "id",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#faf7f0",
+  "theme_color": "#faf7f0",
+  "categories": ["education"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
