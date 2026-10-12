@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ParsedBackup, RestoreMode, Settings } from '../lib/storage.ts';
-import type { DirectionSetting } from '../lib/srs.ts';
+import { RETENTION_CHOICES, type DirectionSetting } from '../lib/srs.ts';
 import { displayLangName, sampleWord } from '../data/languages.ts';
 import { SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { speak, useVoices, voiceStatus } from '../lib/speech.ts';
@@ -79,6 +79,27 @@ export const SettingsView = ({ settings, now, canShareBackup, onChange, onBack, 
             </label>
           ))}
         </fieldset>
+      </Section>
+
+      <Section title="Target ingatan">
+        <p className="text-secondary text-muted mb-1">
+          Jadwal ulang dihitung FSRS supaya peluangmu masih ingat sebuah kata saat diulang sekitar angka ini. Makin tinggi, makin sering ulangan.
+        </p>
+        <fieldset>
+          <legend className="sr-only">Target ingatan</legend>
+          {RETENTION_CHOICES.map(r => (
+            <label key={r} className="flex items-start gap-3 py-3 border-t border-line cursor-pointer">
+              <input type="radio" name="retention" checked={settings.retention === r} onChange={() => onChange({ ...settings, retention: r })} className="mt-1 w-5 h-5 accent-primary" />
+              <span>
+                <span className="block text-ink">{Math.round(r * 100)}%{r === 0.9 && ' (disarankan)'}</span>
+                <span className="block text-secondary text-muted">
+                  {r < 0.9 ? 'Ulangan paling sedikit; cocok kalau waktumu terbatas.' : r > 0.9 ? 'Ulangan paling banyak; untuk persiapan ujian yang sudah dekat.' : 'Seimbang antara jumlah ulangan dan ingatan.'}
+                </span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+        <p className="mt-2 text-meta text-subtle">Berlaku untuk jawaban berikutnya; jadwal yang sudah ada tidak dihitung ulang.</p>
       </Section>
 
       <Section title="Suara">

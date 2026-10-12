@@ -10,7 +10,7 @@ test('normalize: huruf kecil, tanpa diakritik dan tanda baca', () => {
 });
 
 test('jawaban persis diterima', () => {
-  assert.deepEqual(checkAnswer('apel', 'Apel'), { correct: true });
+  assert.deepEqual(checkAnswer('apel', 'Apel'), { correct: true, quality: 'exact' });
   assert.equal(checkAnswer('', 'Apel').correct, false);
   assert.equal(checkAnswer('   ', 'Apel').correct, false);
 });
@@ -43,6 +43,7 @@ test('salah ketik kecil pada kata panjang diterima dengan catatan', () => {
   const r = checkAnswer('lingkugan', 'Lingkungan');
   assert.equal(r.correct, true);
   assert.match(r.note ?? '', /Ejaan/);
+  assert.equal(r.quality, 'close', 'salah ketik dinilai Hard');
   assert.equal(checkAnswer('aor', 'Air').correct, false, 'kata pendek harus persis');
   assert.equal(checkAnswer('pagi', 'Pergi').correct, false);
 });

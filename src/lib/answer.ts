@@ -1,4 +1,5 @@
-export type CheckResult = { correct: boolean; note?: string };
+// quality 'close' (salah ketik kecil, artikel terlupa) dinilai Hard oleh FSRS.
+export type CheckResult = { correct: boolean; note?: string; quality?: 'exact' | 'alternative' | 'close' };
 
 const GERMAN_ARTICLE = /^(der|die|das) /;
 const NON_LATIN = /[^\s\u0020-\u024f]/;
@@ -70,17 +71,17 @@ export function checkAnswer(input: string, answer: string, alternatives: string[
   const variants = answerVariants(answer);
 
   const exact = variants.find(v => v.text === given);
-  if (exact && !exact.withoutArticle) return { correct: true };
-  if (exact) return { correct: true, note: `Benar. Ingat artikelnya: ${answer}` };
+  if (exact && !exact.withoutArticle) return { correct: true, quality: 'exact' };
+  if (exact) return { correct: true, quality: 'close', note: `Benar. Ingat artikelnya: ${answer}` };
 
   for (const alt of alternatives) {
     if (answerVariants(alt).some(v => v.text === given)) {
-      return { correct: true, note: `Benar juga. Yang dimaksud kartu ini: ${answer}` };
+      return { correct: true, quality: 'alternative', note: `Benar juga. Yang dimaksud kartu ini: ${answer}` };
     }
   }
 
   const close = variants.some(v => given.length >= 3 && editDistance(given, v.text) <= typoAllowance(v.text.length));
-  if (close) return { correct: true, note: `Hampir tepat. Ejaan yang benar: ${answer}` };
+  if (close) return { correct: true, quality: 'close', note: `Hampir tepat. Ejaan yang benar: ${answer}` };
 
   return { correct: false };
 }

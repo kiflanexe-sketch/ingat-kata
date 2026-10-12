@@ -1,5 +1,5 @@
-import type { Card, LangStats } from '../types.ts';
-import { MAX_BOX, isDue, isMastered, mergeCards, nextDueAt, type DirectionSetting } from './srs.ts';
+import type { Card, FsrsState, LangStats } from '../types.ts';
+import { DEFAULT_RETENTION, MAX_BOX, RETENTION_CHOICES, isDue, isMastered, mergeCards, nextDueAt, type DirectionSetting } from './srs.ts';
 
 const DECK_PREFIX = 'ingatkata-deck-';
 const META_PREFIX = 'ingatkata-meta-';
@@ -7,6 +7,17 @@ const META_PREFIX = 'ingatkata-meta-';
 export type DeckMeta = { lastAccuracy: number | null };
 
 const num = (v: unknown, fallback: number) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
+
+// Keadaan FSRS dari penyimpanan atau file cadangan; dibuang bila tidak masuk akal.
+function migrateFsrs(raw: unknown): FsrsState | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const f = raw as Record<string, unknown>;
+  const s = num(f.s, -1);
+  const d = num(f.d, -1);
+  const state = num(f.state, -1);
+  if (s <= 0 || d < 1 || d > 10 || ![0, 1, 2, 3].includes(state)) return undefined;
+  return { s, d, state: state as FsrsState['state'], reps: Math.max(0, Math.round(num(f.reps, 0))), step: Math.max(0, Math.round(num(f.step, 0))) };
+}
 
 // Normalisasi kartu dari versi lama atau file cadangan. Mengembalikan null bila tidak layak.
 export function migrateCard(raw: unknown, index: number): Card | null {
@@ -23,6 +34,7 @@ export function migrateCard(raw: unknown, index: number): Card | null {
     status: c.status === 'reserve' ? 'reserve' : 'active',
     source: typeof c.source === 'string' && c.source ? c.source : 'legacy',
     lapses: Math.max(0, Math.round(num(c.lapses, 0))),
+    ...(migrateFsrs(c.fsrs) ? { fsrs: migrateFsrs(c.fsrs) } : {}),
   };
 }
 
@@ -105,16 +117,18 @@ const SETTINGS_KEY = 'ingatkata-settings';
 export type Settings = {
   direction: DirectionSetting; // arah pertanyaan
   autoSpeak: boolean; // ucapkan kata asing otomatis setelah menjawab
+  retention: number; // target peluang ingat FSRS (0,85 / 0,9 / 0,95)
   lastBackupAt: number | null;
 };
 
-export const DEFAULT_SETTINGS: Settings = { direction: 'both', autoSpeak: true, lastBackupAt: null };
+export const DEFAULT_SETTINGS: Settings = { direction: 'both', autoSpeak: true, retention: DEFAULT_RETENTION, lastBackupAt: null };
 
 function sanitizeSettings(raw: unknown): Omit<Settings, 'lastBackupAt'> {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   return {
     direction: r.direction === 'forward' || r.direction === 'backward' ? r.direction : 'both',
     autoSpeak: typeof r.autoSpeak === 'boolean' ? r.autoSpeak : DEFAULT_SETTINGS.autoSpeak,
+    retention: typeof r.retention === 'number' && RETENTION_CHOICES.includes(r.retention) ? r.retention : DEFAULT_RETENTION,
   };
 }
 
@@ -159,8 +173,8 @@ export function exportBackup(): string {
     decks[lang] = loadDeck(lang);
     meta[lang] = loadMeta(lang);
   }
-  const { direction, autoSpeak } = loadSettings();
-  const settings = { direction, autoSpeak };
+  const { direction, autoSpeak, retention } = loadSettings();
+  const settings = { direction, autoSpeak, retention };
   const backup: BackupFile = { app: 'ingatkata', version: 2, exportedAt: new Date().toISOString(), decks, meta, settings };
   return JSON.stringify(backup);
 }
