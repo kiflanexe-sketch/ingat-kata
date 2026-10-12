@@ -7,8 +7,10 @@ dan tanpa server.
 
 ## Fitur
 
-- Paket kata bawaan untuk Inggris, Jepang, Korea, Jerman, dan Arab (tiga level per bahasa),
-  plus bahasa lain yang kosakatanya diisi sendiri.
+- Sekitar 1.000 kata bawaan untuk Inggris, Jepang, Korea, Jerman, dan Arab, dalam paket
+  yang diurutkan dari termudah: paket huruf (hiragana, katakana, hangul, hijaiyah), level
+  umum (CEFR, JLPT, TOPIK), dan paket tes resmi atau kerja (TOEIC, TOEFL, IELTS, GRE,
+  JFT-Basic, EPS-TOPIK, Pflege, TestDaF, TOAFL). Bahasa lain bisa diisi sendiri.
 - Tambah kata satu per satu atau sekaligus (pemisah `<>`, tab, ` = `, atau ` - `).
 - Sesi review dua arah (asing ke Indonesia dan sebaliknya), kartu yang salah diulang di
   akhir sesi, lalu ringkasan berisi daftar kata yang perlu diulang.
@@ -24,6 +26,8 @@ dan tanpa server.
 - Pengaturan arah pertanyaan (bolak-balik, asing ke Indonesia, Indonesia ke asing) dan
   suara otomatis.
 - Bisa dipasang sebagai aplikasi (PWA) di Android, iOS, dan desktop, dan dibuka offline.
+- Transisi antarlayar dan antarkartu dengan View Transitions API (mati otomatis bila
+  perangkat meminta gerak dikurangi).
 
 ## Data dan pindah perangkat
 

@@ -197,7 +197,7 @@ desainnya masih cocok?
 | Tipografi | Ukuran judul acak 2xl-5xl, tanpa keputusan font | Skala 12/14/16/20/24/48 px; serif kamus per aksara untuk kata, `lang` dan `dir="auto"` di setiap kata asing |
 | Radius | xl/2xl/3xl/full di mana-mana | card 4px (hanya kartu kata), control 8px, sheet 16px, pill (hanya chip) |
 | Container | Card bersarang, card per baris, banner berwarna | Baris dengan divider; container hanya kartu kata, input, sheet, bar aksi massal, dan panel pratinjau pulihkan |
-| Dekorasi | Gradien, `hover:scale`, shadow-lg/xl/2xl, `shadow-indigo-200`, `animate-bounce`, kelas animasi tak terdefinisi, emoji | Semua dihapus; animasi tersisa: progress, warna state 150ms; semuanya mati di `prefers-reduced-motion` |
+| Dekorasi | Gradien, `hover:scale`, shadow-lg/xl/2xl, `shadow-indigo-200`, `animate-bounce`, kelas animasi tak terdefinisi, emoji | Semua dihapus. Gerak yang tersisa punya fungsi: transisi antarlayar dan kartu berikutnya (View Transitions), sheet dan umpan balik masuk (`@starting-style`), progress, warna state; semuanya mati di `prefers-reduced-motion` |
 | Beranda | Hero logo + 3 stat card + 3 tombol sama besar | Angka jatuh tempo + satu aksi utama (dipilih aturan jatah kata, beserta alasannya) + rak kotak 0-5 + daftar aksi lain |
 | Belajar | Teks besar di tengah layar kosong, input di tengah (tertutup keyboard di HP) | Kartu indeks bergaris di atas, input tepat di bawahnya; umpan balik menyebut akibat pada jadwal |
 | Copy | "Mulai Petualangan Baru", "Target Tercapai!", Bulk/Custom/Reserve/Master, Anda/kamu | Satu kosakata: kotak, jatuh tempo, antrian, hafal, paket kata, sekaligus, kata sendiri; "kamu" |
@@ -227,7 +227,7 @@ Semua layar desktop dan HP: `screenshots/before/` dan `screenshots/after/` (nama
 | 2. Card | 1 bentuk kartu (kartu kata, `StudyView.tsx`), sisanya divider. Sengaja dipertahankan: input, sheet/modal, bar aksi massal, dan panel pratinjau pulihkan di `SettingsView.tsx` (keputusan yang menunggu konfirmasi perlu dibatasi jelas dari teks sekitarnya) |
 | 3. Komposisi default | Tidak ada hero, deret stat card, atau deret quick action |
 | 4. Hierarki seragam | Satu tombol isi penuh per layar; aksi lain berupa tombol garis atau baris tautan |
-| 5. Dekorasi | 0 `animate-*`, 0 `hover:scale`, 3 shadow bertoken (kartu kata, sheet, bar aksi) dan 1 shadow tipis pada tab terpilih di Tambah kata (menandai state terpilih) |
+| 5. Dekorasi | 0 `animate-*` Tailwind, 0 `hover:scale`, transisi hanya untuk orientasi dan state (lihat arah desain bagian Motion), 3 shadow bertoken (kartu kata, sheet, bar aksi) dan 1 shadow tipis pada tab terpilih di Tambah kata (menandai state terpilih) |
 | 6. Konten generik | 0 emoji, 0 "Anda", tidak ada copy pemasaran; tidak ada data palsu |
 | 7. Tidak spesifik | Lihat uji tukar di bawah |
 

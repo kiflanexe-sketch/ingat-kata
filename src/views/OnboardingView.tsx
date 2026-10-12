@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { WORD_DATABASE } from '../data/words.ts';
+import { SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { displayLangName, levelShortName, sampleWord } from '../data/languages.ts';
 import { Page, TopBar, Title, Word } from '../components/ui.tsx';
 import { IconChevronRight } from '../components/Icon.tsx';
@@ -35,7 +35,8 @@ export const OnboardingView = ({ existingLangs, onPick, onCancel, onSettings }: 
       <ul>
         {languages.map(lang => {
           const levels = Object.keys(WORD_DATABASE[lang]);
-          const first = WORD_DATABASE[lang][levels[0]][0];
+          const firstVocab = levels.find(l => !SCRIPT_LEVELS.has(l)) ?? levels[0];
+          const first = WORD_DATABASE[lang][firstVocab][0];
           const started = existingLangs.includes(lang);
           return (
             <li key={lang}>

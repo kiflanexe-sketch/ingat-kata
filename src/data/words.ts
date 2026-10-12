@@ -2,6 +2,7 @@
 // sebagai kunci penyimpanan deck, jadi jangan diubah.
 export type PresetWord = { f: string; b: string };
 
+// Urutan paket di tiap bahasa = urutan tampil, dari termudah ke tersulit.
 export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
   'Inggris 🇬🇧': {
     'Pemula (A1)': [
@@ -16,6 +17,23 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Night', b: 'Malam' }, { f: 'Table', b: 'Meja' }, { f: 'Chair', b: 'Kursi' },
       { f: 'Door', b: 'Pintu' }, { f: 'Window', b: 'Jendela' }, { f: 'Tree', b: 'Pohon' },
       { f: 'Sun', b: 'Matahari' }, { f: 'Moon', b: 'Bulan' }, { f: 'Star', b: 'Bintang' }
+    ],
+    'Dasar (A2)': [
+      { f: 'Weather', b: 'Cuaca' }, { f: 'Kitchen', b: 'Dapur' },
+      { f: 'Neighbor', b: 'Tetangga' }, { f: 'Ticket', b: 'Tiket' },
+      { f: 'Price', b: 'Harga' }, { f: 'Cheap', b: 'Murah' },
+      { f: 'Expensive', b: 'Mahal' }, { f: 'Hungry', b: 'Lapar' },
+      { f: 'Thirsty', b: 'Haus' }, { f: 'Tired', b: 'Lelah/Capek' },
+      { f: 'Busy', b: 'Sibuk' }, { f: 'Late', b: 'Terlambat' },
+      { f: 'To borrow', b: 'Meminjam' }, { f: 'To buy', b: 'Membeli' },
+      { f: 'To sell', b: 'Menjual' }, { f: 'To wait', b: 'Menunggu' },
+      { f: 'To forget', b: 'Lupa' }, { f: 'To remember', b: 'Mengingat/Ingat' },
+      { f: 'Journey', b: 'Perjalanan' }, { f: 'Holiday', b: 'Liburan' },
+      { f: 'Hospital', b: 'Rumah sakit' }, { f: 'Medicine', b: 'Obat' },
+      { f: 'Healthy', b: 'Sehat' }, { f: 'Dangerous', b: 'Berbahaya' },
+      { f: 'Quiet', b: 'Sepi/Tenang' }, { f: 'Noisy', b: 'Berisik' },
+      { f: 'Library', b: 'Perpustakaan' }, { f: 'Village', b: 'Desa' },
+      { f: 'Bridge', b: 'Jembatan' }, { f: 'Clothes', b: 'Pakaian' }
     ],
     'Menengah (B1)': [
       { f: 'Environment', b: 'Lingkungan' }, { f: 'Decision', b: 'Keputusan' },
@@ -34,6 +52,74 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Influence', b: 'Pengaruh' }, { f: 'Particular', b: 'Khusus/Tertentu' },
       { f: 'To reduce', b: 'Mengurangi' }, { f: 'Immediate', b: 'Segera' }
     ],
+    'Kerja (TOEIC)': [
+      { f: 'Invoice', b: 'Faktur/Tagihan' }, { f: 'Receipt', b: 'Kuitansi/Struk' },
+      { f: 'Deadline', b: 'Tenggat/Batas waktu' }, { f: 'Meeting minutes', b: 'Notulen rapat' },
+      { f: 'Quarterly', b: 'Triwulanan/Per kuartal' }, { f: 'Revenue', b: 'Pendapatan' },
+      { f: 'Budget', b: 'Anggaran' }, { f: 'Shipment', b: 'Pengiriman' },
+      { f: 'Inventory', b: 'Inventaris/Stok' }, { f: 'Warehouse', b: 'Gudang' },
+      { f: 'Supplier', b: 'Pemasok' }, { f: 'Applicant', b: 'Pelamar' },
+      { f: 'Resume', b: 'Daftar riwayat hidup/CV' }, { f: 'Interview', b: 'Wawancara' },
+      { f: 'To hire', b: 'Merekrut/Mempekerjakan' }, { f: 'Promotion', b: 'Kenaikan jabatan/Promosi' },
+      { f: 'Colleague', b: 'Rekan kerja' }, { f: 'Supervisor', b: 'Atasan/Penyelia' },
+      { f: 'Department', b: 'Departemen/Bagian' }, { f: 'Branch', b: 'Cabang' },
+      { f: 'Headquarters', b: 'Kantor pusat' }, { f: 'Reimbursement', b: 'Penggantian biaya' },
+      { f: 'Itinerary', b: 'Rencana perjalanan' }, { f: 'Reservation', b: 'Pemesanan/Reservasi' },
+      { f: 'To postpone', b: 'Menunda' }, { f: 'Refund', b: 'Pengembalian dana' },
+      { f: 'Warranty', b: 'Garansi' }, { f: 'Merger', b: 'Penggabungan usaha/Merger' },
+      { f: 'Contract', b: 'Kontrak' }, { f: 'To attach', b: 'Melampirkan' }
+    ],
+    'Menengah atas (B2)': [
+      { f: 'Accurate', b: 'Akurat/Tepat' }, { f: 'To acknowledge', b: 'Mengakui' },
+      { f: 'Adequate', b: 'Memadai' }, { f: 'To anticipate', b: 'Mengantisipasi' },
+      { f: 'Apparent', b: 'Jelas/Nyata' }, { f: 'To assess', b: 'Menilai' },
+      { f: 'Assumption', b: 'Asumsi/Anggapan' }, { f: 'Burden', b: 'Beban' },
+      { f: 'Capacity', b: 'Kapasitas' }, { f: 'Coherent', b: 'Runtut/Koheren' },
+      { f: 'To comply', b: 'Mematuhi' }, { f: 'To conceal', b: 'Menyembunyikan' },
+      { f: 'Considerable', b: 'Cukup besar' }, { f: 'Constraint', b: 'Kendala' },
+      { f: 'To deteriorate', b: 'Memburuk' }, { f: 'Eligible', b: 'Memenuhi syarat' },
+      { f: 'To emphasize', b: 'Menekankan' }, { f: 'Feasible', b: 'Layak dilakukan' },
+      { f: 'To hinder', b: 'Menghambat' }, { f: 'Insight', b: 'Wawasan' },
+      { f: 'Merely', b: 'Sekadar/Hanya' }, { f: 'To negotiate', b: 'Bernegosiasi' },
+      { f: 'Notion', b: 'Gagasan/Anggapan' }, { f: 'Outcome', b: 'Hasil akhir' },
+      { f: 'Persistent', b: 'Gigih/Terus-menerus' }, { f: 'To pursue', b: 'Mengejar' },
+      { f: 'Reliable', b: 'Andal/Dapat diandalkan' }, { f: 'Significant', b: 'Signifikan/Penting' },
+      { f: 'Thorough', b: 'Teliti/Menyeluruh' }, { f: 'To undergo', b: 'Menjalani' }
+    ],
+    'Akademik (TOEFL)': [
+      { f: 'Abundant', b: 'Melimpah' }, { f: 'To accumulate', b: 'Mengumpulkan/Menimbun' },
+      { f: 'Adjacent', b: 'Bersebelahan' }, { f: 'Arid', b: 'Gersang' },
+      { f: 'To alter', b: 'Mengubah' }, { f: 'Ancient', b: 'Kuno' },
+      { f: 'Approximately', b: 'Kira-kira/Sekitar' }, { f: 'Characteristic', b: 'Ciri khas' },
+      { f: 'To consume', b: 'Mengonsumsi' }, { f: 'Crucial', b: 'Sangat penting' },
+      { f: 'Decline', b: 'Penurunan' }, { f: 'Diverse', b: 'Beraneka ragam' },
+      { f: 'Dominant', b: 'Dominan' }, { f: 'Erosion', b: 'Erosi/Pengikisan' },
+      { f: 'To evolve', b: 'Berevolusi/Berkembang' }, { f: 'To exhibit', b: 'Menunjukkan/Memamerkan' },
+      { f: 'Extinct', b: 'Punah' }, { f: 'Fertile', b: 'Subur' },
+      { f: 'Habitat', b: 'Habitat/Tempat hidup' }, { f: 'To inhabit', b: 'Mendiami/Menghuni' },
+      { f: 'Migration', b: 'Migrasi/Perpindahan' }, { f: 'Notable', b: 'Terkenal/Patut dicatat' },
+      { f: 'Organism', b: 'Organisme' }, { f: 'Primitive', b: 'Primitif' },
+      { f: 'Prolonged', b: 'Berkepanjangan' }, { f: 'Rigid', b: 'Kaku' },
+      { f: 'Sediment', b: 'Endapan/Sedimen' }, { f: 'Simultaneously', b: 'Secara bersamaan' },
+      { f: 'Sophisticated', b: 'Canggih/Rumit' }, { f: 'Subsequent', b: 'Berikutnya' }
+    ],
+    'Akademik (IELTS)': [
+      { f: 'Consequence', b: 'Akibat/Konsekuensi' }, { f: 'Controversial', b: 'Kontroversial' },
+      { f: 'Curriculum', b: 'Kurikulum' }, { f: 'Detrimental', b: 'Merugikan' },
+      { f: 'Disparity', b: 'Kesenjangan' }, { f: 'Drawback', b: 'Kelemahan/Kekurangan' },
+      { f: 'Urbanisation', b: 'Urbanisasi' }, { f: 'Infrastructure', b: 'Infrastruktur' },
+      { f: 'Legislation', b: 'Perundang-undangan' }, { f: 'Livelihood', b: 'Mata pencaharian' },
+      { f: 'Obesity', b: 'Obesitas' }, { f: 'Overpopulation', b: 'Kelebihan penduduk' },
+      { f: 'Pollutant', b: 'Polutan/Zat pencemar' }, { f: 'Renewable', b: 'Terbarukan' },
+      { f: 'Sedentary', b: 'Kurang gerak' }, { f: 'Scarcity', b: 'Kelangkaan' },
+      { f: 'Surveillance', b: 'Pengawasan' }, { f: 'Unemployment', b: 'Pengangguran' },
+      { f: 'Welfare', b: 'Kesejahteraan' }, { f: 'Workforce', b: 'Tenaga kerja' },
+      { f: 'To tackle', b: 'Menangani' }, { f: 'To deter', b: 'Mencegah/Menghalangi' },
+      { f: 'To curb', b: 'Mengekang/Membatasi' }, { f: 'To prioritise', b: 'Memprioritaskan' },
+      { f: 'Commute', b: 'Perjalanan pulang-pergi kerja' }, { f: 'Congestion', b: 'Kemacetan' },
+      { f: 'Emission', b: 'Emisi' }, { f: 'Deforestation', b: 'Penggundulan hutan' },
+      { f: 'Affordable', b: 'Terjangkau' }, { f: 'Proportion', b: 'Proporsi/Perbandingan' }
+    ],
     'Mahir (C1)': [
       { f: 'Inevitable', b: 'Tak terelakkan' }, { f: 'To elaborate', b: 'Menjelaskan rinci' },
       { f: 'Ambiguous', b: 'Ambigu' }, { f: 'To distinguish', b: 'Membedakan' },
@@ -50,9 +136,76 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Pragmatic', b: 'Pragmatis' }, { f: 'Resilient', b: 'Tangguh' },
       { f: 'To articulate', b: 'Menyuarakan' }, { f: 'Benevolent', b: 'Baik hati' },
       { f: 'Malevolent', b: 'Jahat' }, { f: 'Candid', b: 'Jujur/Terus terang' }
-    ]
+    ],
+    'Lanjutan (GRE)': [
+      { f: 'To abate', b: 'Mereda' }, { f: 'Anomaly', b: 'Anomali/Kejanggalan' },
+      { f: 'Arduous', b: 'Sangat berat/Melelahkan' }, { f: 'To assuage', b: 'Meredakan' },
+      { f: 'Capricious', b: 'Plin-plan/Berubah-ubah' }, { f: 'To corroborate', b: 'Menguatkan/Membenarkan' },
+      { f: 'Didactic', b: 'Bersifat mendidik' }, { f: 'To enervate', b: 'Melemahkan' },
+      { f: 'Equivocal', b: 'Bermakna ganda' }, { f: 'Erudite', b: 'Terpelajar' },
+      { f: 'Esoteric', b: 'Hanya dipahami segelintir orang' }, { f: 'Fervent', b: 'Berapi-api' },
+      { f: 'Garrulous', b: 'Cerewet/Banyak bicara' }, { f: 'Gregarious', b: 'Suka bergaul' },
+      { f: 'Laconic', b: 'Singkat kata' }, { f: 'Lucid', b: 'Jernih/Jelas' },
+      { f: 'To mollify', b: 'Melunakkan/Menenangkan' }, { f: 'Obdurate', b: 'Keras kepala' },
+      { f: 'Paucity', b: 'Kekurangan/Sedikitnya' }, { f: 'Pedantic', b: 'Terlalu mementingkan detail' },
+      { f: 'Prodigal', b: 'Boros' }, { f: 'Prosaic', b: 'Biasa saja/Membosankan' },
+      { f: 'Quiescent', b: 'Diam/Tidak aktif' }, { f: 'Recalcitrant', b: 'Membangkang' },
+      { f: 'Sanguine', b: 'Optimistis' }, { f: 'Soporific', b: 'Membuat mengantuk' },
+      { f: 'Stolid', b: 'Tidak menunjukkan emosi' }, { f: 'To venerate', b: 'Memuliakan' },
+      { f: 'Zealous', b: 'Penuh gairah' }, { f: 'To vacillate', b: 'Bimbang/Ragu-ragu' }
+    ],
   },
   'Jepang 🇯🇵': {
+    'Huruf (Hiragana)': [
+      { f: 'あ', b: 'a' }, { f: 'い', b: 'i' },
+      { f: 'う', b: 'u' }, { f: 'え', b: 'e' },
+      { f: 'お', b: 'o' }, { f: 'か', b: 'ka' },
+      { f: 'き', b: 'ki' }, { f: 'く', b: 'ku' },
+      { f: 'け', b: 'ke' }, { f: 'こ', b: 'ko' },
+      { f: 'さ', b: 'sa' }, { f: 'し', b: 'shi/si' },
+      { f: 'す', b: 'su' }, { f: 'せ', b: 'se' },
+      { f: 'そ', b: 'so' }, { f: 'た', b: 'ta' },
+      { f: 'ち', b: 'chi/ti' }, { f: 'つ', b: 'tsu/tu' },
+      { f: 'て', b: 'te' }, { f: 'と', b: 'to' },
+      { f: 'な', b: 'na' }, { f: 'に', b: 'ni' },
+      { f: 'ぬ', b: 'nu' }, { f: 'ね', b: 'ne' },
+      { f: 'の', b: 'no' }, { f: 'は', b: 'ha' },
+      { f: 'ひ', b: 'hi' }, { f: 'ふ', b: 'fu/hu' },
+      { f: 'へ', b: 'he' }, { f: 'ほ', b: 'ho' },
+      { f: 'ま', b: 'ma' }, { f: 'み', b: 'mi' },
+      { f: 'む', b: 'mu' }, { f: 'め', b: 'me' },
+      { f: 'も', b: 'mo' }, { f: 'や', b: 'ya' },
+      { f: 'ゆ', b: 'yu' }, { f: 'よ', b: 'yo' },
+      { f: 'ら', b: 'ra' }, { f: 'り', b: 'ri' },
+      { f: 'る', b: 'ru' }, { f: 'れ', b: 're' },
+      { f: 'ろ', b: 'ro' }, { f: 'わ', b: 'wa' },
+      { f: 'を', b: 'wo/o' }, { f: 'ん', b: 'n' }
+    ],
+    'Huruf (Katakana)': [
+      { f: 'ア', b: 'a' }, { f: 'イ', b: 'i' },
+      { f: 'ウ', b: 'u' }, { f: 'エ', b: 'e' },
+      { f: 'オ', b: 'o' }, { f: 'カ', b: 'ka' },
+      { f: 'キ', b: 'ki' }, { f: 'ク', b: 'ku' },
+      { f: 'ケ', b: 'ke' }, { f: 'コ', b: 'ko' },
+      { f: 'サ', b: 'sa' }, { f: 'シ', b: 'shi/si' },
+      { f: 'ス', b: 'su' }, { f: 'セ', b: 'se' },
+      { f: 'ソ', b: 'so' }, { f: 'タ', b: 'ta' },
+      { f: 'チ', b: 'chi/ti' }, { f: 'ツ', b: 'tsu/tu' },
+      { f: 'テ', b: 'te' }, { f: 'ト', b: 'to' },
+      { f: 'ナ', b: 'na' }, { f: 'ニ', b: 'ni' },
+      { f: 'ヌ', b: 'nu' }, { f: 'ネ', b: 'ne' },
+      { f: 'ノ', b: 'no' }, { f: 'ハ', b: 'ha' },
+      { f: 'ヒ', b: 'hi' }, { f: 'フ', b: 'fu/hu' },
+      { f: 'ヘ', b: 'he' }, { f: 'ホ', b: 'ho' },
+      { f: 'マ', b: 'ma' }, { f: 'ミ', b: 'mi' },
+      { f: 'ム', b: 'mu' }, { f: 'メ', b: 'me' },
+      { f: 'モ', b: 'mo' }, { f: 'ヤ', b: 'ya' },
+      { f: 'ユ', b: 'yu' }, { f: 'ヨ', b: 'yo' },
+      { f: 'ラ', b: 'ra' }, { f: 'リ', b: 'ri' },
+      { f: 'ル', b: 'ru' }, { f: 'レ', b: 're' },
+      { f: 'ロ', b: 'ro' }, { f: 'ワ', b: 'wa' },
+      { f: 'ヲ', b: 'wo/o' }, { f: 'ン', b: 'n' }
+    ],
     'Pemula (N5)': [
       { f: 'Watashi (私)', b: 'Saya' }, { f: 'Neko (猫)', b: 'Kucing' },
       { f: 'Inu (犬)', b: 'Anjing' }, { f: 'Hon (本)', b: 'Buku' },
@@ -69,6 +222,40 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Koohii (コーヒー)', b: 'Kopi' }, { f: 'Ocha (お茶)', b: 'Teh' },
       { f: 'Eki (駅)', b: 'Stasiun' }, { f: 'Gakkou (学校)', b: 'Sekolah' },
       { f: 'Kaisha (会社)', b: 'Perusahaan' }, { f: 'Ie (家)', b: 'Rumah' }
+    ],
+    'Dasar (N4)': [
+      { f: 'Atsumeru (集める)', b: 'Mengumpulkan' }, { f: 'Okuru (送る)', b: 'Mengirim' },
+      { f: 'Kaesu (返す)', b: 'Mengembalikan' }, { f: 'Kimeru (決める)', b: 'Memutuskan' },
+      { f: 'Kowasu (壊す)', b: 'Merusak' }, { f: 'Sagasu (探す)', b: 'Mencari' },
+      { f: 'Shiraberu (調べる)', b: 'Memeriksa/Menyelidiki' }, { f: 'Tetsudau (手伝う)', b: 'Membantu' },
+      { f: 'Tsutaeru (伝える)', b: 'Menyampaikan' }, { f: 'Hakobu (運ぶ)', b: 'Mengangkut/Membawa' },
+      { f: 'Mukaeru (迎える)', b: 'Menjemput/Menyambut' }, { f: 'Ugoku (動く)', b: 'Bergerak' },
+      { f: 'Yakusoku (約束)', b: 'Janji' }, { f: 'Ryokou (旅行)', b: 'Perjalanan wisata' },
+      { f: 'Shumi (趣味)', b: 'Hobi' }, { f: 'Jiko (事故)', b: 'Kecelakaan' },
+      { f: 'Kaigi (会議)', b: 'Rapat' }, { f: 'Keikaku (計画)', b: 'Rencana' },
+      { f: 'Shousetsu (小説)', b: 'Novel' }, { f: 'Kuukou (空港)', b: 'Bandara' },
+      { f: 'Byouin (病院)', b: 'Rumah sakit' }, { f: 'Kusuri (薬)', b: 'Obat' },
+      { f: 'Netsu (熱)', b: 'Demam/Panas' }, { f: 'Isogashii (忙しい)', b: 'Sibuk' },
+      { f: 'Mezurashii (珍しい)', b: 'Langka/Jarang' }, { f: 'Hazukashii (恥ずかしい)', b: 'Malu' },
+      { f: 'Fukai (深い)', b: 'Dalam' }, { f: 'Kanarazu (必ず)', b: 'Pasti' },
+      { f: 'Mada (まだ)', b: 'Belum/Masih' }, { f: 'Tokidoki (時々)', b: 'Kadang-kadang' }
+    ],
+    'Kerja (JFT-Basic)': [
+      { f: 'Kyuuryou (給料)', b: 'Gaji' }, { f: 'Zangyou (残業)', b: 'Lembur' },
+      { f: 'Yasumi (休み)', b: 'Libur/Istirahat' }, { f: 'Chikoku (遅刻)', b: 'Terlambat datang' },
+      { f: 'Kiken (危険)', b: 'Bahaya' }, { f: 'Anzen (安全)', b: 'Aman/Keselamatan' },
+      { f: 'Chuui (注意)', b: 'Perhatian/Hati-hati' }, { f: 'Kinshi (禁止)', b: 'Dilarang/Larangan' },
+      { f: 'Deguchi (出口)', b: 'Pintu keluar' }, { f: 'Iriguchi (入口)', b: 'Pintu masuk' },
+      { f: 'Hijouguchi (非常口)', b: 'Pintu darurat' }, { f: 'Kega (怪我)', b: 'Luka/Cedera' },
+      { f: 'Kaze (風邪)', b: 'Flu/Masuk angin' }, { f: 'Shoukai (紹介)', b: 'Perkenalan' },
+      { f: 'Mensetsu (面接)', b: 'Wawancara' }, { f: 'Rirekisho (履歴書)', b: 'Daftar riwayat hidup' },
+      { f: 'Zairyuu kaado (在留カード)', b: 'Kartu izin tinggal' }, { f: 'Gomi (ごみ)', b: 'Sampah' },
+      { f: 'Bunbetsu (分別)', b: 'Pemilahan' }, { f: 'Yachin (家賃)', b: 'Sewa rumah' },
+      { f: 'Ginkou (銀行)', b: 'Bank' }, { f: 'Yuubinkyoku (郵便局)', b: 'Kantor pos' },
+      { f: 'Shiyakusho (市役所)', b: 'Balai kota' }, { f: 'Hoken (保険)', b: 'Asuransi' },
+      { f: 'Seisou (清掃)', b: 'Pembersihan' }, { f: 'Junbi (準備)', b: 'Persiapan' },
+      { f: 'Renraku (連絡)', b: 'Kabar/Kontak' }, { f: 'Houkoku (報告)', b: 'Laporan' },
+      { f: 'Soudan (相談)', b: 'Konsultasi/Diskusi' }, { f: 'Shiji (指示)', b: 'Instruksi/Perintah' }
     ],
     'Menengah (N3)': [
       { f: 'Shakai (社会)', b: 'Masyarakat' }, { f: 'Keiken (経験)', b: 'Pengalaman' },
@@ -87,6 +274,23 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Gijutsu (技術)', b: 'Teknologi' }, { f: 'Hattensuru (発展する)', b: 'Berkembang' },
       { f: 'Seikou (成功)', b: 'Sukses' }, { f: 'Shippai (失敗)', b: 'Gagal' }
     ],
+    'Menengah atas (N2)': [
+      { f: 'Akiraka (明らか)', b: 'Jelas' }, { f: 'Ataeru (与える)', b: 'Memberikan' },
+      { f: 'Ishiki (意識)', b: 'Kesadaran' }, { f: 'Ijou (異常)', b: 'Kelainan/Tidak normal' },
+      { f: 'Iken (意見)', b: 'Pendapat' }, { f: 'Kakunin (確認)', b: 'Konfirmasi/Pengecekan' },
+      { f: 'Kanou (可能)', b: 'Mungkin/Bisa' }, { f: 'Kankaku (感覚)', b: 'Indra/Perasaan' },
+      { f: 'Kitai (期待)', b: 'Harapan/Ekspektasi' }, { f: 'Kyousou (競争)', b: 'Persaingan' },
+      { f: 'Keizoku (継続)', b: 'Kelanjutan' }, { f: 'Kenri (権利)', b: 'Hak' },
+      { f: 'Gimu (義務)', b: 'Kewajiban' }, { f: 'Genin (原因)', b: 'Penyebab' },
+      { f: 'Shiten (視点)', b: 'Sudut pandang' }, { f: 'Shuchou (主張)', b: 'Klaim/Pendirian' },
+      { f: 'Shouhi (消費)', b: 'Konsumsi' }, { f: 'Shinpo (進歩)', b: 'Kemajuan' },
+      { f: 'Sekinin (責任)', b: 'Tanggung jawab' }, { f: 'Tayoru (頼る)', b: 'Bergantung' },
+      { f: 'Chousen (挑戦)', b: 'Tantangan/Mencoba' }, { f: 'Teian (提案)', b: 'Usulan' },
+      { f: 'Doryoku (努力)', b: 'Usaha' }, { f: 'Nayamu (悩む)', b: 'Bimbang/Khawatir' },
+      { f: 'Hikaku (比較)', b: 'Perbandingan' }, { f: 'Hyouka (評価)', b: 'Penilaian' },
+      { f: 'Fuan (不安)', b: 'Cemas' }, { f: 'Henka (変化)', b: 'Perubahan' },
+      { f: 'Mokuteki (目的)', b: 'Tujuan' }, { f: 'Yosoku (予測)', b: 'Prediksi/Perkiraan' }
+    ],
     'Mahir (N1)': [
       { f: 'Keikou (傾向)', b: 'Kecenderungan' }, { f: 'Kouken (貢献)', b: 'Kontribusi' },
       { f: 'Haaku (把握)', b: 'Memahami' }, { f: 'Issei ni (一斉に)', b: 'Serentak' },
@@ -103,10 +307,24 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Iji (維持)', b: 'Pemeliharaan' }, { f: 'Kanri (管理)', b: 'Manajemen' },
       { f: 'Unei (運営)', b: 'Pengoperasian' }, { f: 'Soshiki (組織)', b: 'Organisasi' },
       { f: 'Kiban (基盤)', b: 'Landasan' }, { f: 'Tenbou (展望)', b: 'Prospek' }
-    ]
+    ],
   },
   'Korea 🇰🇷': {
-    'Pemula': [
+    'Huruf (Hangul)': [
+      { f: 'ㄱ', b: 'g/k' }, { f: 'ㄴ', b: 'n' },
+      { f: 'ㄷ', b: 'd/t' }, { f: 'ㄹ', b: 'r/l' },
+      { f: 'ㅁ', b: 'm' }, { f: 'ㅂ', b: 'b/p' },
+      { f: 'ㅅ', b: 's' }, { f: 'ㅇ', b: 'ng' },
+      { f: 'ㅈ', b: 'j' }, { f: 'ㅊ', b: 'ch' },
+      { f: 'ㅋ', b: 'k' }, { f: 'ㅌ', b: 't' },
+      { f: 'ㅍ', b: 'p' }, { f: 'ㅎ', b: 'h' },
+      { f: 'ㅏ', b: 'a' }, { f: 'ㅑ', b: 'ya' },
+      { f: 'ㅓ', b: 'eo' }, { f: 'ㅕ', b: 'yeo' },
+      { f: 'ㅗ', b: 'o' }, { f: 'ㅛ', b: 'yo' },
+      { f: 'ㅜ', b: 'u' }, { f: 'ㅠ', b: 'yu' },
+      { f: 'ㅡ', b: 'eu' }, { f: 'ㅣ', b: 'i' }
+    ],
+    'Pemula (TOPIK 1)': [
       { f: 'Annyeong (안녕)', b: 'Halo' }, { f: 'Sarang (사랑)', b: 'Cinta' },
       { f: 'Hada (하다)', b: 'Melakukan' }, { f: 'Meokda (먹다)', b: 'Makan' },
       { f: 'Gada (가다)', b: 'Pergi' }, { f: 'Mul (물)', b: 'Air' },
@@ -123,7 +341,41 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Mwo (뭐)', b: 'Apa' }, { f: 'Nugu (누구)', b: 'Siapa' },
       { f: 'Wae (왜)', b: 'Kenapa' }, { f: 'Eotteoke (어떻게)', b: 'Bagaimana' }
     ],
-    'Menengah': [
+    'Dasar (TOPIK 2)': [
+      { f: 'Sijak (시작)', b: 'Mulai/Permulaan' }, { f: 'Undong (운동)', b: 'Olahraga' },
+      { f: 'Yeohaeng (여행)', b: 'Perjalanan wisata' }, { f: 'Chwimi (취미)', b: 'Hobi' },
+      { f: 'Nalssi (날씨)', b: 'Cuaca' }, { f: 'Gyejeol (계절)', b: 'Musim' },
+      { f: 'Byeongwon (병원)', b: 'Rumah sakit' }, { f: 'Yak (약)', b: 'Obat' },
+      { f: 'Apeuda (아프다)', b: 'Sakit' }, { f: 'Pigonhada (피곤하다)', b: 'Lelah' },
+      { f: 'Bappeuda (바쁘다)', b: 'Sibuk' }, { f: 'Sikdang (식당)', b: 'Rumah makan' },
+      { f: 'Eumsik (음식)', b: 'Makanan' }, { f: 'Gagyeok (가격)', b: 'Harga' },
+      { f: 'Ssada (싸다)', b: 'Murah' }, { f: 'Bissada (비싸다)', b: 'Mahal' },
+      { f: 'Jeonhwa (전화)', b: 'Telepon' }, { f: 'Hoesa (회사)', b: 'Perusahaan/Kantor' },
+      { f: 'Jigeop (직업)', b: 'Profesi' }, { f: 'Gajok (가족)', b: 'Keluarga' },
+      { f: 'Saenggak (생각)', b: 'Pikiran' }, { f: 'Gibun (기분)', b: 'Suasana hati' },
+      { f: 'Jumal (주말)', b: 'Akhir pekan' }, { f: 'Achim (아침)', b: 'Pagi/Sarapan' },
+      { f: 'Jeonyeok (저녁)', b: 'Malam/Makan malam' }, { f: 'Ttatteuthada (따뜻하다)', b: 'Hangat' },
+      { f: 'Chupda (춥다)', b: 'Dingin' }, { f: 'Deopda (덥다)', b: 'Panas (cuaca)' },
+      { f: 'Baeuda (배우다)', b: 'Belajar' }, { f: 'Gareuchida (가르치다)', b: 'Mengajar' }
+    ],
+    'Kerja (EPS-TOPIK)': [
+      { f: 'Gongjang (공장)', b: 'Pabrik' }, { f: 'Gigye (기계)', b: 'Mesin' },
+      { f: 'Anjeonmo (안전모)', b: 'Helm pengaman' }, { f: 'Jangap (장갑)', b: 'Sarung tangan' },
+      { f: 'Bullyang (불량)', b: 'Barang cacat' }, { f: 'Jaego (재고)', b: 'Stok' },
+      { f: 'Chulgeun (출근)', b: 'Berangkat kerja' }, { f: 'Toegeun (퇴근)', b: 'Pulang kerja' },
+      { f: 'Yageun (야근)', b: 'Kerja malam' }, { f: 'Janeop (잔업)', b: 'Lembur' },
+      { f: 'Wolgeup (월급)', b: 'Gaji bulanan' }, { f: 'Hyuga (휴가)', b: 'Cuti' },
+      { f: 'Sajangnim (사장님)', b: 'Bos/Pemilik usaha' }, { f: 'Banjang (반장)', b: 'Mandor/Ketua regu' },
+      { f: 'Dongnyo (동료)', b: 'Rekan kerja' }, { f: 'Wiheom (위험)', b: 'Bahaya' },
+      { f: 'Juui (주의)', b: 'Perhatian/Hati-hati' }, { f: 'Geumji (금지)', b: 'Larangan/Dilarang' },
+      { f: 'Sago (사고)', b: 'Kecelakaan' }, { f: 'Busang (부상)', b: 'Cedera' },
+      { f: 'Boheom (보험)', b: 'Asuransi' }, { f: 'Gyeyakseo (계약서)', b: 'Surat kontrak' },
+      { f: 'Oegugin deungnokjeung (외국인등록증)', b: 'Kartu registrasi orang asing' }, { f: 'Gisuksa (기숙사)', b: 'Asrama' },
+      { f: 'Jeongni (정리)', b: 'Merapikan' }, { f: 'Cheongso (청소)', b: 'Membersihkan' },
+      { f: 'Unban (운반)', b: 'Pengangkutan' }, { f: 'Pojang (포장)', b: 'Pengemasan' },
+      { f: 'Jisi (지시)', b: 'Instruksi' }, { f: 'Sincheong (신청)', b: 'Pengajuan/Pendaftaran' }
+    ],
+    'Menengah (TOPIK 3-4)': [
       { f: 'Yaksok (약속)', b: 'Janji' }, { f: 'Haengbok (행복)', b: 'Kebahagiaan' },
       { f: 'Munhwa (문화)', b: 'Budaya' }, { f: 'Seonggyeok (성격)', b: 'Kepribadian' },
       { f: 'Gyeongheom (경험)', b: 'Pengalaman' }, { f: 'Gihoe (기회)', b: 'Kesempatan' },
@@ -136,11 +388,11 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Iyu (이유)', b: 'Alasan' }, { f: 'Gyeolgwa (결과)', b: 'Hasil' },
       { f: 'Juyohada (중요하다)', b: 'Penting' }, { f: 'Piryohada (필요하다)', b: 'Perlu' },
       { f: 'Ganeunghada (가능하다)', b: 'Mungkin' }, { f: 'Bulganeunghada (불가능하다)', b: 'Tidak mungkin' },
-      { f: 'Simgakhada (심각하다)', b: 'Serius' }, { f: 'Wihyeomhada (위험하다)', b: 'Berbahaya' },
+      { f: 'Simgakhada (심각하다)', b: 'Serius' }, { f: 'Wiheomhada (위험하다)', b: 'Berbahaya' },
       { f: 'Anjeonhada (안전하다)', b: 'Aman' }, { f: 'Pyeonhada (편하다)', b: 'Nyaman' },
       { f: 'Bulpyeonhada (불편하다)', b: 'Tidak nyaman' }, { f: 'Bokjaphada (복잡하다)', b: 'Rumit' }
     ],
-    'Mahir': [
+    'Mahir (TOPIK 5-6)': [
       { f: 'Gyeongje (경제)', b: 'Ekonomi' }, { f: 'Jeongchi (정치)', b: 'Politik' },
       { f: 'Baljeon (발전)', b: 'Perkembangan' }, { f: 'Gwanjeom (관점)', b: 'Sudut pandang' },
       { f: 'Yeonghyang (영향)', b: 'Pengaruh' }, { f: 'Hyogwa (효과)', b: 'Efek' },
@@ -156,7 +408,7 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Sijang (시장)', b: 'Pasar' }, { f: 'Tuja (투자)', b: 'Investasi' },
       { f: 'Sobija (소비자)', b: 'Konsumen' }, { f: 'Saengsan (생산)', b: 'Produksi' },
       { f: 'Suchul (수출)', b: 'Ekspor' }, { f: 'Suip (수입)', b: 'Impor' }
-    ]
+    ],
   },
   'Jerman 🇩🇪': {
     'Pemula (A1)': [
@@ -176,6 +428,23 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Der Stuhl', b: 'Kursi' }, { f: 'Das Auto', b: 'Mobil' },
       { f: 'Der Zug', b: 'Kereta' }, { f: 'Das Flugzeug', b: 'Pesawat' }
     ],
+    'Dasar (A2)': [
+      { f: 'Die Wohnung', b: 'Apartemen/Tempat tinggal' }, { f: 'Die Miete', b: 'Sewa' },
+      { f: 'Der Nachbar', b: 'Tetangga' }, { f: 'Die Rechnung', b: 'Tagihan' },
+      { f: 'Das Geld', b: 'Uang' }, { f: 'Der Termin', b: 'Janji temu' },
+      { f: 'Der Bahnhof', b: 'Stasiun' }, { f: 'Die Fahrkarte', b: 'Tiket' },
+      { f: 'Das Wetter', b: 'Cuaca' }, { f: 'Die Krankheit', b: 'Penyakit' },
+      { f: 'Der Arzt', b: 'Dokter' }, { f: 'Die Apotheke', b: 'Apotek' },
+      { f: 'Gesund', b: 'Sehat' }, { f: 'Krank', b: 'Sakit' },
+      { f: 'Müde', b: 'Lelah/Capek' }, { f: 'Billig', b: 'Murah' },
+      { f: 'Teuer', b: 'Mahal' }, { f: 'Kaufen', b: 'Membeli' },
+      { f: 'Verkaufen', b: 'Menjual' }, { f: 'Warten', b: 'Menunggu' },
+      { f: 'Vergessen', b: 'Lupa' }, { f: 'Helfen', b: 'Membantu' },
+      { f: 'Bezahlen', b: 'Membayar' }, { f: 'Schlafen', b: 'Tidur' },
+      { f: 'Kochen', b: 'Memasak' }, { f: 'Der Geburtstag', b: 'Ulang tahun' },
+      { f: 'Das Geschenk', b: 'Hadiah' }, { f: 'Die Kleidung', b: 'Pakaian' },
+      { f: 'Der Schlüssel', b: 'Kunci' }, { f: 'Heute', b: 'Hari ini' }
+    ],
     'Menengah (B1)': [
       { f: 'Die Erfahrung', b: 'Pengalaman' }, { f: 'Die Entscheidung', b: 'Keputusan' },
       { f: 'Vielleicht', b: 'Mungkin' }, { f: 'Die Zukunft', b: 'Masa depan' },
@@ -193,8 +462,42 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Wichtig', b: 'Penting' }, { f: 'Richtig', b: 'Benar' },
       { f: 'Falsch', b: 'Salah' }, { f: 'Möglich', b: 'Mungkin' }
     ],
+    'Kerja & perawat (Pflege)': [
+      { f: 'Die Ausbildung', b: 'Pendidikan vokasi' }, { f: 'Die Pflege', b: 'Perawatan' },
+      { f: 'Die Pflegekraft', b: 'Tenaga perawat' }, { f: 'Der Patient', b: 'Pasien' },
+      { f: 'Die Station', b: 'Bangsal' }, { f: 'Die Schicht', b: 'Shift/Giliran kerja' },
+      { f: 'Der Dienstplan', b: 'Jadwal dinas' }, { f: 'Die Übergabe', b: 'Serah terima shift' },
+      { f: 'Der Blutdruck', b: 'Tekanan darah' }, { f: 'Das Fieber', b: 'Demam' },
+      { f: 'Die Schmerzen', b: 'Rasa sakit/Nyeri' }, { f: 'Die Spritze', b: 'Suntikan' },
+      { f: 'Die Wunde', b: 'Luka' }, { f: 'Der Verband', b: 'Perban' },
+      { f: 'Die Medikamente', b: 'Obat-obatan' }, { f: 'Waschen', b: 'Mencuci/Memandikan' },
+      { f: 'Umlagern', b: 'Mengubah posisi pasien' }, { f: 'Der Rollstuhl', b: 'Kursi roda' },
+      { f: 'Das Pflegeheim', b: 'Panti wreda' }, { f: 'Die Angehörigen', b: 'Keluarga pasien' },
+      { f: 'Die Dokumentation', b: 'Dokumentasi' }, { f: 'Die Hygiene', b: 'Kebersihan/Higiene' },
+      { f: 'Desinfizieren', b: 'Mendisinfeksi' }, { f: 'Der Notfall', b: 'Keadaan darurat' },
+      { f: 'Der Arbeitsvertrag', b: 'Kontrak kerja' }, { f: 'Das Gehalt', b: 'Gaji' },
+      { f: 'Die Krankenversicherung', b: 'Asuransi kesehatan' }, { f: 'Die Aufenthaltserlaubnis', b: 'Izin tinggal' },
+      { f: 'Die Bewerbung', b: 'Lamaran kerja' }, { f: 'Der Lebenslauf', b: 'Daftar riwayat hidup' }
+    ],
+    'Menengah atas (B2)': [
+      { f: 'Die Bedingung', b: 'Syarat/Kondisi' }, { f: 'Der Vorteil', b: 'Keuntungan/Kelebihan' },
+      { f: 'Der Nachteil', b: 'Kerugian/Kekurangan' }, { f: 'Die Ursache', b: 'Penyebab' },
+      { f: 'Die Folge', b: 'Akibat' }, { f: 'Der Zusammenhang', b: 'Keterkaitan/Hubungan' },
+      { f: 'Die Voraussetzung', b: 'Prasyarat' }, { f: 'Die Absicht', b: 'Niat' },
+      { f: 'Der Vorschlag', b: 'Usulan' }, { f: 'Die Behauptung', b: 'Klaim/Pernyataan' },
+      { f: 'Der Zweifel', b: 'Keraguan' }, { f: 'Die Erwartung', b: 'Harapan/Ekspektasi' },
+      { f: 'Die Gewohnheit', b: 'Kebiasaan' }, { f: 'Die Umgebung', b: 'Lingkungan sekitar' },
+      { f: 'Beeinflussen', b: 'Memengaruhi' }, { f: 'Berücksichtigen', b: 'Mempertimbangkan' },
+      { f: 'Vermeiden', b: 'Menghindari' }, { f: 'Unterstützen', b: 'Mendukung' },
+      { f: 'Überzeugen', b: 'Meyakinkan' }, { f: 'Sich bewerben', b: 'Melamar' },
+      { f: 'Sich beschweren', b: 'Mengeluh' }, { f: 'Zuverlässig', b: 'Dapat diandalkan' },
+      { f: 'Umfangreich', b: 'Luas/Ekstensif' }, { f: 'Ausreichend', b: 'Cukup/Memadai' },
+      { f: 'Offensichtlich', b: 'Jelas/Nyata' }, { f: 'Allerdings', b: 'Akan tetapi/Namun' },
+      { f: 'Dennoch', b: 'Meskipun begitu' }, { f: 'Trotzdem', b: 'Tetap saja' },
+      { f: 'Inzwischen', b: 'Sementara itu/Kini' }, { f: 'Ehrlich', b: 'Jujur' }
+    ],
     'Mahir (C1)': [
-      { f: 'Die Verantwortung', b: 'Tanggung jawab' }, { f: 'Die Gesellschaft', b: 'Masyarakat' },
+      { f: 'Die Verantwortung', b: 'Tanggung jawab' }, { f: 'Die Gleichberechtigung', b: 'Kesetaraan' },
       { f: 'Unabhängig', b: 'Independen' }, { f: 'Die Herausforderung', b: 'Tantangan' },
       { f: 'Die Auswirkung', b: 'Dampak' }, { f: 'Die Maßnahme', b: 'Tindakan' },
       { f: 'Die Verhandlung', b: 'Negosiasi' }, { f: 'Die Zusammenarbeit', b: 'Kerja sama' },
@@ -209,9 +512,42 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Die Theorie', b: 'Teori' }, { f: 'Die Praxis', b: 'Praktik' },
       { f: 'Die Kompetenz', b: 'Kompetensi' }, { f: 'Die Qualifikation', b: 'Kualifikasi' },
       { f: 'Die Effizienz', b: 'Efisiensi' }, { f: 'Die Qualität', b: 'Kualitas' }
-    ]
+    ],
+    'Akademik (TestDaF)': [
+      { f: 'Die Untersuchung', b: 'Penelitian/Pemeriksaan' }, { f: 'Die Studie', b: 'Studi/Kajian' },
+      { f: 'Die Erkenntnis', b: 'Temuan/Pengetahuan' }, { f: 'Die Schlussfolgerung', b: 'Kesimpulan' },
+      { f: 'Die Annahme', b: 'Asumsi/Anggapan' }, { f: 'Die Methode', b: 'Metode' },
+      { f: 'Der Ansatz', b: 'Pendekatan' }, { f: 'Die Grafik', b: 'Grafik' },
+      { f: 'Der Anteil', b: 'Porsi/Bagian' }, { f: 'Der Rückgang', b: 'Penurunan' },
+      { f: 'Der Anstieg', b: 'Kenaikan' }, { f: 'Die Bevölkerung', b: 'Penduduk' },
+      { f: 'Die Hochschule', b: 'Perguruan tinggi' }, { f: 'Das Studium', b: 'Masa kuliah/Studi' },
+      { f: 'Die Vorlesung', b: 'Kuliah (ceramah)' }, { f: 'Die Prüfung', b: 'Ujian' },
+      { f: 'Die Bewertung', b: 'Penilaian' }, { f: 'Erläutern', b: 'Menjelaskan' },
+      { f: 'Darstellen', b: 'Menyajikan/Menggambarkan' }, { f: 'Belegen', b: 'Membuktikan' },
+      { f: 'Ableiten', b: 'Menyimpulkan' }, { f: 'Widerlegen', b: 'Membantah' },
+      { f: 'Vergleichen', b: 'Membandingkan' }, { f: 'Zunehmen', b: 'Bertambah' },
+      { f: 'Abnehmen', b: 'Berkurang' }, { f: 'Erheblich', b: 'Cukup besar/Signifikan' },
+      { f: 'Wesentlich', b: 'Mendasar/Penting' }, { f: 'Zunächst', b: 'Pertama-tama' },
+      { f: 'Folglich', b: 'Oleh karena itu' }, { f: 'Hingegen', b: 'Sebaliknya' }
+    ],
   },
   'Arab 🇸🇦': {
+    'Huruf (Hijaiyah)': [
+      { f: 'ا', b: 'Alif' }, { f: 'ب', b: 'Ba' },
+      { f: 'ت', b: 'Ta' }, { f: 'ث', b: 'Tsa' },
+      { f: 'ج', b: 'Jim' }, { f: 'ح', b: 'Ḥa/Ha' },
+      { f: 'خ', b: 'Kha/Kho' }, { f: 'د', b: 'Dal' },
+      { f: 'ذ', b: 'Dzal' }, { f: 'ر', b: 'Ra' },
+      { f: 'ز', b: 'Zai' }, { f: 'س', b: 'Sin' },
+      { f: 'ش', b: 'Syin' }, { f: 'ص', b: 'Shad/Sad' },
+      { f: 'ض', b: 'Dhad/Dad' }, { f: 'ط', b: 'Tha' },
+      { f: 'ظ', b: 'Zha' }, { f: 'ع', b: '\'Ain' },
+      { f: 'غ', b: 'Ghain' }, { f: 'ف', b: 'Fa' },
+      { f: 'ق', b: 'Qaf' }, { f: 'ك', b: 'Kaf' },
+      { f: 'ل', b: 'Lam' }, { f: 'م', b: 'Mim' },
+      { f: 'ن', b: 'Nun' }, { f: 'و', b: 'Wau' },
+      { f: 'ه', b: 'Ha' }, { f: 'ي', b: 'Ya' }
+    ],
     'Pemula': [
       { f: 'Salam (سلام)', b: 'Halo' }, { f: 'Shukran (شكرا)', b: 'Terima kasih' },
       { f: 'Kitaab (كتاب)', b: 'Buku' }, { f: 'Qalam (قلم)', b: 'Pena' },
@@ -246,6 +582,23 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Jawab (جواب)', b: 'Jawaban' }, { f: 'Fikra (فكرة)', b: 'Ide' },
       { f: 'Raay (رأي)', b: 'Pendapat' }, { f: 'Hiwar (حوار)', b: 'Dialog' }
     ],
+    'Akademik (TOAFL)': [
+      { f: 'Jaami\'ah (جامعة)', b: 'Universitas' }, { f: 'Kulliyyah (كلية)', b: 'Fakultas' },
+      { f: 'Muhaadharah (محاضرة)', b: 'Kuliah/Ceramah' }, { f: 'Ustaadz (أستاذ)', b: 'Dosen/Guru' },
+      { f: 'Thaalib (طالب)', b: 'Mahasiswa/Pelajar' }, { f: 'Imtihaan (امتحان)', b: 'Ujian' },
+      { f: 'Bahts (بحث)', b: 'Penelitian' }, { f: 'Diraasah (دراسة)', b: 'Studi/Kajian' },
+      { f: 'Maqaalah (مقالة)', b: 'Artikel' }, { f: 'Kitaabah (كتابة)', b: 'Tulisan/Menulis' },
+      { f: 'Qiraa\'ah (قراءة)', b: 'Bacaan/Membaca' }, { f: 'Istimaa\' (استماع)', b: 'Menyimak' },
+      { f: 'Qawaa\'id (قواعد)', b: 'Tata bahasa/Kaidah' }, { f: 'Mufradaat (مفردات)', b: 'Kosakata' },
+      { f: 'Ma\'naa (معنى)', b: 'Makna' }, { f: 'Natiijah (نتيجة)', b: 'Hasil' },
+      { f: 'Sabab (سبب)', b: 'Sebab' }, { f: 'Ahammiyyah (أهمية)', b: 'Kepentingan/Urgensi' },
+      { f: 'Mujtama\' (مجتمع)', b: 'Masyarakat' }, { f: 'Hadhaarah (حضارة)', b: 'Peradaban' },
+      { f: 'Lughah (لغة)', b: 'Bahasa' }, { f: 'Tarjamah (ترجمة)', b: 'Terjemahan' },
+      { f: 'Mu\'jam (معجم)', b: 'Kamus' }, { f: 'Maktabah (مكتبة)', b: 'Perpustakaan' },
+      { f: 'Ma\'luumaat (معلومات)', b: 'Informasi' }, { f: 'Tajribah (تجربة)', b: 'Percobaan/Pengalaman' },
+      { f: 'Mulaahazhah (ملاحظة)', b: 'Catatan/Pengamatan' }, { f: 'Khulaashah (خلاصة)', b: 'Ringkasan/Kesimpulan' },
+      { f: 'Muqaaranah (مقارنة)', b: 'Perbandingan' }, { f: 'Tahliil (تحليل)', b: 'Analisis' }
+    ],
     'Mahir': [
       { f: 'Iqtisad (اقتصاد)', b: 'Ekonomi' }, { f: 'Siyasa (سياسة)', b: 'Politik' },
       { f: 'Thaqafa (ثقافة)', b: 'Budaya' }, { f: 'Tarikh (تاريخ)', b: 'Sejarah' },
@@ -262,6 +615,60 @@ export const WORD_DATABASE: Record<string, Record<string, PresetWord[]>> = {
       { f: 'Taluwuth (تلوث)', b: 'Polusi' }, { f: 'Taghayyur (تغير)', b: 'Perubahan' },
       { f: 'Tatawwur (تطور)', b: 'Perkembangan' }, { f: 'Tanmiya (تنمية)', b: 'Pembangunan' },
       { f: 'Taawun (تعاون)', b: 'Kerja sama' }, { f: 'Tasamuh (تسامح)', b: 'Toleransi' }
-    ]
-  }
+    ],
+  },
+};
+
+// Paket huruf: jawabannya cara baca, bukan arti, jadi hanya ditanyakan satu arah.
+export const SCRIPT_LEVELS = new Set(['Huruf (Hiragana)', 'Huruf (Katakana)', 'Huruf (Hangul)', 'Huruf (Hijaiyah)']);
+
+export const isScriptSource = (source: string) => source.startsWith('preset-') && SCRIPT_LEVELS.has(source.slice('preset-'.length));
+
+// Keterangan singkat tiap paket di layar Paket kata.
+export const PACK_NOTES: Record<string, Record<string, string>> = {
+  'Inggris 🇬🇧': {
+    'Pemula (A1)': 'Benda dan kata kerja sehari-hari untuk mulai.',
+    'Dasar (A2)': 'Belanja, perjalanan, kesehatan, dan keadaan sehari-hari.',
+    'Menengah (B1)': 'Kata umum untuk bercerita dan berpendapat.',
+    'Kerja (TOEIC)': 'Kantor, rekrutmen, keuangan, dan logistik; sering muncul di TOEIC Listening & Reading.',
+    'Menengah atas (B2)': 'Kata untuk berdiskusi dan menulis lebih formal.',
+    'Akademik (TOEFL)': 'Kosakata bacaan akademik TOEFL ITP/iBT: sains, sejarah, lingkungan.',
+    'Akademik (IELTS)': 'Topik esai IELTS Writing Task 2: kota, lingkungan, kerja, kesehatan.',
+    'Mahir (C1)': 'Kata formal dan abstrak untuk tulisan dan presentasi.',
+    'Lanjutan (GRE)': 'Kata sulit yang khas soal verbal GRE.',
+  },
+  'Jepang 🇯🇵': {
+    'Huruf (Hiragana)': '46 huruf dasar. Ketik cara bacanya dalam huruf Latin (romaji).',
+    'Huruf (Katakana)': '46 huruf untuk kata serapan. Ketik cara bacanya dalam romaji.',
+    'Pemula (N5)': 'Kosakata level JLPT N5.',
+    'Dasar (N4)': 'Kosakata level JLPT N4: kata kerja dan kegiatan sehari-hari.',
+    'Kerja (JFT-Basic)': 'Tempat kerja, keselamatan, dan urusan hidup di Jepang; berguna untuk JFT-Basic dan program SSW.',
+    'Menengah (N3)': 'Kosakata level JLPT N3.',
+    'Menengah atas (N2)': 'Kosakata level JLPT N2 untuk bacaan dan pendapat.',
+    'Mahir (N1)': 'Kosakata level JLPT N1: kebijakan, organisasi, istilah formal.',
+  },
+  'Korea 🇰🇷': {
+    'Huruf (Hangul)': '14 konsonan dan 10 vokal dasar. Ketik bunyinya dalam huruf Latin.',
+    'Pemula (TOPIK 1)': 'Kosakata TOPIK I level 1.',
+    'Dasar (TOPIK 2)': 'Kosakata TOPIK I level 2: cuaca, makanan, kegiatan harian.',
+    'Kerja (EPS-TOPIK)': 'Pabrik, keselamatan kerja, dan administrasi; untuk ujian EPS-TOPIK pekerja ke Korea.',
+    'Menengah (TOPIK 3-4)': 'Kosakata TOPIK II level 3-4.',
+    'Mahir (TOPIK 5-6)': 'Kosakata TOPIK II level 5-6: ekonomi, politik, penelitian.',
+  },
+  'Jerman 🇩🇪': {
+    'Pemula (A1)': 'Setara Goethe-Zertifikat A1.',
+    'Dasar (A2)': 'Setara Goethe-Zertifikat A2: tempat tinggal, belanja, kesehatan.',
+    'Menengah (B1)': 'Setara Goethe-Zertifikat B1.',
+    'Kerja & perawat (Pflege)': 'Ausbildung dan perawatan pasien; untuk perawat dan pekerja ke Jerman.',
+    'Menengah atas (B2)': 'Setara Goethe-Zertifikat B2: berargumen dan menulis surat formal.',
+    'Mahir (C1)': 'Setara Goethe-Zertifikat C1.',
+    'Akademik (TestDaF)': 'Bahasa kuliah dan grafik untuk TestDaF / DSH.',
+  },
+  'Arab 🇸🇦': {
+    'Huruf (Hijaiyah)': '28 huruf hijaiyah. Ketik nama hurufnya.',
+    'Pemula': 'Keluarga, benda, dan waktu sehari-hari.',
+    'Menengah': 'Kehidupan, perjalanan, dan kesehatan.',
+    'Akademik (TOAFL)': 'Kosakata kampus dan kebahasaan untuk TOAFL.',
+    'Mahir': 'Ekonomi, politik, hukum, dan media.',
+  },
 };

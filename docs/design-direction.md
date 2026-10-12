@@ -112,14 +112,25 @@ Rekomendasi saya: tetap font sistem.
 
 ## 5. Motion
 
-Animasi hanya untuk state, umpan balik, dan orientasi:
+Animasi hanya untuk state, umpan balik, dan orientasi. Diterapkan dengan View
+Transitions API dan `@starting-style` (tanpa library), di `src/lib/transition.ts` dan
+bagian "Gerak" di `src/index.css`:
 
-- Progress sesi bergeser 200ms (orientasi).
-- Pergantian warna input dan umpan balik benar/salah 150ms (state).
-- Sheet/modal muncul dengan fade 150ms (orientasi lapisan).
+- **Pindah layar** 280ms: layar yang lebih dalam (beranda ke daftar kata, ke sesi) masuk
+  dari kanan, kembali masuk dari kiri, seperti navigasi aplikasi native. Arah diambil dari
+  kedalaman layar (`VIEW_DEPTH` di `App.tsx`).
+- **Kartu berikutnya**: kartu lama disisihkan ke kiri dengan sedikit miring, kartu baru
+  masuk dari kanan, progress bar memanjang mulus. Ini memperkuat metafora kartu indeks.
+- **Sheet konfirmasi** naik dari bawah di HP (dari sedikit di bawah di layar lebar),
+  latar meredup.
+- **Umpan balik** benar/salah muncul naik lembut 220ms; jawaban salah diberi satu dorongan
+  kecil ke samping.
+- **Pilihan "Satu kata / Sekaligus"**: pil aktif bergeser ke opsi yang dipilih.
+- Pergantian warna input 150ms.
 - **Dihapus**: `hover:scale`, `animate-bounce`, shadow besar, kelas `animate-*` yang
   tidak terdefinisi.
-- Semua animasi mati bila `prefers-reduced-motion` aktif.
+- Browser tanpa View Transitions langsung berganti layar tanpa animasi. Semua animasi
+  mati bila `prefers-reduced-motion` aktif.
 
 ## 6. Struktur layar (hasil dari tugas pengguna)
 

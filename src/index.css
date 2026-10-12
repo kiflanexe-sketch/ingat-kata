@@ -79,3 +79,63 @@
     animation-duration: 0.01ms !important;
   }
 }
+
+/* --- Gerak ---
+   Hanya untuk orientasi (pindah layar, kartu berikutnya) dan umpan balik state.
+   Semua mati bila prefers-reduced-motion aktif (lihat juga src/lib/transition.ts). */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 280ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+html[data-nav='forward']::view-transition-old(root) { animation-name: vt-out-to-left; }
+html[data-nav='forward']::view-transition-new(root) { animation-name: vt-in-from-right; }
+html[data-nav='back']::view-transition-old(root) { animation-name: vt-out-to-right; }
+html[data-nav='back']::view-transition-new(root) { animation-name: vt-in-from-left; }
+html[data-nav='card']::view-transition-old(root),
+html[data-nav='card']::view-transition-new(root) { animation-duration: 160ms; }
+
+/* Kartu berikutnya: kartu lama disisihkan ke kiri, kartu baru masuk dari kanan. */
+html[data-nav='card'] .vt-study-card { view-transition-name: study-card; }
+html[data-nav='card'] .vt-study-progress { view-transition-name: study-progress; }
+html[data-nav='card']::view-transition-old(study-card) { animation: vt-card-out 240ms cubic-bezier(0.4, 0, 1, 1) both; }
+html[data-nav='card']::view-transition-new(study-card) { animation: vt-card-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+html[data-nav='card']::view-transition-group(study-progress) { animation-duration: 320ms; }
+
+/* Pil pilihan aktif bergeser ke opsi baru. */
+.vt-seg-active { view-transition-name: seg-active; }
+::view-transition-group(seg-active) { animation-duration: 240ms; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+@keyframes vt-out-to-left { to { transform: translateX(-12%); opacity: 0; } }
+@keyframes vt-in-from-right { from { transform: translateX(16%); opacity: 0; } }
+@keyframes vt-out-to-right { to { transform: translateX(12%); opacity: 0; } }
+@keyframes vt-in-from-left { from { transform: translateX(-16%); opacity: 0; } }
+@keyframes vt-card-out { to { transform: translateX(-35%) rotate(-2deg); opacity: 0; } }
+@keyframes vt-card-in { from { transform: translateX(30%) rotate(1.5deg); opacity: 0; } }
+
+/* Masuk dengan @starting-style: sheet naik dari bawah, umpan balik muncul lembut. */
+.sheet-enter { transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 200ms ease-out; }
+.backdrop-enter { transition: opacity 200ms ease-out; }
+.enter-rise { transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 180ms ease-out; }
+@starting-style {
+  .sheet-enter { transform: translateY(24px); opacity: 0; }
+  .backdrop-enter { opacity: 0; }
+  .enter-rise { transform: translateY(6px); opacity: 0; }
+}
+@media (max-width: 639px) {
+  @starting-style {
+    .sheet-enter { transform: translateY(100%); opacity: 1; }
+  }
+}
+
+/* Jawaban salah: satu dorongan kecil ke samping, seperti kartu ditolak. */
+.nudge { animation: nudge 320ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+@keyframes nudge {
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

@@ -5,6 +5,7 @@ import { MAX_BOX, SRS_INTERVALS } from '../lib/srs.ts';
 import { formatDueIn } from '../lib/format.ts';
 import { canSpeak, speak } from '../lib/speech.ts';
 import { displayLangName } from '../data/languages.ts';
+import { isScriptSource } from '../data/words.ts';
 import { BoxChip, Button, Word } from '../components/ui.tsx';
 import { IconVolume, IconX } from '../components/Icon.tsx';
 
@@ -44,7 +45,8 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
   const forward = direction === 'forward';
   const questionText = forward ? card.front : card.back;
   const answerText = forward ? card.back : card.front;
-  const answerLabel = forward ? 'bahasa Indonesia' : foreignName;
+  const isScript = isScriptSource(card.source);
+  const answerLabel = isScript ? 'huruf Latin' : forward ? 'bahasa Indonesia' : foreignName;
   const speakable = canSpeak(cardLang);
 
   // Jawaban benar lanjut otomatis; beri waktu lebih bila ada catatan untuk dibaca.
@@ -79,7 +81,7 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
     <main className="mx-auto w-full max-w-content px-5 pb-10">
       <div className="flex items-center gap-3 min-h-14">
         <button onClick={onQuit} className="-ml-2 p-2 text-muted hover:text-ink" aria-label="Akhiri sesi"><IconX /></button>
-        <div className="flex-1 h-1.5 bg-line rounded-pill overflow-hidden" role="progressbar" aria-label="Kemajuan sesi" aria-valuemin={0} aria-valuemax={total} aria-valuenow={index}>
+        <div className="vt-study-progress flex-1 h-1.5 bg-line rounded-pill overflow-hidden" role="progressbar" aria-label="Kemajuan sesi" aria-valuemin={0} aria-valuemax={total} aria-valuenow={index}>
           <div className="h-full bg-primary transition-[width] duration-200" style={{ width: `${(index / total) * 100}%` }} />
         </div>
         <span className="text-secondary text-muted tabular-nums">{index + 1} / {total}</span>
@@ -88,9 +90,9 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
         <p className="text-meta text-subtle mb-2">{item.retry ? 'Mengulang kartu yang tadi salah' : 'Latihan: jawaban benar tidak menaikkan kotak'}</p>
       )}
 
-      <div className="index-card rounded-card border border-line shadow-card px-5 pb-5 mt-2">
+      <div className="vt-study-card index-card rounded-card border border-line shadow-card px-5 pb-5 mt-2">
         <div className="flex items-center justify-between h-11 text-meta text-muted">
-          <span>{forward ? `${foreignName} → Indonesia` : `Indonesia → ${foreignName}`}</span>
+          <span>{isScript ? `Huruf ${foreignName} → cara baca` : forward ? `${foreignName} → Indonesia` : `Indonesia → ${foreignName}`}</span>
           <BoxChip box={card.box} />
         </div>
         {/* Tinggi baris 64px = dua garis kartu, jadi kata duduk di atas garis biru. */}
@@ -103,7 +105,7 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
       {phase !== 'wrong' && (
         <form onSubmit={handleSubmit} className="mt-4">
           <label htmlFor="answer" className="sr-only">Jawaban dalam {answerLabel}</label>
-          <input id="answer" type="text" value={input} onChange={e => setInput(e.target.value)} placeholder={`Arti dalam ${answerLabel}`}
+          <input id="answer" type="text" value={input} onChange={e => setInput(e.target.value)} placeholder={isScript ? 'Cara baca dalam huruf Latin' : `Arti dalam ${answerLabel}`}
             autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} autoFocus readOnly={phase === 'correct'} enterKeyHint="done"
             lang={forward ? 'id' : undefined} dir="auto"
             className={`w-full min-h-14 px-4 text-answer rounded-control border-[1.5px] bg-card outline-none transition-colors duration-state placeholder:text-subtle ${phase === 'correct' ? 'border-ok bg-ok-soft text-ok' : 'border-control focus:border-primary'}`} />
@@ -117,7 +119,7 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
       )}
 
       {phase === 'correct' && (
-        <div role="status" className="mt-3 rounded-control bg-ok-soft text-ok px-4 py-3">
+        <div role="status" className="enter-rise mt-3 rounded-control bg-ok-soft text-ok px-4 py-3">
           <p><strong>Benar.</strong> {consequence(item, mode, true)}</p>
           {note && <p className="mt-1 text-secondary">{note}</p>}
           {!forward && <div className="mt-1 -ml-2">{speakButton}</div>}
@@ -127,7 +129,7 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
 
       {phase === 'wrong' && (
         <div role="alert" className="mt-4">
-          <div className="rounded-control bg-bad-soft px-4 py-3">
+          <div className="enter-rise nudge rounded-control bg-bad-soft px-4 py-3">
             <p className="text-bad"><strong>{input.trim() ? 'Belum tepat.' : 'Tidak apa-apa.'}</strong> {consequence(item, mode, false)}</p>
             {input.trim() && <p className="mt-2 text-secondary text-muted">Jawabanmu: <s>{input.trim()}</s></p>}
             <p className="mt-2 text-secondary text-muted">Jawaban ({answerLabel}):</p>
