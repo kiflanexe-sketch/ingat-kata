@@ -17,7 +17,10 @@ dan tanpa server.
 - Pemeriksa jawaban yang memaafkan: beberapa arti (`Perlu/Penting`), aksara asli dalam
   kurung (`Watashi (私)`), awalan `to`, diakritik, artikel Jerman yang terlupa, dan salah
   ketik kecil pada kata panjang.
-- Pengucapan lewat Web Speech API untuk bahasa bawaan.
+- Pengucapan lewat Web Speech API untuk bahasa bawaan, diputar setelah setiap jawaban
+  (bisa dimatikan). Kata Jepang, Korea, dan Arab diucapkan dari aksara aslinya, huruf lepas
+  sebagai suku kata. Suara berasal dari perangkat; Pengaturan & data menunjukkan bahasa
+  mana yang suaranya belum terpasang beserta cara memasangnya.
 - Kata baru dibuka bertahap dari antrian sesuai akurasi review terakhir
   (>= 80%: 5 kata, >= 50%: 2 kata, di bawahnya: fokus dulu).
 - Mode latihan (latih semua, latih yang salah, latihan campuran lintas bahasa) yang

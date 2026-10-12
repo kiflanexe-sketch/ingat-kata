@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ParsedBackup, RestoreMode, Settings } from '../lib/storage.ts';
 import type { DirectionSetting } from '../lib/srs.ts';
-import { displayLangName } from '../data/languages.ts';
+import { displayLangName, sampleWord } from '../data/languages.ts';
+import { SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
+import { speak, useVoices, voiceStatus } from '../lib/speech.ts';
 import { formatAgo } from '../lib/format.ts';
 import { isIOS, isStandalone, useInstallPrompt } from '../lib/install.ts';
 import { Button, Page, Title, TopBar } from '../components/ui.tsx';
@@ -39,6 +41,14 @@ export const SettingsView = ({ settings, now, canShareBackup, onChange, onBack, 
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const { canInstall, install } = useInstallPrompt();
   const standalone = isStandalone();
+  useVoices();
+  const voiceLangs = Object.keys(WORD_DATABASE);
+  const missingVoices = voiceLangs.filter(l => voiceStatus(l) === 'missing');
+  const sample = (lang: string) => {
+    const levels = Object.keys(WORD_DATABASE[lang]);
+    const vocab = levels.find(l => !SCRIPT_LEVELS.has(l)) ?? levels[0];
+    return WORD_DATABASE[lang][vocab][0].f;
+  };
 
   useEffect(() => {
     navigator.storage?.persisted?.().then(setPersisted).catch(() => setPersisted(null));
@@ -76,9 +86,38 @@ export const SettingsView = ({ settings, now, canShareBackup, onChange, onBack, 
           <input type="checkbox" checked={settings.autoSpeak} onChange={e => onChange({ ...settings, autoSpeak: e.target.checked })} className="mt-1 w-5 h-5 accent-primary" />
           <span>
             <span className="block text-ink">Ucapkan kata asing setelah menjawab</span>
-            <span className="block text-secondary text-muted">Memakai suara bawaan perangkat. Tombol Dengar tetap tersedia.</span>
+            <span className="block text-secondary text-muted">Diputar setelah setiap jawaban. Tombol Dengar tetap tersedia.</span>
           </span>
         </label>
+
+        <p className="mt-4 text-secondary text-muted">Suara berasal dari perangkat ini, jadi perlu terpasang per bahasa.</p>
+        <ul className="mt-2">
+          {voiceLangs.map(lang => {
+            const status = voiceStatus(lang);
+            return (
+              <li key={lang} className="flex items-center justify-between gap-3 py-2 border-t border-line">
+                <span>
+                  <span className="block text-ink">{displayLangName(lang)}</span>
+                  <span className={`block text-meta ${status === 'missing' ? 'text-bad' : 'text-subtle'}`}>
+                    {status === 'available' ? 'Suara tersedia' : status === 'missing' ? 'Suara belum terpasang' : 'Belum diketahui; coba putar'}
+                  </span>
+                </span>
+                <button onClick={() => void speak(sample(lang), lang)} className="min-h-11 px-3 text-secondary font-semibold text-primary" aria-label={`Coba suara ${displayLangName(lang)}: ${sampleWord(sample(lang), lang)}`}>
+                  Coba
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        {missingVoices.length > 0 && (
+          <div className="mt-3 text-secondary text-ink space-y-1">
+            <p>Cara memasang suara {missingVoices.map(displayLangName).join(', ')}:</p>
+            <p><strong>Android:</strong> Setelan → Sistem → Bahasa & masukan → Output text-to-speech → ikon roda gigi di Mesin Google → Instal data suara → pilih bahasanya.</p>
+            <p><strong>iPhone/iPad:</strong> Pengaturan → Aksesibilitas → Konten Lisan → Suara → pilih bahasa lalu unduh suaranya.</p>
+            <p><strong>Windows:</strong> Setelan → Waktu & bahasa → Bahasa & wilayah → tambah bahasa dengan fitur "Teks ke ucapan".</p>
+            <p className="text-muted">Setelah terpasang, tutup lalu buka lagi IngatKata.</p>
+          </div>
+        )}
       </Section>
 
       <Section title="Cadangan">
