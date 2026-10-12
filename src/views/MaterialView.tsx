@@ -1,5 +1,5 @@
 import type { Card } from '../types.ts';
-import { WORD_DATABASE } from '../data/words.ts';
+import { PACK_NOTES, SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { displayLangName } from '../data/languages.ts';
 import { ACTIVE_FILL_TARGET, hasPair } from '../lib/srs.ts';
 import { Button, Page, Title, TopBar, Word } from '../components/ui.tsx';
@@ -30,7 +30,7 @@ export const MaterialView = ({ lang, cards, onImportLevel, onBack, onAddCustom }
   return (
     <Page>
       <TopBar onBack={onBack} backLabel={name} />
-      <Title sub={`Kata dari paket masuk antrian dan dibuka bertahap. Bila kata aktifmu kurang dari ${ACTIVE_FILL_TARGET}, sebagian langsung aktif.`}>Paket kata {name}</Title>
+      <Title sub={`Urut dari yang termudah. Kata dari paket masuk antrian dan dibuka bertahap. Bila kata aktifmu kurang dari ${ACTIVE_FILL_TARGET}, sebagian langsung aktif.`}>Paket kata {name}</Title>
       <ul>
         {levelNames.map(level => {
           const words = levels[level];
@@ -39,8 +39,9 @@ export const MaterialView = ({ lang, cards, onImportLevel, onBack, onAddCustom }
             <li key={level} className="py-4 border-t border-line flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <h2 className="text-section text-ink">{level}</h2>
+                {PACK_NOTES[lang]?.[level] && <p className="text-secondary text-ink">{PACK_NOTES[lang][level]}</p>}
                 <p className="text-secondary text-muted">
-                  {words.length} kata{missing > 0 && missing < words.length && `, ${missing} belum ada di deck`}
+                  {words.length} {SCRIPT_LEVELS.has(level) ? 'huruf' : 'kata'}{missing > 0 && missing < words.length && `, ${missing} belum ada di deck`}
                 </p>
                 <p className="mt-1 text-muted truncate">
                   {words.slice(0, 3).map((w, i) => (
