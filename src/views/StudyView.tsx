@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { AnswerRecord, SessionMode, StudyItem } from '../types.ts';
 import { checkAnswer } from '../lib/answer.ts';
 import { MAX_BOX, SRS_INTERVALS } from '../lib/srs.ts';
 import { formatDueIn } from '../lib/format.ts';
-import { canSpeak, speak } from '../lib/speech.ts';
+import { canSpeak, speak, useVoiceStatus } from '../lib/speech.ts';
 import { displayLangName } from '../data/languages.ts';
 import { isScriptSource } from '../data/words.ts';
 import { BoxChip, Button, Word } from '../components/ui.tsx';
@@ -48,19 +48,29 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
   const isScript = isScriptSource(card.source);
   const answerLabel = isScript ? 'huruf Latin' : forward ? 'bahasa Indonesia' : foreignName;
   const speakable = canSpeak(cardLang);
+  const voice = useVoiceStatus(speakable ? cardLang : undefined);
+  const speech = useRef<Promise<void>>(Promise.resolve());
 
-  // Jawaban benar lanjut otomatis; beri waktu lebih bila ada catatan untuk dibaca.
+  // Jawaban benar lanjut otomatis setelah jeda baca dan setelah pengucapan selesai,
+  // supaya suara kata ini tidak terpotong oleh kartu berikutnya.
   useEffect(() => {
     if (phase !== 'correct') return;
-    const timer = setTimeout(onNext, note ? 2800 : 1400);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    const pause = new Promise(r => setTimeout(r, note ? 2800 : 1400));
+    Promise.all([pause, speech.current]).then(() => { if (!cancelled) onNext(); });
+    return () => { cancelled = true; };
   }, [phase, note, onNext]);
 
   const grade = (correct: boolean, given: string, resultNote?: string) => {
     setPhase(correct ? 'correct' : 'wrong');
     setNote(resultNote);
     onGrade({ card, direction, correct, given });
-    if (autoSpeak && speakable && (!forward || !correct)) speak(card.front, cardLang);
+    // Selalu ucapkan kata asingnya setelah menjawab, benar maupun salah, dari arah mana pun.
+    if (autoSpeak && speakable) {
+      const spoken = speak(card.front, cardLang);
+      // Tanpa suara untuk bahasa ini, jangan tahan pergantian kartu menunggu suara.
+      speech.current = voice === 'missing' ? Promise.resolve() : spoken;
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -72,7 +82,7 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
   };
 
   const speakButton = speakable ? (
-    <button type="button" onClick={() => speak(card.front, cardLang)} className="inline-flex items-center gap-1.5 min-h-11 px-2 text-secondary font-semibold text-primary" aria-label={`Dengarkan pengucapan ${card.front}`}>
+    <button type="button" onClick={() => { speech.current = speak(card.front, cardLang); }} className="inline-flex items-center gap-1.5 min-h-11 px-2 text-secondary font-semibold text-primary" aria-label={`Dengarkan pengucapan ${card.front}`}>
       <IconVolume size={18} /> Dengar
     </button>
   ) : null;
@@ -100,6 +110,9 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
           <Word text={questionText} lang={forward ? cardLang : undefined} className="!leading-[64px]" />
         </h1>
         <div className="flex justify-center items-center h-16">{forward && speakButton}</div>
+        {voice === 'missing' && (
+          <p className="text-meta text-subtle text-center -mt-2">Suara {foreignName} belum terpasang di perangkat ini. Cara memasangnya ada di Pengaturan & data.</p>
+        )}
       </div>
 
       {phase !== 'wrong' && (
