@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { AnswerRecord, Card, SessionMode, StudyItem } from './types.ts';
-import { WORD_DATABASE } from './data/words.ts';
+import { WORD_DATABASE, isScriptSource } from './data/words.ts';
 import { MIXED_DECK } from './data/languages.ts';
 import { normalize } from './lib/answer.ts';
 import {
@@ -12,6 +12,7 @@ import {
 } from './lib/storage.ts';
 import { ONE_DAY } from './lib/srs.ts';
 import { formatAgo } from './lib/format.ts';
+import { withTransition, type TransitionKind } from './lib/transition.ts';
 import { Modal, type ModalConfig } from './components/Modal.tsx';
 import { DeckListView } from './views/DeckListView.tsx';
 import { OnboardingView } from './views/OnboardingView.tsx';
@@ -30,6 +31,9 @@ type Summary = { mode: SessionMode; results: AnswerRecord[] };
 
 // Di mode Gabungan id kartu hanya unik per bahasa.
 const sameCard = (a: Card, b: Card) => a.id === b.id && a.originLang === b.originLang;
+
+// Kedalaman layar menentukan arah geser: lebih dalam = maju (dari kanan), lebih dangkal = kembali.
+const VIEW_DEPTH: Record<string, number> = { onboarding: 0, decks: 0, settings: 1, home: 1, material: 2, list: 2, add: 2, summary: 3, study: 3 };
 
 const BACKUP_REMINDER_AFTER = 7 * ONE_DAY;
 
@@ -65,6 +69,13 @@ export default function App() {
     if (listDeckLangs().length > 0) void requestPersistentStorage();
   }, []);
 
+  const navigate = (next: View, update?: () => void) => {
+    const from = VIEW_DEPTH[view];
+    const to = VIEW_DEPTH[next];
+    const kind: TransitionKind = to > from ? 'forward' : to < from ? 'back' : 'fade';
+    withTransition(() => { update?.(); setView(next); }, kind);
+  };
+
   const updateSettings = (next: Settings) => { setSettings(next); saveSettings(next); };
 
   const showAlert = (title: string, message: string) => setModal({ type: 'alert', title, message });
@@ -84,15 +95,16 @@ export default function App() {
   const updateCards = (fn: (cards: Card[]) => Card[]) => { if (deck) commit({ ...deck, cards: fn(deck.cards) }); };
 
   const goToDecks = () => {
-    setDeck(null);
-    setNow(Date.now());
-    setView(listDeckLangs().length > 0 ? 'decks' : 'onboarding');
+    navigate(listDeckLangs().length > 0 ? 'decks' : 'onboarding', () => {
+      setDeck(null);
+      setNow(Date.now());
+    });
   };
 
   const openDeck = (lang: string) => {
     setDeck({ lang, cards: loadDeck(lang), lastAccuracy: loadMeta(lang).lastAccuracy });
     setNow(Date.now());
-    setView('home');
+    navigate('home');
   };
 
   // Memilih bahasa yang sudah punya deck membuka deck itu, tidak menimpanya.
@@ -111,15 +123,17 @@ export default function App() {
     );
     if (cards.length === 0) return showAlert('Belum ada kata aktif', 'Mulai belajar di salah satu bahasa dulu.');
     setDeck({ lang: MIXED_DECK, cards, lastAccuracy: null });
-    setView('home');
+    navigate('home');
   };
 
   // --- Sesi belajar ---
 
   const startSession = (mode: SessionMode, cards: Card[]) => {
     if (cards.length === 0) return;
-    setSession({ mode, queue: buildQueue(cards, settings.direction), index: 0, results: [] });
-    setView('study');
+    // Kartu huruf selalu huruf -> cara baca; kebalikannya butuh keyboard aksara asing.
+    const queue = buildQueue(cards, settings.direction).map(i => (isScriptSource(i.card.source) ? { ...i, direction: 'forward' as const } : i));
+    setSession({ mode, queue, index: 0, results: [] });
+    navigate('study');
   };
 
   const activeCards = deck?.cards.filter(c => c.status === 'active') ?? [];
@@ -155,21 +169,25 @@ export default function App() {
   };
 
   const finishSession = (s: Session) => {
-    setSession(null);
-    setNow(Date.now());
-    if (s.results.length === 0) { setView('home'); return; }
-    // Hanya sesi review terjadwal yang menentukan jatah kata baru.
-    if (deck && s.mode === 'review' && deck.lang !== MIXED_DECK) {
-      commit({ ...deck, lastAccuracy: s.results.filter(r => r.correct).length / s.results.length });
+    if (s.results.length === 0) {
+      navigate('home', () => { setSession(null); setNow(Date.now()); });
+      return;
     }
-    setSummary({ mode: s.mode, results: s.results });
-    setView('summary');
+    navigate('summary', () => {
+      setSession(null);
+      setNow(Date.now());
+      // Hanya sesi review terjadwal yang menentukan jatah kata baru.
+      if (deck && s.mode === 'review' && deck.lang !== MIXED_DECK) {
+        commit({ ...deck, lastAccuracy: s.results.filter(r => r.correct).length / s.results.length });
+      }
+      setSummary({ mode: s.mode, results: s.results });
+    });
   };
 
   const nextCard = () => {
     if (!session) return;
     if (session.index + 1 >= session.queue.length) finishSession(session);
-    else setSession({ ...session, index: session.index + 1 });
+    else withTransition(() => setSession({ ...session, index: session.index + 1 }), 'card');
   };
 
   const practiceWrongFromSummary = () => {
@@ -199,7 +217,7 @@ export default function App() {
     const lines = [`${r.added.length} kata ditambahkan: ${active} langsung aktif, ${r.added.length - active} masuk antrian.`];
     if (r.skipped > 0) lines.push(`${r.skipped} kata dilewati karena sudah ada di deck.`);
     showAlert(`Paket ${level}`, lines.join('\n'));
-    setView('home');
+    navigate('home');
   };
 
   const addCard = (front: string, back: string): SaveResult => {
@@ -281,7 +299,7 @@ export default function App() {
     const langs = Object.keys(backup.decks).length;
     if (ok) showAlert('Cadangan dipulihkan', `${langs} bahasa ${mode === 'merge' ? 'digabungkan dengan' : 'menggantikan'} data di perangkat ini.`);
     else showAlert('Sebagian gagal', 'Penyimpanan browser penuh. Beberapa deck mungkin tidak terpulihkan.');
-    setView('decks');
+    navigate('decks');
   };
 
   // --- Render ---
@@ -310,9 +328,9 @@ export default function App() {
       <>
         {modalEl}
         {view === 'onboarding' || langs.length === 0 ? (
-          <OnboardingView existingLangs={langs} onPick={pickLanguage} onCancel={langs.length > 0 ? () => setView('decks') : undefined} onSettings={() => setView('settings')} />
+          <OnboardingView existingLangs={langs} onPick={pickLanguage} onCancel={langs.length > 0 ? () => navigate('decks') : undefined} onSettings={() => navigate('settings')} />
         ) : (
-          <DeckListView stats={stats} now={now} backupReminder={reminder} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => setView('onboarding')} onSettings={() => setView('settings')} />
+          <DeckListView stats={stats} now={now} backupReminder={reminder} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => navigate('onboarding')} onSettings={() => navigate('settings')} />
         )}
       </>
     );
@@ -336,8 +354,8 @@ export default function App() {
       {view === 'home' && deck.lang !== MIXED_DECK && (
         <HomeView
           stats={stats} now={now} relearnCount={deck.cards.filter(needsRelearn).length} lastAccuracy={deck.lastAccuracy} hasPresets={!!WORD_DATABASE[deck.lang]}
-          onStart={startReview} onAdd={() => setView('add')} onList={() => setView('list')} onRepeatAll={practiceAll} onRepeatWrong={practiceWrong}
-          onSmartAdd={smartAdd} onChangeLang={goToDecks} onManageMaterial={() => setView('material')}
+          onStart={startReview} onAdd={() => navigate('add')} onList={() => navigate('list')} onRepeatAll={practiceAll} onRepeatWrong={practiceWrong}
+          onSmartAdd={smartAdd} onChangeLang={goToDecks} onManageMaterial={() => navigate('material')}
         />
       )}
       {view === 'study' && session && studyItem && (
@@ -347,17 +365,17 @@ export default function App() {
         />
       )}
       {view === 'summary' && summary && (
-        <SummaryView results={summary.results} mode={summary.mode} lang={deck.lang} nextDueIn={deck.lang === MIXED_DECK ? null : nextDueIn} onHome={() => setView('home')} onPracticeWrong={practiceWrongFromSummary} />
+        <SummaryView results={summary.results} mode={summary.mode} lang={deck.lang} nextDueIn={deck.lang === MIXED_DECK ? null : nextDueIn} onHome={() => navigate('home')} onPracticeWrong={practiceWrongFromSummary} />
       )}
       {view === 'add' && (
-        <AddView lang={deck.lang} onBack={() => setView('home')} onSave={addCard} onBulkSave={bulkAdd}
+        <AddView lang={deck.lang} onBack={() => navigate('home')} onSave={addCard} onBulkSave={bulkAdd}
           onConfirmLeave={leave => showConfirm('Belum disimpan', 'Ada isian yang belum disimpan. Yakin ingin kembali?', leave, { confirmLabel: 'Kembali' })} />
       )}
       {view === 'list' && (
-        <ListView lang={deck.lang} cards={deck.cards} now={now} onBack={() => setView('home')} onDelete={deleteCard} onBulkDelete={bulkDelete} onBulkMove={bulkMove} onEdit={editCard} onDeleteDeck={removeDeck} onAdd={() => setView('add')} />
+        <ListView lang={deck.lang} cards={deck.cards} now={now} onBack={() => navigate('home')} onDelete={deleteCard} onBulkDelete={bulkDelete} onBulkMove={bulkMove} onEdit={editCard} onDeleteDeck={removeDeck} onAdd={() => navigate('add')} />
       )}
       {view === 'material' && (
-        <MaterialView lang={deck.lang} cards={deck.cards} onImportLevel={importLevel} onBack={() => setView('home')} onAddCustom={() => setView('add')} />
+        <MaterialView lang={deck.lang} cards={deck.cards} onImportLevel={importLevel} onBack={() => navigate('home')} onAddCustom={() => navigate('add')} />
       )}
     </div>
   );

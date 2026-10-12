@@ -3,6 +3,7 @@ import { parseBulk } from '../lib/bulk.ts';
 import { displayLangName, speechCodeFor } from '../data/languages.ts';
 import { WORD_DATABASE } from '../data/words.ts';
 import { Button, Page, Title, TopBar } from '../components/ui.tsx';
+import { withTransition } from '../lib/transition.ts';
 
 export type SaveResult = { ok: true } | { ok: false; reason: string };
 export type BulkResult = { added: number; active: number; skipped: number; invalidLines: number[] };
@@ -62,11 +63,11 @@ export const AddView = ({ lang, onBack, onSave, onBulkSave, onConfirmLeave }: Pr
     if (r.added > 0 && invalidLines.length === 0) setBulkText('');
   };
 
-  const switchMode = (m: 'single' | 'bulk') => { setMode(m); setMessage(null); };
+  const switchMode = (m: 'single' | 'bulk') => withTransition(() => { setMode(m); setMessage(null); }, 'fade');
   const field = 'w-full min-h-12 px-3 rounded-control border-[1.5px] border-control bg-card text-body placeholder:text-subtle focus:border-primary outline-none';
   const tab = (m: 'single' | 'bulk', label: string) => (
     <button role="tab" aria-selected={mode === m} onClick={() => switchMode(m)}
-      className={`flex-1 min-h-11 rounded-control text-secondary font-semibold transition-colors duration-state ${mode === m ? 'bg-card text-ink shadow-[0_1px_2px_rgb(36_38_43/0.12)]' : 'text-muted hover:text-ink'}`}>{label}</button>
+      className={`flex-1 min-h-11 rounded-control text-secondary font-semibold transition-colors duration-state ${mode === m ? 'vt-seg-active bg-card text-ink shadow-[0_1px_2px_rgb(36_38_43/0.12)]' : 'text-muted hover:text-ink'}`}>{label}</button>
   );
 
   return (
