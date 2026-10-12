@@ -1,35 +1,103 @@
-import type { Card, SessionMode, StudyItem } from '../types.ts';
+import { Rating, State, createEmptyCard, fsrs, generatorParameters, type Card as FsrsCard, type FSRS } from 'ts-fsrs';
+import type { Card, Grade, SessionMode, StudyItem } from '../types.ts';
 
 export const ONE_MINUTE = 60 * 1000;
 export const ONE_DAY = 24 * 60 * 60 * 1000;
-// Jeda ulang per kotak Leitner. Kotak 0 = baru atau baru saja salah.
-export const SRS_INTERVALS = [0, ONE_DAY, 3 * ONE_DAY, 7 * ONE_DAY, 14 * ONE_DAY, 30 * ONE_DAY];
-export const MAX_BOX = SRS_INTERVALS.length - 1;
+export const MAX_BOX = 5;
+// Kotak 4 ke atas = jarak ulang 21 hari atau lebih (setara kartu "mature" di Anki).
 export const MASTERED_BOX = 4;
-export const RELEARN_DELAY = ONE_MINUTE;
 // Saat paket diimpor, kata langsung aktif sampai jumlah kata aktif mencapai angka ini.
 export const ACTIVE_FILL_TARGET = 5;
 
-export const isDue = (card: Card, now: number) => card.status === 'active' && card.nextReview <= now;
-export const isMastered = (card: Card) => card.status === 'active' && card.box >= MASTERED_BOX;
-// Pernah diulang dan jawaban terakhirnya salah (jawaban benar selalu menaikkan ke kotak >= 1).
-export const needsRelearn = (card: Card) => card.status === 'active' && card.lastReviewed !== null && card.box === 0;
+// --- Penjadwalan FSRS ---
+// Jadwal tiap kata dihitung FSRS (Free Spaced Repetition Scheduler) dari riwayat jawabannya:
+// kata dijadwalkan ulang tepat saat peluang ingatnya turun ke target (bawaan 90%).
 
-export function applyReview(card: Card, correct: boolean, now: number, mode: SessionMode): Card {
-  if (!correct) {
-    const relearnAt = now + RELEARN_DELAY;
+export const DEFAULT_RETENTION = 0.9;
+export const RETENTION_CHOICES = [0.85, 0.9, 0.95];
+const MAX_INTERVAL_DAYS = 365;
+
+const schedulers = new Map<number, FSRS>();
+function scheduler(retention: number): FSRS {
+  let f = schedulers.get(retention);
+  if (!f) {
+    f = fsrs(generatorParameters({
+      request_retention: retention,
+      maximum_interval: MAX_INTERVAL_DAYS,
+      enable_fuzz: true, // geser jadwal sedikit supaya kartu tidak menumpuk di hari yang sama
+      enable_short_term: true,
+      learning_steps: ['1m'], // salah atau kartu baru yang sulit: muncul lagi semenit kemudian
+      relearning_steps: ['1m'],
+    }));
+    schedulers.set(retention, f);
+  }
+  return f;
+}
+
+// Kotak = rentang jarak ulang saat ini, untuk tampilan: <1, 1-3, 3-7, 7-21, 21-60, 60+ hari.
+const BOX_THRESHOLD_DAYS = [1, 3, 7, 21, 60];
+export const boxForInterval = (ms: number) => BOX_THRESHOLD_DAYS.filter(d => ms >= d * ONE_DAY - ONE_MINUTE).length;
+
+// Jarak ulang kotak Leitner lama, untuk mengubah progres lama menjadi keadaan FSRS.
+const LEGACY_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30];
+
+export function toFsrsCard(card: Card, now: number): FsrsCard {
+  const due = new Date(card.nextReview);
+  // Jam perangkat bisa mundur (diubah manual, atau cadangan dari perangkat lain yang jamnya
+  // lebih maju). FSRS menolak ulangan sebelum ulangan terakhir, jadi waktunya dijepit.
+  const last = card.lastReviewed !== null ? new Date(Math.min(card.lastReviewed, now)) : undefined;
+  const elapsed = last ? Math.max(0, Math.floor((now - +last) / ONE_DAY)) : 0;
+  const scheduled = last ? Math.max(0, Math.round((card.nextReview - +last) / ONE_DAY)) : 0;
+  const f = card.fsrs;
+  const valid = f && Number.isFinite(f.s) && f.s > 0 && Number.isFinite(f.d) && f.d >= 1 && f.d <= 10;
+  if (valid) {
     return {
-      ...card,
-      box: 0,
-      nextReview: mode === 'review' ? relearnAt : Math.min(card.nextReview, relearnAt),
-      lastReviewed: now,
-      lapses: card.lapses + 1,
+      due, last_review: last, stability: f.s, difficulty: f.d, state: f.state as State,
+      reps: f.reps, lapses: card.lapses, learning_steps: f.step, elapsed_days: elapsed, scheduled_days: scheduled,
     };
   }
-  if (mode === 'practice') return card;
-  const box = Math.min(card.box + 1, MAX_BOX);
-  return { ...card, box, nextReview: now + SRS_INTERVALS[box], lastReviewed: now };
+  if (!last) return { ...createEmptyCard(due), lapses: card.lapses };
+  // Kartu dari versi Leitner: stabilitas ditebak dari jarak kotaknya, kesulitan dari jumlah salah.
+  const box = Math.min(MAX_BOX, Math.max(0, card.box));
+  return {
+    due, last_review: last,
+    stability: Math.max(0.5, LEGACY_INTERVAL_DAYS[box]),
+    difficulty: Math.min(10, 5 + card.lapses * 0.5),
+    state: box === 0 ? State.Relearning : State.Review,
+    reps: Math.max(1, box), lapses: card.lapses, learning_steps: 0, elapsed_days: elapsed, scheduled_days: scheduled,
+  };
 }
+
+const RATING: Record<Grade, Rating.Again | Rating.Hard | Rating.Good> = { again: Rating.Again, hard: Rating.Hard, good: Rating.Good };
+
+// Mode 'practice' (latihan) tidak mengubah jadwal bila benar; jawaban salah tetap dicatat.
+export function applyReview(card: Card, grade: Grade, now: number, mode: SessionMode, retention = DEFAULT_RETENTION): Card {
+  if (mode === 'practice' && grade !== 'again') return card;
+  let next: FsrsCard;
+  try {
+    next = scheduler(retention).next(toFsrsCard(card, now), new Date(now), RATING[grade]).card;
+    if (!Number.isFinite(+next.due) || !(next.stability > 0)) throw new Error('hasil FSRS tidak valid');
+  } catch {
+    // Data kartu tidak terbaca FSRS: jangan hentikan sesi. Salah tetap diulang sebentar lagi,
+    // benar dijadwalkan besok, dan keadaan FSRS dimulai ulang pada ulangan berikutnya.
+    const nextReview = now + (grade === 'again' ? ONE_MINUTE : ONE_DAY);
+    return { ...card, box: boxForInterval(nextReview - now), nextReview, lastReviewed: now, lapses: card.lapses + (grade === 'again' ? 1 : 0), fsrs: undefined };
+  }
+  const nextReview = +next.due;
+  return {
+    ...card,
+    box: boxForInterval(nextReview - now),
+    nextReview,
+    lastReviewed: now,
+    lapses: card.lapses + (grade === 'again' ? 1 : 0),
+    fsrs: { s: next.stability, d: next.difficulty, state: next.state as 0 | 1 | 2 | 3, reps: next.reps, step: next.learning_steps },
+  };
+}
+
+export const isDue = (card: Card, now: number) => card.status === 'active' && card.nextReview <= now;
+export const isMastered = (card: Card) => card.status === 'active' && card.box >= MASTERED_BOX;
+// Pernah diulang dan jawaban terakhirnya salah (salah selalu menjadwalkan ulang di kotak 0).
+export const needsRelearn = (card: Card) => card.status === 'active' && card.lastReviewed !== null && card.box === 0;
 
 // Jumlah kata baru yang boleh dibuka dari antrian, berdasarkan akurasi sesi terakhir.
 export function smartAddCount(lastAccuracy: number | null): number {

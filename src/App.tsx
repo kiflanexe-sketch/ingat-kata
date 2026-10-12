@@ -150,12 +150,14 @@ export default function App() {
       .map(c => (item.direction === 'forward' ? c.back : c.front));
   };
 
-  const gradeCurrent = (record: AnswerRecord) => {
-    if (!session || !deck) return;
+  // Mengembalikan kartu sesudah dinilai, supaya layar belajar bisa menyebut jadwal barunya.
+  const gradeCurrent = (record: AnswerRecord): Card | null => {
+    if (!session || !deck) return null;
     const item = session.queue[session.index];
-    if (item.retry) return; // ulangan di akhir sesi tidak dinilai dua kali
+    if (item.retry) return null; // ulangan di akhir sesi tidak dinilai dua kali
     const t = Date.now();
-    const update = (c: Card) => applyReview(c, record.correct, t, session.mode);
+    const update = (c: Card) => applyReview(c, record.grade, t, session.mode, settings.retention);
+    const updated = update(item.card);
     if (deck.lang === MIXED_DECK && item.card.originLang) {
       const origin = item.card.originLang;
       saveDeck(origin, loadDeck(origin).map(c => (c.id === item.card.id ? update(c) : c)));
@@ -166,6 +168,7 @@ export default function App() {
       results: [...session.results, record],
       queue: record.correct ? session.queue : [...session.queue, { card: item.card, direction: item.direction, retry: true }],
     });
+    return updated;
   };
 
   const finishSession = (s: Session) => {

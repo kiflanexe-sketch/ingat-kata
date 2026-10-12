@@ -52,10 +52,19 @@ test('pengaturan: nilai rusak kembali ke bawaan', () => {
   assert.deepEqual(storage.loadSettings(), storage.DEFAULT_SETTINGS);
 });
 
+test('keadaan FSRS kartu ikut tersimpan dan terpulihkan; nilai rusak dibuang', () => {
+  const fsrs = { s: 12.5, d: 4.2, state: 2 as const, reps: 3, step: 0 };
+  storage.saveDeck('Inggris 🇬🇧', [card({ id: 'a', box: 3, lastReviewed: 10, fsrs }), card({ id: 'b', front: 'Book', back: 'Buku', fsrs: { ...fsrs, d: 99 } })]);
+  const parsed = storage.parseBackup(storage.exportBackup());
+  const cards = parsed!.decks['Inggris 🇬🇧'];
+  assert.deepEqual(cards.find(c => c.id === 'a')?.fsrs, fsrs);
+  assert.equal(cards.find(c => c.id === 'b')?.fsrs, undefined);
+});
+
 test('cadangan lalu pulihkan "ganti semua" menyamakan isi perangkat', () => {
   storage.saveDeck('Inggris 🇬🇧', [card({ id: 'a', box: 2, lastReviewed: 10 })]);
   storage.saveMeta('Inggris 🇬🇧', { lastAccuracy: 0.9 });
-  storage.saveSettings({ direction: 'backward', autoSpeak: false, lastBackupAt: 5 });
+  storage.saveSettings({ direction: 'backward', autoSpeak: false, retention: 0.95, lastBackupAt: 5 });
   const file = storage.exportBackup();
 
   localStorage.clear();
@@ -70,6 +79,7 @@ test('cadangan lalu pulihkan "ganti semua" menyamakan isi perangkat', () => {
   const s = storage.loadSettings();
   assert.equal(s.direction, 'backward');
   assert.equal(s.autoSpeak, false);
+  assert.equal(s.retention, 0.95);
 });
 
 test('pulihkan "gabungkan" mempertahankan deck lokal dan menyatukan kartu', () => {

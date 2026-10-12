@@ -1,8 +1,8 @@
 # IngatKata
 
 Aplikasi flashcard untuk menghafal kosakata bahasa asing dari bahasa Indonesia.
-Pengguna mengetik jawaban (bukan sekadar membalik kartu), dan kartu dijadwalkan ulang
-dengan sistem kotak Leitner. Semua data tersimpan di browser (localStorage), tanpa akun
+Pengguna mengetik jawaban (bukan sekadar membalik kartu), dan setiap kata dijadwalkan ulang
+dengan FSRS (Free Spaced Repetition Scheduler). Semua data tersimpan di browser (localStorage), tanpa akun
 dan tanpa server.
 
 ## Fitur
@@ -21,6 +21,8 @@ dan tanpa server.
   (bisa dimatikan). Kata Jepang, Korea, dan Arab diucapkan dari aksara aslinya, huruf lepas
   sebagai suku kata. Suara berasal dari perangkat; Pengaturan & data menunjukkan bahasa
   mana yang suaranya belum terpasang beserta cara memasangnya.
+- Jadwal ulang per kata dengan FSRS: kata yang dikuasai makin jarang muncul, yang sering
+  salah lebih sering; target ingatan bisa dipilih (85%, 90%, 95%).
 - Kata baru dibuka bertahap dari antrian sesuai akurasi review terakhir
   (>= 80%: 5 kata, >= 50%: 2 kata, di bawahnya: fokus dulu).
 - Mode latihan (latih semua, latih yang salah, latihan campuran lintas bahasa) yang
@@ -47,14 +49,32 @@ browser. Karena itu:
 - Aplikasi meminta penyimpanan persisten ke browser. Di iOS, memasang aplikasi ke Layar
   Utama juga mencegah Safari menghapus data situs yang lama tidak dibuka.
 
-## Jadwal ulang
+## Jadwal ulang (FSRS)
 
-| Kotak | 0 | 1 | 2 | 3 | 4 | 5 |
-|---|---|---|---|---|---|---|
-| Diulang lagi setelah | langsung | 1 hari | 3 hari | 7 hari | 14 hari | 30 hari |
+Jadwal dihitung dengan [FSRS](https://github.com/open-spaced-repetition/fsrs4anki/wiki/The-Algorithm)
+lewat library [`ts-fsrs`](https://github.com/open-spaced-repetition/ts-fsrs) (MIT). Untuk tiap kata
+FSRS menyimpan **kesulitan** dan **stabilitas** (berapa lama ingatan bertahan), lalu menjadwalkan
+ulangan saat peluang ingat turun ke target pengguna (bawaan 90%, bisa 85% atau 95% di Pengaturan).
 
-Jawaban benar menaikkan satu kotak, jawaban salah kembali ke kotak 0 dan muncul lagi
-1 menit kemudian. Kotak 4 ke atas dihitung "hafal".
+Nilai jawaban diturunkan otomatis dari jawaban yang diketik:
+
+| Jawaban | Nilai FSRS |
+|---|---|
+| Salah atau "Tidak tahu" | Again: diulang semenit kemudian, kata dianggap lebih sulit |
+| Benar dengan salah ketik kecil atau artikel Jerman terlupa | Hard |
+| Benar | Good |
+
+Contoh dengan target 90%: kata baru yang dijawab benar muncul lagi sekitar 2 hari, lalu 11, 46,
+dan 160-an hari bila terus benar (jarak maksimal 365 hari, digeser sedikit acak supaya tidak
+menumpuk). Lupa tidak mengulang dari nol: setelah belajar ulang, kata yang tadinya berjarak
+5 bulan kembali muncul sekitar 5 hari kemudian.
+
+**Kotak 0-5** di tampilan menunjukkan jarak ulang saat ini: kurang dari 1 hari, 1-3, 3-7, 7-21,
+21-60, dan lebih dari 60 hari. Kotak 4 ke atas (21 hari atau lebih) dihitung "hafal".
+
+Mode latihan (latih semua, latih yang salah, latihan campuran) tidak mengubah jadwal bila benar,
+tetapi jawaban salah tetap dicatat. Progres dari versi Leitner diubah otomatis: jarak kotak lama
+dipakai sebagai tebakan awal stabilitas.
 
 ## Deploy
 

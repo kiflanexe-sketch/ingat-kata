@@ -100,7 +100,7 @@ export const HomeView = ({ stats, now, relearnCount, lastAccuracy, hasPresets, o
           <h2 className="text-section text-ink mb-3">Kotak kartu</h2>
           <BoxShelf counts={boxCounts(stats.boxes)} />
           <p className="mt-3 text-secondary text-muted">
-            {stats.mastered} hafal (kotak 4-5) · {stats.reserve} di antrian. Jawaban benar naik satu kotak, salah kembali ke kotak 0.
+            {stats.mastered} hafal · {stats.reserve} di antrian. Kotak menunjukkan jarak ulang tiap kata, dari kurang dari sehari (kotak 0) sampai dua bulan lebih (kotak 5). Jaraknya dihitung dari riwayat jawabanmu: kata yang kamu kuasai makin jarang muncul, yang sering lupa makin sering.
           </p>
         </section>
       )}

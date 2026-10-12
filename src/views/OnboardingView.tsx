@@ -28,7 +28,7 @@ export const OnboardingView = ({ existingLangs, onPick, onCancel, onSettings }: 
   return (
     <Page>
       <TopBar onBack={onCancel} backLabel="Bahasamu" />
-      <Title sub="Kata ditanyakan bolak-balik dari bahasa Indonesia. Yang kamu jawab benar muncul makin jarang: besok, 3 hari, seminggu, dua minggu, lalu sebulan.">
+      <Title sub="Kata ditanyakan bolak-balik dari bahasa Indonesia. Tiap kata dijadwalkan ulang tepat sebelum kamu cenderung lupa: yang sudah dikuasai makin jarang muncul, yang sering salah lebih sering.">
         Pilih bahasa
       </Title>
 
