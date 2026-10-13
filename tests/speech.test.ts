@@ -9,6 +9,7 @@ const SCRIPT: Record<string, RegExp> = {
   'ja-JP': /^[぀-ヿ一-鿿々ー\s]+$/,
   'ko-KR': /^[가-힣\s]+$/,
   'ar-SA': /^[؀-ۿ\s]+$/,
+  'zh-CN': /^[\u4e00-\u9fff]+$/,
   'en-GB': /^[A-Za-z' -]+$/,
   'de-DE': /^[A-Za-zÄÖÜäöüß' -]+$/,
 };

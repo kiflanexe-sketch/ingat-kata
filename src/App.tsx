@@ -7,11 +7,12 @@ import {
   activateFromReserve, addWords, applyReview, buildQueue, hasPair, isDue, needsRelearn, nextDueAt, shuffleArray, smartAddCount,
 } from './lib/srs.ts';
 import {
-  deckExists, deckStats, deleteDeck, exportBackup, listDeckLangs, loadDeck, loadMeta, loadSettings, parseBackup, requestPersistentStorage,
+  deckExists, deckStats, deleteDeck, exportBackup, listDeckLangs, loadDeck, loadLog, loadMeta, loadSettings, saveLog, parseBackup, requestPersistentStorage,
   restoreBackup, saveDeck, saveMeta, saveSettings, type ParsedBackup, type RestoreMode, type Settings,
 } from './lib/storage.ts';
 import { ONE_DAY } from './lib/srs.ts';
 import { formatAgo } from './lib/format.ts';
+import { recordAnswer, recordSnapshot } from './lib/stats.ts';
 import { withTransition, type TransitionKind } from './lib/transition.ts';
 import { Modal, type ModalConfig } from './components/Modal.tsx';
 import { DeckListView } from './views/DeckListView.tsx';
@@ -39,13 +40,17 @@ const BACKUP_REMINDER_AFTER = 7 * ONE_DAY;
 
 const backupFileName = () => `ingatkata-cadangan-${new Date().toISOString().slice(0, 10)}.json`;
 
-// Web Share dengan file: tersedia di Android dan iOS, jarang di desktop.
-const detectFileShare = () => {
-  try {
-    return typeof navigator.canShare === 'function' && navigator.canShare({ files: [new File(['{}'], 'cek.json', { type: 'application/json' })] });
-  } catch {
-    return false;
+
+// Catat jumlah kata hafal dan aktif hari ini, untuk grafik progres di halaman depan.
+const snapshotProgress = () => {
+  let mastered = 0;
+  let active = 0;
+  for (const lang of listDeckLangs()) {
+    const s = deckStats(lang, loadDeck(lang), Date.now());
+    mastered += s.mastered;
+    active += s.active;
   }
+  if (active > 0) saveLog(recordSnapshot(loadLog(), Date.now(), mastered, active));
 };
 
 export default function App() {
@@ -56,7 +61,6 @@ export default function App() {
   const [modal, setModal] = useState<ModalConfig | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [settings, setSettings] = useState<Settings>(loadSettings);
-  const [canShareBackup] = useState(detectFileShare);
 
   // Jumlah kartu jatuh tempo ikut bergerak walau layar dibiarkan terbuka.
   useEffect(() => {
@@ -67,6 +71,7 @@ export default function App() {
   // Data hanya ada di browser; minta agar tidak dihapus otomatis saat ruang menipis.
   useEffect(() => {
     if (listDeckLangs().length > 0) void requestPersistentStorage();
+    snapshotProgress();
   }, []);
 
   const navigate = (next: View, update?: () => void) => {
@@ -168,6 +173,7 @@ export default function App() {
       results: [...session.results, record],
       queue: record.correct ? session.queue : [...session.queue, { card: item.card, direction: item.direction, retry: true }],
     });
+    saveLog(recordAnswer(loadLog(), t, record.correct, record.ms));
     return updated;
   };
 
@@ -184,6 +190,7 @@ export default function App() {
         commit({ ...deck, lastAccuracy: s.results.filter(r => r.correct).length / s.results.length });
       }
       setSummary({ mode: s.mode, results: s.results });
+      snapshotProgress();
     });
   };
 
@@ -282,16 +289,6 @@ export default function App() {
     markBackedUp();
   };
 
-  const shareBackup = async () => {
-    const file = new File([exportBackup()], backupFileName(), { type: 'application/json' });
-    try {
-      await navigator.share({ files: [file], title: 'Cadangan IngatKata' });
-      markBackedUp();
-    } catch (e) {
-      if ((e as Error).name !== 'AbortError') showAlert('Gagal membagikan', 'Coba "Simpan file cadangan" sebagai gantinya.');
-    }
-  };
-
   const readBackupFile = async (file: File) => parseBackup(await file.text());
 
   const restore = (backup: ParsedBackup, mode: RestoreMode) => {
@@ -313,8 +310,8 @@ export default function App() {
     return (
       <>
         {modalEl}
-        <SettingsView settings={settings} now={now} canShareBackup={canShareBackup} onChange={updateSettings} onBack={goToDecks}
-          onDownload={downloadBackup} onShare={() => void shareBackup()} onReadFile={readBackupFile} onRestore={restore} />
+        <SettingsView settings={settings} now={now} onChange={updateSettings} onBack={goToDecks}
+          onDownload={downloadBackup} onReadFile={readBackupFile} onRestore={restore} />
       </>
     );
   }
@@ -333,7 +330,7 @@ export default function App() {
         {view === 'onboarding' || langs.length === 0 ? (
           <OnboardingView existingLangs={langs} onPick={pickLanguage} onCancel={langs.length > 0 ? () => navigate('decks') : undefined} onSettings={() => navigate('settings')} />
         ) : (
-          <DeckListView stats={stats} now={now} backupReminder={reminder} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => navigate('onboarding')} onSettings={() => navigate('settings')} />
+          <DeckListView stats={stats} now={now} log={loadLog()} backupReminder={reminder} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => navigate('onboarding')} onSettings={() => navigate('settings')} />
         )}
       </>
     );

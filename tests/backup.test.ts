@@ -96,6 +96,18 @@ test('pulihkan "gabungkan" mempertahankan deck lokal dan menyatukan kartu', () =
   assert.equal(en.find(c => c.id === 'a')?.box, 5);
 });
 
+test('riwayat belajar ikut dicadangkan; gabungkan tidak menggandakan hitungan', () => {
+  localStorage.setItem('ingatkata-log', JSON.stringify({ '2026-10-12': { r: 10, c: 9, ms: 1000 } }));
+  storage.saveDeck('Inggris 🇬🇧', [card({ id: 'a' })]);
+  const parsed = storage.parseBackup(storage.exportBackup())!;
+  assert.equal(parsed.log['2026-10-12'].r, 10);
+  storage.restoreBackup(parsed, 'merge');
+  assert.equal(storage.loadLog()['2026-10-12'].r, 10);
+  localStorage.setItem('ingatkata-log', JSON.stringify({ '2026-10-13': { r: 1, c: 1, ms: 0 } }));
+  storage.restoreBackup(parsed, 'replace');
+  assert.deepEqual(Object.keys(storage.loadLog()), ['2026-10-12']);
+});
+
 test('cadangan versi 1 (tanpa pengaturan) tetap bisa dipulihkan', () => {
   const v1 = JSON.stringify({ app: 'ingatkata', version: 1, decks: { 'Arab 🇸🇦': [{ id: 'q', front: 'Kitaab', back: 'Buku' }] }, meta: {} });
   const parsed = storage.parseBackup(v1);

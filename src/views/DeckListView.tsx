@@ -3,10 +3,14 @@ import { displayLangName } from '../data/languages.ts';
 import { formatDueIn } from '../lib/format.ts';
 import { LinkRow, Page, Title, TopBar } from '../components/ui.tsx';
 import { IconChevronRight } from '../components/Icon.tsx';
+import { InstallPrompt } from '../components/InstallPrompt.tsx';
+import { StatsSection } from './StatsSection.tsx';
+import type { StudyLog } from '../lib/stats.ts';
 
 type Props = {
   stats: LangStats[];
   now: number;
+  log: StudyLog;
   backupReminder: string | null;
   onOpen: (lang: string) => void;
   onPolyglot: () => void;
@@ -22,7 +26,7 @@ const deckMeta = (s: LangStats) => {
   return parts.join(' · ');
 };
 
-export const DeckListView = ({ stats, now, backupReminder, onOpen, onPolyglot, onNewLanguage, onSettings }: Props) => {
+export const DeckListView = ({ stats, now, log, backupReminder, onOpen, onPolyglot, onNewLanguage, onSettings }: Props) => {
   const studied = stats.filter(s => s.active > 0);
   const totalActive = studied.reduce((n, s) => n + s.active, 0);
   const totalDue = stats.reduce((n, s) => n + s.due, 0);
@@ -31,6 +35,7 @@ export const DeckListView = ({ stats, now, backupReminder, onOpen, onPolyglot, o
     <Page>
       <TopBar right={<button onClick={onSettings} className="min-h-11 px-1 text-secondary font-semibold text-primary hover:underline underline-offset-4">Pengaturan & data</button>} />
       <Title sub={totalDue > 0 ? `${totalDue} kartu jatuh tempo hari ini.` : 'Tidak ada kartu jatuh tempo saat ini.'}>Bahasamu</Title>
+      <InstallPrompt />
 
       <ul>
         {stats.map(s => (
@@ -61,6 +66,8 @@ export const DeckListView = ({ stats, now, backupReminder, onOpen, onPolyglot, o
           <button onClick={onPolyglot} className="w-full min-h-12 rounded-control border-[1.5px] border-primary text-primary font-semibold hover:bg-primary-soft transition-colors duration-state">Mulai latihan campuran</button>
         </section>
       )}
+
+      <StatsSection log={log} now={now} />
 
       {backupReminder && (
         <p className="mt-12 text-secondary text-muted">

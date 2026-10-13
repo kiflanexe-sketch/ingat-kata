@@ -5,17 +5,16 @@ import { displayLangName, sampleWord } from '../data/languages.ts';
 import { SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { speak, useVoices, voiceStatus } from '../lib/speech.ts';
 import { formatAgo } from '../lib/format.ts';
-import { isIOS, isStandalone, useInstallPrompt } from '../lib/install.ts';
+import { isStandalone } from '../lib/install.ts';
+import { InstallPrompt } from '../components/InstallPrompt.tsx';
 import { Button, Page, Title, TopBar } from '../components/ui.tsx';
 
 type Props = {
   settings: Settings;
   now: number;
-  canShareBackup: boolean;
   onChange: (next: Settings) => void;
   onBack: () => void;
   onDownload: () => void;
-  onShare: () => void;
   onReadFile: (file: File) => Promise<ParsedBackup | null>;
   onRestore: (backup: ParsedBackup, mode: RestoreMode) => void;
 };
@@ -33,13 +32,12 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   </section>
 );
 
-export const SettingsView = ({ settings, now, canShareBackup, onChange, onBack, onDownload, onShare, onReadFile, onRestore }: Props) => {
+export const SettingsView = ({ settings, now, onChange, onBack, onDownload, onReadFile, onRestore }: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<ParsedBackup | null>(null);
   const [fileError, setFileError] = useState('');
   const [mode, setMode] = useState<RestoreMode>('merge');
   const [persisted, setPersisted] = useState<boolean | null>(null);
-  const { canInstall, install } = useInstallPrompt();
   const standalone = isStandalone();
   useVoices();
   const voiceLangs = Object.keys(WORD_DATABASE);
@@ -148,7 +146,6 @@ export const SettingsView = ({ settings, now, canShareBackup, onChange, onBack, 
         <p className="mt-2 text-secondary text-muted">{lastBackup} File berisi semua bahasa, kotak tiap kartu, dan pengaturan ini.</p>
         <div className="mt-4 space-y-2">
           <Button onClick={onDownload}>Simpan file cadangan</Button>
-          {canShareBackup && <Button variant="secondary" onClick={onShare}>Kirim cadangan (WhatsApp, Drive, email)</Button>}
         </div>
 
         <div className="mt-8">
@@ -188,18 +185,9 @@ export const SettingsView = ({ settings, now, canShareBackup, onChange, onBack, 
       </Section>
 
       <Section title="Aplikasi">
-        {standalone ? (
-          <p className="text-body text-ink">IngatKata sudah terpasang di perangkat ini dan bisa dibuka tanpa internet.</p>
-        ) : canInstall ? (
-          <>
-            <p className="text-body text-ink mb-4">Pasang IngatKata ke layar utama supaya bisa dibuka seperti aplikasi, juga tanpa internet.</p>
-            <Button variant="secondary" onClick={() => void install()}>Pasang aplikasi</Button>
-          </>
-        ) : isIOS() ? (
-          <p className="text-body text-ink">Di Safari, ketuk tombol <strong>Bagikan</strong> lalu <strong>Tambah ke Layar Utama</strong>. Setelah terpasang, IngatKata bisa dibuka tanpa internet dan datanya tidak dihapus otomatis oleh Safari.</p>
-        ) : (
-          <p className="text-body text-ink">Buka menu browser lalu pilih <strong>Instal aplikasi</strong> atau <strong>Tambahkan ke layar utama</strong>.</p>
-        )}
+        {standalone
+          ? <p className="text-body text-ink">IngatKata sudah terpasang di perangkat ini dan bisa dibuka tanpa internet.</p>
+          : <InstallPrompt />}
         {persisted !== null && (
           <p className="mt-3 text-secondary text-muted">
             {persisted ? 'Penyimpanan permanen aktif: browser tidak akan menghapus datamu saat ruang penyimpanan menipis.' : 'Browser belum memberi izin penyimpanan permanen; tetap simpan file cadangan secara berkala.'}

@@ -1,8 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#2e4a78"/>
-  <rect x="96" y="148" width="320" height="216" rx="10" fill="#fffefa"/>
-  <rect x="96" y="196" width="320" height="8" fill="#d9756f"/>
-  <rect x="124" y="244" width="264" height="6" rx="3" fill="#b9cde6"/>
-  <rect x="124" y="284" width="264" height="6" rx="3" fill="#b9cde6"/>
-  <rect x="124" y="324" width="180" height="6" rx="3" fill="#b9cde6"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#2e4a78"/><rect x="96" y="128" width="320" height="226" rx="22" fill="#cfdcee" transform="rotate(-8 256 241)"/><rect x="88" y="160" width="336" height="232" rx="22" fill="#14233d" opacity="0.32" transform="translate(0 10)"/><rect x="88" y="160" width="336" height="232" rx="22" fill="#fffefa"/><rect x="88" y="206" width="336" height="9" fill="#d9756f"/><rect x="116" y="341" width="280" height="7" rx="3.5" fill="#c3d3ea"/><path d="M122,344 C125.12,300.32 170.88,300.32 174,344 C179.16,271.76 254.83999999999997,271.76 260,344 C268.04,231.44 385.96,231.44 394,344" fill="none" stroke="#2e4a78" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/><circle cx="122" cy="344" r="12" fill="#2e4a78" stroke="#fffefa" stroke-width="5"/><circle cx="174" cy="344" r="12" fill="#2e4a78" stroke="#fffefa" stroke-width="5"/><circle cx="260" cy="344" r="12" fill="#2e4a78" stroke="#fffefa" stroke-width="5"/><circle cx="394" cy="344" r="19" fill="#d9756f" stroke="#fffefa" stroke-width="6"/></svg>

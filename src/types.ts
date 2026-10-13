@@ -44,6 +44,7 @@ export type AnswerRecord = {
   correct: boolean;
   grade: Grade;
   given: string;
+  ms: number; // lama menjawab, untuk statistik waktu belajar
 };
 
 export type LangStats = {
