@@ -4,7 +4,7 @@ import { PACK_NOTES, SCRIPT_LEVELS, WORD_DATABASE } from '../src/data/words.ts';
 import { pairKey } from '../src/lib/srs.ts';
 
 const NATIVE_IN_PARENS = /\([^)]*[^\s -ɏ][^)]*\)/;
-const NEEDS_NATIVE = new Set(['Jepang 🇯🇵', 'Korea 🇰🇷', 'Arab 🇸🇦']);
+const NEEDS_NATIVE = new Set(['Jepang 🇯🇵', 'Korea 🇰🇷', 'Arab 🇸🇦', 'Mandarin 🇨🇳']);
 
 for (const [lang, levels] of Object.entries(WORD_DATABASE)) {
   test(`${lang}: paket lengkap dan rapi`, () => {

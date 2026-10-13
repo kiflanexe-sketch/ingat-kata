@@ -6,10 +6,11 @@ const SPEECH_CODES: Record<string, string> = {
   'Korea 🇰🇷': 'ko-KR',
   'Jerman 🇩🇪': 'de-DE',
   'Arab 🇸🇦': 'ar-SA',
+  'Mandarin 🇨🇳': 'zh-CN',
 };
 
 // Bahasa yang kartunya ditulis "Romanisasi (aksara asli)": yang diucapkan aksara aslinya.
-const NATIVE_SCRIPT_IN_PARENS = new Set(['ja-JP', 'ko-KR', 'ar-SA']);
+const NATIVE_SCRIPT_IN_PARENS = new Set(['ja-JP', 'ko-KR', 'ar-SA', 'zh-CN']);
 
 export const MIXED_DECK = 'Gabungan';
 

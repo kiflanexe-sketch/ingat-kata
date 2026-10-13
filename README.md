@@ -7,10 +7,11 @@ dan tanpa server.
 
 ## Fitur
 
-- Sekitar 1.000 kata bawaan untuk Inggris, Jepang, Korea, Jerman, dan Arab, dalam paket
-  yang diurutkan dari termudah: paket huruf (hiragana, katakana, hangul, hijaiyah), level
-  umum (CEFR, JLPT, TOPIK), dan paket tes resmi atau kerja (TOEIC, TOEFL, IELTS, GRE,
-  JFT-Basic, EPS-TOPIK, Pflege, TestDaF, TOAFL). Bahasa lain bisa diisi sendiri.
+- Sekitar 1.300 kata bawaan untuk Inggris, Jepang, Korea, Mandarin, Jerman, dan Arab, dalam
+  paket yang diurutkan dari termudah: paket huruf (hiragana, katakana, hangul, hijaiyah),
+  level umum (CEFR, JLPT, TOPIK, HSK 1-6), dan paket tes resmi atau kerja (TOEIC, TOEFL,
+  IELTS, GRE, JFT-Basic, EPS-TOPIK, BCT, Pflege, TestDaF, TOAFL). Kata Mandarin ditulis
+  pinyin bernada dengan hanzi dalam kurung. Bahasa lain bisa diisi sendiri.
 - Tambah kata satu per satu atau sekaligus (pemisah `<>`, tab, ` = `, atau ` - `).
 - Sesi review dua arah (asing ke Indonesia dan sebaliknya), kartu yang salah diulang di
   akhir sesi, lalu ringkasan berisi daftar kata yang perlu diulang.
@@ -18,7 +19,7 @@ dan tanpa server.
   kurung (`Watashi (私)`), awalan `to`, diakritik, artikel Jerman yang terlupa, dan salah
   ketik kecil pada kata panjang.
 - Pengucapan lewat Web Speech API untuk bahasa bawaan, diputar setelah setiap jawaban
-  (bisa dimatikan). Kata Jepang, Korea, dan Arab diucapkan dari aksara aslinya, huruf lepas
+  (bisa dimatikan). Kata Jepang, Korea, Mandarin, dan Arab diucapkan dari aksara aslinya, huruf lepas
   sebagai suku kata. Suara berasal dari perangkat; Pengaturan & data menunjukkan bahasa
   mana yang suaranya belum terpasang beserta cara memasangnya.
 - Jadwal ulang per kata dengan FSRS: kata yang dikuasai makin jarang muncul, yang sering
@@ -35,8 +36,11 @@ dan tanpa server.
   (statistik), serta grafik kata hafal dibanding kata aktif (progres). Riwayat dicatat per
   hari sejak versi ini dan ikut tersimpan di file cadangan.
 - Bisa dipasang sebagai aplikasi (PWA) di Android, iOS, dan desktop, dan dibuka offline.
-  Halaman depan menampilkan ajakan pasang (tombol Pasang di Chrome/Android, petunjuk Safari
-  di iPhone/iPad) yang bisa ditutup.
+  Halaman depan dan Pengaturan & data menampilkan ajakan pasang yang sama sampai aplikasi
+  dibuka dari layar utama. Tombol Pasang membuka dialog pemasangan browser bila tersedia,
+  atau menampilkan langkahnya (Safari iPhone/iPad dan Mac, menu browser lain). Ikon
+  aplikasi buatan sendiri: kartu kata dengan lompatan yang makin lebar, gambaran jarak
+  ulang yang memanjang; tersedia versi maskable untuk Android.
 - Transisi antarlayar dan antarkartu dengan View Transitions API (mati otomatis bila
   perangkat meminta gerak dikurangi).
 

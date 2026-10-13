@@ -42,6 +42,13 @@
   color-scheme: light;
 }
 
+/* Hanzi memakai font Tiongkok (Song/Noto Serif SC), bukan Mincho Jepang yang bentuk
+   beberapa hurufnya berbeda. Berlaku pada kata yang diberi lang="zh-CN". */
+[lang|='zh'] {
+  --font-word: "Iowan Old Style", Charter, "Noto Serif", Georgia, "Songti SC", STSong, "Noto Serif SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;

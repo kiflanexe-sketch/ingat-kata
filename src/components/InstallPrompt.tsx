@@ -1,52 +1,55 @@
 import { useState } from 'react';
-import { isIOS, isStandalone, useInstallPrompt } from '../lib/install.ts';
-
-const DISMISS_KEY = 'ingatkata-install-dismissed';
-const DISMISS_FOR = 30 * 24 * 60 * 60 * 1000;
-
-function wasDismissed(): boolean {
-  try {
-    const at = Number(localStorage.getItem(DISMISS_KEY));
-    return at > 0 && Date.now() - at < DISMISS_FOR;
-  } catch {
-    return false;
-  }
-}
+import { isIOS, isSafariMac, isStandalone, useInstallPrompt } from '../lib/install.ts';
 
 const isTouchDevice = () => typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches;
 
-// Ajakan memasang aplikasi di halaman depan. Tidak tampil bila sudah terpasang, bila ditutup
-// dalam 30 hari terakhir, atau di desktop yang browsernya tidak bisa memasang PWA.
+// Langkah pemasangan bila browser tidak memberi dialog pemasangan langsung.
+function manualSteps(): string[] {
+  if (isIOS()) return ['Buka halaman ini di Safari.', 'Ketuk tombol Bagikan (kotak dengan panah ke atas).', 'Pilih "Tambah ke Layar Utama", lalu "Tambah".'];
+  if (isSafariMac()) return ['Di Safari, buka menu File.', 'Pilih "Tambahkan ke Dock".'];
+  return [
+    'Buka menu browser (⋮ di Chrome, ≡ di browser lain).',
+    'Pilih "Instal aplikasi" atau "Tambahkan ke layar utama".',
+    'Kalau IngatKata sudah terpasang, buka saja dari layar utama.',
+  ];
+}
+
+// Ajakan memasang aplikasi di halaman depan. Selalu tampil sampai IngatKata dibuka sebagai
+// aplikasi terpasang, karena tampilannya lebih lega (tanpa bilah alamat) dan jalan offline.
+// Di desktop yang browsernya tidak bisa memasang PWA, ajakan tidak ditampilkan.
 export const InstallPrompt = () => {
-  const { canInstall, install } = useInstallPrompt();
-  const [hidden, setHidden] = useState(wasDismissed);
-  const ios = isIOS();
+  const { canInstall, justInstalled, install } = useInstallPrompt();
+  const [showSteps, setShowSteps] = useState(false);
 
-  if (hidden || isStandalone() || (!canInstall && !ios && !isTouchDevice())) return null;
+  if (isStandalone()) return null;
+  if (!canInstall && !justInstalled && !isIOS() && !isSafariMac() && !isTouchDevice()) return null;
 
-  const dismiss = () => {
-    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch { /* abaikan */ }
-    setHidden(true);
+  const onInstall = () => {
+    if (canInstall) void install();
+    else setShowSteps(v => !v);
   };
 
   return (
     <section aria-labelledby="install-title" className="my-6 py-4 border-y border-line flex gap-4 items-start">
-      <img src="./icon-192.png" alt="" width={44} height={44} className="rounded-[10px] shrink-0" />
+      <img src="./icon-192.png" alt="" width={48} height={48} className="rounded-[11px] shrink-0" />
       <div className="flex-1 min-w-0">
-        <h2 id="install-title" className="text-section text-ink">Pasang IngatKata di HP</h2>
-        <p className="text-secondary text-muted">
-          {canInstall
-            ? 'Buka langsung dari layar utama seperti aplikasi biasa, tetap jalan tanpa internet.'
-            : ios
-              ? 'Di Safari, ketuk tombol Bagikan lalu pilih "Tambah ke Layar Utama". Data juga lebih aman dari pembersihan otomatis Safari.'
-              : 'Buka menu browser (⋮) lalu pilih "Instal aplikasi" atau "Tambahkan ke layar utama". Setelah itu bisa dibuka tanpa internet.'}
-        </p>
-        <div className="mt-2 flex items-center gap-4">
-          {canInstall && (
-            <button onClick={() => void install()} className="min-h-11 px-4 rounded-control bg-primary text-white text-secondary font-semibold hover:bg-primary-hover">Pasang</button>
-          )}
-          <button onClick={dismiss} className="min-h-11 text-secondary font-semibold text-muted hover:text-ink">Nanti saja</button>
-        </div>
+        <h2 id="install-title" className="text-section text-ink">{justInstalled ? 'IngatKata sudah terpasang' : 'Pasang IngatKata sebagai aplikasi'}</h2>
+        {justInstalled ? (
+          <p className="text-secondary text-muted">Buka dari layar utama supaya tampil penuh tanpa bilah browser.</p>
+        ) : (
+          <>
+            <p className="text-secondary text-muted">Tampil penuh tanpa bilah alamat browser, dibuka langsung dari layar utama, dan tetap jalan tanpa internet.</p>
+            <button onClick={onInstall} aria-expanded={canInstall ? undefined : showSteps} aria-controls={canInstall ? undefined : 'install-steps'}
+              className="mt-3 min-h-11 px-5 rounded-control bg-primary text-white text-secondary font-semibold hover:bg-primary-hover">
+              Pasang
+            </button>
+            {!canInstall && showSteps && (
+              <ol id="install-steps" className="enter-rise mt-3 list-decimal pl-5 space-y-1 text-secondary text-ink">
+                {manualSteps().map(s => <li key={s}>{s}</li>)}
+              </ol>
+            )}
+          </>
+        )}
       </div>
     </section>
   );

@@ -59,7 +59,7 @@ export const OnboardingView = ({ existingLangs, onPick, onCancel, onSettings }: 
         <label htmlFor="custom-lang" className="block text-section text-ink">Bahasa lain</label>
         <p className="text-secondary text-muted mb-3">Belum ada paket kata bawaan; kosakatanya kamu isi sendiri.</p>
         <div className="flex gap-2">
-          <input id="custom-lang" value={customName} onChange={e => { setCustomName(e.target.value); setError(''); }} placeholder="Mis. Mandarin, Sunda, Prancis"
+          <input id="custom-lang" value={customName} onChange={e => { setCustomName(e.target.value); setError(''); }} placeholder="Mis. Sunda, Prancis, Thai"
             className="flex-1 min-w-0 min-h-12 px-3 rounded-control border-[1.5px] border-control bg-card text-body placeholder:text-subtle focus:border-primary outline-none" />
           <button type="submit" disabled={!customName.trim()} className="min-h-12 px-5 rounded-control bg-primary text-white font-semibold hover:bg-primary-hover disabled:opacity-40">Buat</button>
         </div>

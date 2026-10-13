@@ -1,9 +1,10 @@
 {
   "name": "IngatKata",
   "short_name": "IngatKata",
-  "description": "Hafalan kosakata bahasa asing dari bahasa Indonesia dengan kotak Leitner.",
+  "description": "Hafalan kosakata bahasa asing dari bahasa Indonesia dengan jadwal ulang FSRS.",
   "lang": "id",
   "dir": "ltr",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -86,7 +86,7 @@ export const BoxShelf = ({ counts }: { counts: number[] }) => {
 
 // Kata asing dengan font kamus, atribut lang supaya aksara memakai font yang benar.
 export const Word = ({ text, lang, size = 'auto', className = '' }: { text: string; lang?: string; size?: 'auto' | 'row'; className?: string }) => {
-  const code = lang ? speechCodeFor(lang)?.slice(0, 2) ?? undefined : 'id';
+  const code = lang ? speechCodeFor(lang) : 'id';
   const length = [...text].length;
   const scale = size === 'row' ? 'text-answer' : length > 20 ? 'text-word-sm' : length > 12 ? 'text-word-md' : 'text-word';
   return <span lang={code} dir="auto" className={`font-word break-words ${scale} ${className}`}>{text}</span>;

@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -16,7 +16,15 @@ function serviceWorker(): Plugin {
         ...readdirSync('public'),
       ];
       const precache = Array.from(new Set(files)).sort();
-      const version = createHash('sha256').update(precache.join('\n')).digest('hex').slice(0, 12);
+      // Versi dari isi file, bukan hanya namanya: ikon atau file public/ yang diganti dengan nama
+      // sama tetap memicu cache baru.
+      const hash = createHash('sha256').update(precache.join('\n'));
+      for (const f of precache) {
+        const out = bundle[f];
+        if (out) hash.update(out.type === 'chunk' ? out.code : out.source);
+        else if (existsSync(`public/${f}`)) hash.update(readFileSync(`public/${f}`));
+      }
+      const version = hash.digest('hex').slice(0, 12);
       const source = readFileSync('pwa/sw.js', 'utf8')
         .replace('const VERSION = __VERSION__;', `const VERSION = ${JSON.stringify(version)};`)
         .replace('const PRECACHE = __PRECACHE__;', `const PRECACHE = ${JSON.stringify(precache)};`);
