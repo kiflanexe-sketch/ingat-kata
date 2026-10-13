@@ -17,6 +17,8 @@ export default {
         line: v('line'),
         control: v('control'),
         primary: { DEFAULT: v('primary'), hover: v('primary-hover'), soft: v('primary-soft') },
+        'on-primary': v('on-primary'),
+        'on-bad': v('on-bad'),
         ok: { DEFAULT: v('ok'), soft: v('ok-soft') },
         bad: { DEFAULT: v('bad'), soft: v('bad-soft') },
         due: { DEFAULT: v('due'), soft: v('due-soft') },

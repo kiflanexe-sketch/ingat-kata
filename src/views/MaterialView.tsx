@@ -1,7 +1,8 @@
 import type { Card } from '../types.ts';
 import { PACK_NOTES, SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { displayLangName } from '../data/languages.ts';
-import { ACTIVE_FILL_TARGET, hasPair } from '../lib/srs.ts';
+import { ACTIVE_FILL_TARGET } from '../lib/srs.ts';
+import { wordIndex } from '../lib/match.ts';
 import { Button, Page, Title, TopBar, Word } from '../components/ui.tsx';
 
 type Props = {
@@ -27,6 +28,9 @@ export const MaterialView = ({ lang, cards, onImportLevel, onBack, onAddCustom }
     );
   }
 
+  // Aturan yang sama dengan impor paket, jadi angka "belum ada di deck" cocok dengan yang ditambahkan.
+  const inDeck = wordIndex(cards);
+
   return (
     <Page>
       <TopBar onBack={onBack} backLabel={name} />
@@ -34,7 +38,7 @@ export const MaterialView = ({ lang, cards, onImportLevel, onBack, onAddCustom }
       <ul>
         {levelNames.map(level => {
           const words = levels[level];
-          const missing = words.filter(w => !hasPair(cards, w.f, w.b)).length;
+          const missing = words.filter(w => !inDeck.has({ front: w.f, back: w.b })).length;
           return (
             <li key={level} className="py-4 border-t border-line flex items-start justify-between gap-4">
               <div className="min-w-0">

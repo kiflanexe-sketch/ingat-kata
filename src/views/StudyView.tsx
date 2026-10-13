@@ -7,6 +7,8 @@ import { displayLangName } from '../data/languages.ts';
 import { isScriptSource } from '../data/words.ts';
 import { BoxChip, Button, Word } from '../components/ui.tsx';
 import { IconVolume, IconX } from '../components/Icon.tsx';
+import { PosLabel } from '../components/PosSelect.tsx';
+import { posOf } from '../lib/pos.ts';
 
 type Props = {
   item: StudyItem;
@@ -117,7 +119,10 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
         <h1 className="pt-[18px] text-center text-ink">
           <Word text={questionText} lang={forward ? cardLang : undefined} className="!leading-[64px]" />
         </h1>
-        <div className="flex justify-center items-center h-16">{forward && speakButton}</div>
+        <div className="flex justify-center items-center gap-3 h-16">
+          <PosLabel pos={posOf(card, lang)} />
+          {forward && speakButton}
+        </div>
         {voice === 'missing' && (
           <p className="text-meta text-subtle text-center -mt-2">Suara {foreignName} belum terpasang di perangkat ini. Cara memasangnya ada di Pengaturan & data.</p>
         )}

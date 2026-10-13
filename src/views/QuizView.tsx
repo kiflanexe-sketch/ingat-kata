@@ -8,6 +8,8 @@ import { displayLangName } from '../data/languages.ts';
 import { isScriptSource } from '../data/words.ts';
 import { Button, Page, Title, TopBar, Word } from '../components/ui.tsx';
 import { IconVolume, IconX } from '../components/Icon.tsx';
+import { PosLabel } from '../components/PosSelect.tsx';
+import { posOf } from '../lib/pos.ts';
 
 type Props = {
   questions: QuizQuestion[];
@@ -184,9 +186,10 @@ const QuizRound = ({ q, index, total, lang, seconds, autoSpeak, sfx, score, comb
           <span>{label}</span>
           {!result && <span className={`tabular-nums ${urgent ? 'text-bad font-semibold' : ''}`}>{left} dtk</span>}
         </div>
-        <h1 className="pt-[18px] pb-4 text-center text-ink">
+        <h1 className="pt-[18px] text-center text-ink">
           <Word text={forward ? q.card.front : q.card.back} lang={forward ? cardLang : undefined} className="!leading-[64px]" />
         </h1>
+        <p className="h-8 pb-2 text-center"><PosLabel pos={posOf(q.card, lang)} /></p>
         <div className="h-1.5 rounded-pill bg-line overflow-hidden" role="timer" aria-label={`Sisa waktu ${left} detik`}>
           <div className={`quiz-timer h-full ${urgent ? 'bg-bad' : 'bg-primary'}`} data-paused={result ? '' : undefined}
             style={{ '--quiz-time': `${seconds}s` } as CSSProperties} />

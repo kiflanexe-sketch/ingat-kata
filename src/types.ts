@@ -1,3 +1,5 @@
+import type { PosCode } from './lib/pos.ts';
+
 export type CardStatus = 'active' | 'reserve';
 
 export type Card = {
@@ -12,6 +14,7 @@ export type Card = {
   lapses: number; // berapa kali pernah salah
   fsrs?: FsrsState; // keadaan ingatan FSRS; kosong untuk kartu baru atau data versi Leitner
   originLang?: string; // hanya di mode Gabungan
+  pos?: PosCode; // jenis kata untuk kata sendiri; kata paket membacanya dari data paket
 };
 
 // Model ingatan FSRS per kartu, disimpan ringkas.

@@ -49,7 +49,7 @@ const KIND_BG: Record<BadgeKind, string> = { streak: 'var(--box-1)', answers: 'v
 
 export const BadgeMedal = ({ kind, earned, size = 44 }: { kind: BadgeKind; earned: boolean; size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="shrink-0">
-    <circle cx="12" cy="12" r="11.25" fill={earned ? KIND_BG[kind] : 'var(--paper)'} stroke={earned ? 'rgb(36 38 43 / 0.18)' : 'var(--control)'}
+    <circle cx="12" cy="12" r="11.25" fill={earned ? KIND_BG[kind] : 'var(--paper)'} stroke={earned ? 'var(--edge)' : 'var(--control)'}
       strokeWidth="1" strokeDasharray={earned ? undefined : '2 2'} />
     <g fill="none" stroke={earned ? 'var(--ink)' : 'var(--control)'} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{GLYPH[kind]}</g>
   </svg>

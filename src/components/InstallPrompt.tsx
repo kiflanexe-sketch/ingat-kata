@@ -40,7 +40,7 @@ export const InstallPrompt = () => {
           <>
             <p className="text-secondary text-muted">Tampil penuh tanpa bilah alamat browser, dibuka langsung dari layar utama, dan tetap jalan tanpa internet.</p>
             <button onClick={onInstall} aria-expanded={canInstall ? undefined : showSteps} aria-controls={canInstall ? undefined : 'install-steps'}
-              className="mt-3 min-h-11 px-5 rounded-control bg-primary text-white text-secondary font-semibold hover:bg-primary-hover">
+              className="mt-3 min-h-11 px-5 rounded-control bg-primary text-on-primary text-secondary font-semibold hover:bg-primary-hover">
               Pasang
             </button>
             {!canInstall && showSteps && (

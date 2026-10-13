@@ -6,6 +6,8 @@ import { formatDueIn } from '../lib/format.ts';
 import { displayLangName } from '../data/languages.ts';
 import { BoxChip, Page, TopBar, Word } from '../components/ui.tsx';
 import { IconCheck, IconEdit, IconMoveDown, IconMoveUp, IconSearch, IconTrash2 } from '../components/Icon.tsx';
+import { PosSelect } from '../components/PosSelect.tsx';
+import { POS_LABEL, posOf, type PosCode } from '../lib/pos.ts';
 
 type Props = {
   lang: string;
@@ -15,7 +17,7 @@ type Props = {
   onDelete: (id: string) => void;
   onBulkDelete: (ids: string[], done: () => void) => void;
   onBulkMove: (ids: string[], target: 'active' | 'reserve') => void;
-  onEdit: (id: string, front: string, back: string) => SaveResult;
+  onEdit: (id: string, front: string, back: string, pos: PosCode | null) => SaveResult;
   onDeleteDeck: () => void;
   onAdd: () => void;
 };
@@ -34,7 +36,7 @@ type RowProps = {
   selected: boolean;
   onToggle: () => void;
   onDelete: () => void;
-  onEdit: (front: string, back: string) => SaveResult;
+  onEdit: (front: string, back: string, pos: PosCode | null) => SaveResult;
 };
 
 const field = 'w-full min-h-11 px-3 rounded-control border-[1.5px] border-control bg-card outline-none focus:border-primary';
@@ -43,6 +45,7 @@ const CardRow = ({ card: c, lang, now, selecting, selected, onToggle, onDelete, 
   const [editing, setEditing] = useState(false);
   const [front, setFront] = useState(c.front);
   const [back, setBack] = useState(c.back);
+  const [pos, setPos] = useState<PosCode | null>(() => posOf(c, lang));
   const [error, setError] = useState('');
   const isActive = c.status === 'active';
 
@@ -50,7 +53,7 @@ const CardRow = ({ card: c, lang, now, selecting, selected, onToggle, onDelete, 
     const save = (e: React.FormEvent) => {
       e.preventDefault();
       if (!front.trim() || !back.trim()) { setError('Kata dan arti wajib diisi.'); return; }
-      const r = onEdit(front, back);
+      const r = onEdit(front, back, pos);
       if (!r.ok) { setError(r.reason); return; }
       setEditing(false);
     };
@@ -58,10 +61,14 @@ const CardRow = ({ card: c, lang, now, selecting, selected, onToggle, onDelete, 
       <form onSubmit={save} className="py-3 border-t border-line space-y-2">
         <input aria-label="Kata" value={front} onChange={e => setFront(e.target.value)} className={`${field} font-word`} dir="auto" autoFocus />
         <input aria-label="Arti" value={back} onChange={e => setBack(e.target.value)} className={field} />
+        <label className="flex items-center gap-3 text-secondary text-muted">
+          <span className="shrink-0">Jenis kata</span>
+          <PosSelect id={`pos-${c.id}`} value={pos} onChange={setPos} className={`${field} flex-1 text-body text-ink`} />
+        </label>
         {error && <p className="text-secondary text-bad" role="alert">{error}</p>}
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={() => { setEditing(false); setFront(c.front); setBack(c.back); setError(''); }} className="min-h-11 px-4 text-secondary font-semibold text-muted hover:text-ink">Batal</button>
-          <button type="submit" className="min-h-11 px-4 rounded-control bg-primary text-white text-secondary font-semibold hover:bg-primary-hover">Simpan</button>
+          <button type="button" onClick={() => { setEditing(false); setFront(c.front); setBack(c.back); setPos(posOf(c, lang)); setError(''); }} className="min-h-11 px-4 text-secondary font-semibold text-muted hover:text-ink">Batal</button>
+          <button type="submit" className="min-h-11 px-4 rounded-control bg-primary text-on-primary text-secondary font-semibold hover:bg-primary-hover">Simpan</button>
         </div>
       </form>
     );
@@ -72,6 +79,7 @@ const CardRow = ({ card: c, lang, now, selecting, selected, onToggle, onDelete, 
       <Word text={c.front} lang={lang} size="row" className={isActive ? 'text-ink' : 'text-muted'} />
       <span className="block text-secondary text-muted break-words">{c.back}</span>
       <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-subtle">
+        {posOf(c, lang) && <span className="italic">{POS_LABEL[posOf(c, lang)!]}</span>}
         {isActive && <BoxChip box={c.box} />}
         {isActive && <span>{scheduleLabel(c, now)}</span>}
         <span>{sourceLabel(c.source)}</span>
@@ -83,7 +91,7 @@ const CardRow = ({ card: c, lang, now, selecting, selected, onToggle, onDelete, 
     return (
       <button type="button" role="checkbox" aria-checked={selected} onClick={onToggle} className={`w-full text-left py-3 px-2 -mx-2 border-t border-line flex items-center gap-3 ${selected ? 'bg-primary-soft' : ''}`}>
         <span className={`w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center shrink-0 ${selected ? 'border-primary bg-primary' : 'border-control bg-card'}`}>
-          {selected && <IconCheck size={14} className="text-white" />}
+          {selected && <IconCheck size={14} className="text-on-primary" />}
         </span>
         {body}
       </button>
@@ -135,7 +143,7 @@ export const ListView = ({ lang, cards, now, onBack, onDelete, onBulkDelete, onB
   };
 
   const rows = (list: Card[]) => list.map(c => (
-    <CardRow key={c.id} card={c} lang={lang} now={now} selecting={isSelectionMode} selected={selectedIds.has(c.id)} onToggle={() => toggleSelection(c.id)} onDelete={() => onDelete(c.id)} onEdit={(f, b) => onEdit(c.id, f, b)} />
+    <CardRow key={c.id} card={c} lang={lang} now={now} selecting={isSelectionMode} selected={selectedIds.has(c.id)} onToggle={() => toggleSelection(c.id)} onDelete={() => onDelete(c.id)} onEdit={(f, b, p) => onEdit(c.id, f, b, p)} />
   ));
 
   const selectAll = (list: Card[]) => isSelectionMode && list.length > 0 && (

@@ -56,8 +56,36 @@ Aturan pemakaian:
 - Teks tidak pernah memakai warna pastel; pastel selalu latar dengan teks gelap.
 - Batang kotak Leitner selalu disertai angka, jadi informasi tidak bergantung pada
   warna pastel yang kontrasnya rendah terhadap kertas.
-- Mode gelap tidak termasuk lingkup ini (aplikasi saat ini juga hanya terang). Token
-  sudah berupa variabel CSS sehingga mudah ditambahkan nanti.
+- Mode gelap ditambahkan kemudian, dengan token yang sama (lihat bagian berikut).
+
+### Mode gelap
+
+Pilihan di Pengaturan & data → Tampilan: **Ikut sistem** (bawaan), **Terang**, **Gelap**.
+Tema dipasang sebagai `<html data-theme="dark">` oleh `src/lib/theme.ts`, dan oleh skrip
+kecil di `index.html` sebelum halaman tampil supaya tidak berkedip putih. Konsepnya
+"kertas di malam hari": latar arang yang sedikit hangat, tinta krem, aksen biru muda.
+Nilainya bukan hasil membalik warna terang; tiap token dipilih dan diukur ulang.
+
+| Token | Gelap | Kontras |
+|---|---|---|
+| `paper` / `card` | `#16181C` / `#1F2227` | |
+| `ink` | `#EBE8E1` | 14,5:1 di paper; 13,0:1 di card |
+| `muted` / `subtle` | `#B7B2A8` / `#A8A297` | 8,4:1 / 7,0:1 di paper; subtle 5,2:1 di primary-soft |
+| `line` / `control` | `#33363C` / `#7C776E` | control 3,6:1 di card |
+| `primary` / `primary-hover` | `#8DB0E6` / `#A9C4EE` | 8,0:1 di paper; 5,9:1 di primary-soft |
+| `on-primary` | `#10203D` | teks tombol utama, 7,3:1 di primary |
+| `primary-soft` | `#233149` | |
+| `ok` / `ok-soft` | `#86D29F` / `#1B3325` | 7,6:1 |
+| `bad` / `bad-soft` / `on-bad` | `#F29B93` / `#3E2220` / `#2A1210` | 6,8:1; teks tombol hapus 8,3:1 |
+| `due` / `due-soft` | `#E8BD6C` / `#3A2F18` | 7,5:1 |
+| `box-0` ... `box-5` | `#4B2E2B` `#4A3926` `#423D26` `#2B3F2E` `#27393B` `#2B3450` | teks ink >= 8,9:1 |
+| `rule` / `margin` | `#2A3546` / `#7D4541` | dekoratif |
+| `heat-1` ... `heat-4` | `#3A5680` `#5072AD` `#7797D3` `#B0C8F0` | makin banyak makin terang; langkah teredup 2,4:1 di paper |
+
+Di mode terang, teks tombol utama memakai `on-primary` putih dan kalender aktivitas
+memakai `#93ACD8` `#6886BF` `#43629B` `#283F69` (makin banyak makin gelap). Kedua ramp
+kalender lolos validator ordinal (satu rona, terang naik/turun monoton, jarak langkah
+terlihat, langkah teredup >= 2:1 terhadap latar).
 
 ## 2. Tipografi
 
