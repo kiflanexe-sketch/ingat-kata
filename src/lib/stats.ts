@@ -6,6 +6,9 @@ export type DayLog = {
   ms: number; // waktu menjawab, dibatasi per kartu
   m?: number; // jumlah kata hafal di semua bahasa, dicatat saat sesi selesai
   a?: number; // jumlah kata aktif di semua bahasa
+  q?: number; // poin kecepatan dari kuis kilat
+  g?: number; // 1 bila target harian tercapai hari itu
+  qp?: number; // jumlah kuis kilat yang dijawab benar semua
 };
 
 export type StudyLog = Record<string, DayLog>;
@@ -13,7 +16,6 @@ export type StudyLog = Record<string, DayLog>;
 export type DayPoint = DayLog & { key: string; date: Date };
 
 export const MAX_ANSWER_MS = 60 * 1000; // jawaban yang ditinggal lama tidak dihitung sebagai waktu belajar
-const KEEP_DAYS = 400;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -36,16 +38,23 @@ const daysBefore = (ts: number, n: number) => {
   return d;
 };
 
-const prune = (log: StudyLog, now: number): StudyLog => {
-  const oldest = dayKey(+daysBefore(now, KEEP_DAYS));
-  return Object.fromEntries(Object.entries(log).filter(([k]) => k >= oldest));
-};
-
-export function recordAnswer(log: StudyLog, now: number, correct: boolean, ms: number): StudyLog {
+// Riwayat tidak dipangkas: XP dan lencana dihitung dari seluruh riwayat, dan satu hari hanya
+// sekitar 50 byte (10 tahun kurang dari 200 KB).
+// `goal` = target harian kartu; hari yang mencapainya ditandai sekali (lihat lib/rewards.ts).
+export function recordAnswer(log: StudyLog, now: number, correct: boolean, ms: number, opts: { goal?: number; points?: number } = {}): StudyLog {
   const key = dayKey(now);
   const day = log[key] ?? { r: 0, c: 0, ms: 0 };
   const spent = Math.min(MAX_ANSWER_MS, Math.max(0, Math.round(ms)));
-  return prune({ ...log, [key]: { ...day, r: day.r + 1, c: day.c + (correct ? 1 : 0), ms: day.ms + spent } }, now);
+  const next: DayLog = { ...day, r: day.r + 1, c: day.c + (correct ? 1 : 0), ms: day.ms + spent };
+  if (opts.points) next.q = (day.q ?? 0) + Math.max(0, Math.round(opts.points));
+  if (opts.goal && next.r >= opts.goal) next.g = 1;
+  return { ...log, [key]: next };
+}
+
+export function recordPerfectQuiz(log: StudyLog, now: number): StudyLog {
+  const key = dayKey(now);
+  const day = log[key] ?? { r: 0, c: 0, ms: 0 };
+  return { ...log, [key]: { ...day, qp: (day.qp ?? 0) + 1 } };
 }
 
 export function recordSnapshot(log: StudyLog, now: number, mastered: number, active: number): StudyLog {
@@ -106,10 +115,14 @@ export function mergeLogs(a: StudyLog, b: StudyLog): StudyLog {
   for (const [k, d] of Object.entries(b)) {
     const e = out[k];
     if (!e) { out[k] = d; continue; }
-    out[k] = {
+    const day: DayLog = {
       r: Math.max(e.r, d.r), c: Math.max(e.c, d.c), ms: Math.max(e.ms, d.ms),
       ...(e.m !== undefined || d.m !== undefined ? { m: Math.max(e.m ?? 0, d.m ?? 0), a: Math.max(e.a ?? 0, d.a ?? 0) } : {}),
     };
+    for (const f of ['q', 'g', 'qp'] as const) {
+      if (e[f] !== undefined || d[f] !== undefined) day[f] = Math.max(e[f] ?? 0, d[f] ?? 0);
+    }
+    out[k] = day;
   }
   return out;
 }
@@ -126,6 +139,9 @@ export function sanitizeLog(raw: unknown): StudyLog {
     const c = Math.min(r, num(d.c) ?? 0);
     const day: DayLog = { r, c, ms: num(d.ms) ?? 0 };
     if (num(d.m) !== undefined) { day.m = num(d.m); day.a = num(d.a) ?? 0; }
+    if (num(d.q) !== undefined) day.q = Math.round(num(d.q)!);
+    if (d.g === 1) day.g = 1;
+    if (num(d.qp) !== undefined) day.qp = Math.round(num(d.qp)!);
     out[k] = day;
   }
   return out;

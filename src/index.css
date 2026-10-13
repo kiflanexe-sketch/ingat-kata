@@ -146,3 +146,25 @@ html[data-nav='card']::view-transition-group(study-progress) { animation-duratio
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
+
+/* Bilah XP tumbuh dari posisi sebelum sesi (--from) ke posisi sekarang. */
+.fill-grow { transition: width 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 200ms; }
+@starting-style {
+  .fill-grow { width: var(--from) !important; }
+}
+
+/* Waktu kuis kilat: bilah menyusut selama --quiz-time. Ini informasi, bukan hiasan, jadi
+   tetap berjalan walau gerak dikurangi. Berhenti saat jawaban dipilih. */
+.quiz-timer {
+  transform-origin: left center;
+  animation: quiz-timer var(--quiz-time) linear both;
+}
+.quiz-timer[data-paused] { animation-play-state: paused; }
+@keyframes quiz-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .quiz-timer { animation-duration: var(--quiz-time) !important; }
+}
+
+/* Poin yang baru didapat naik pelan lalu hilang. */
+.points-pop { animation: points-pop 700ms ease-out both; }
+@keyframes points-pop { from { transform: translateY(4px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(-10px); opacity: 0; } }

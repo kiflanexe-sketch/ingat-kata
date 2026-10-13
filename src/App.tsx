@@ -12,7 +12,9 @@ import {
 } from './lib/storage.ts';
 import { ONE_DAY } from './lib/srs.ts';
 import { formatAgo } from './lib/format.ts';
-import { recordAnswer, recordSnapshot } from './lib/stats.ts';
+import { recordAnswer, recordPerfectQuiz, recordSnapshot, type StudyLog } from './lib/stats.ts';
+import { PERFECT_QUIZ_MIN, sessionReward, type SessionReward } from './lib/rewards.ts';
+import { buildQuiz, type QuizAnswer, type QuizQuestion } from './lib/quiz.ts';
 import { withTransition, type TransitionKind } from './lib/transition.ts';
 import { Modal, type ModalConfig } from './components/Modal.tsx';
 import { DeckListView } from './views/DeckListView.tsx';
@@ -24,17 +26,22 @@ import { AddView, type SaveResult } from './views/AddView.tsx';
 import { ListView } from './views/ListView.tsx';
 import { MaterialView } from './views/MaterialView.tsx';
 import { SettingsView } from './views/SettingsView.tsx';
+import { QuizView } from './views/QuizView.tsx';
+import { QuizSummaryView } from './views/QuizSummaryView.tsx';
 
-type View = 'decks' | 'onboarding' | 'settings' | 'home' | 'study' | 'summary' | 'add' | 'list' | 'material';
+type View = 'decks' | 'onboarding' | 'settings' | 'home' | 'study' | 'summary' | 'add' | 'list' | 'material' | 'quiz' | 'quizSummary';
 type Deck = { lang: string; cards: Card[]; lastAccuracy: number | null };
-type Session = { mode: SessionMode; queue: StudyItem[]; index: number; results: AnswerRecord[] };
-type Summary = { mode: SessionMode; results: AnswerRecord[] };
+type Session = { mode: SessionMode; queue: StudyItem[]; index: number; results: AnswerRecord[]; startLog: StudyLog };
+type Summary = { mode: SessionMode; results: AnswerRecord[]; reward: SessionReward };
+// `cards` = kata yang dikuis, disimpan untuk "Main lagi".
+type Quiz = { cards: Card[]; questions: QuizQuestion[]; startLog: StudyLog; run: number };
+type QuizResult = { answers: QuizAnswer[]; total: number; reward: SessionReward };
 
 // Di mode Gabungan id kartu hanya unik per bahasa.
 const sameCard = (a: Card, b: Card) => a.id === b.id && a.originLang === b.originLang;
 
 // Kedalaman layar menentukan arah geser: lebih dalam = maju (dari kanan), lebih dangkal = kembali.
-const VIEW_DEPTH: Record<string, number> = { onboarding: 0, decks: 0, settings: 1, home: 1, material: 2, list: 2, add: 2, summary: 3, study: 3 };
+const VIEW_DEPTH: Record<string, number> = { onboarding: 0, decks: 0, settings: 1, home: 1, material: 2, list: 2, add: 2, summary: 3, study: 3, quiz: 3, quizSummary: 3 };
 
 const BACKUP_REMINDER_AFTER = 7 * ONE_DAY;
 
@@ -58,6 +65,8 @@ export default function App() {
   const [deck, setDeck] = useState<Deck | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
   const [modal, setModal] = useState<ModalConfig | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [settings, setSettings] = useState<Settings>(loadSettings);
@@ -137,7 +146,7 @@ export default function App() {
     if (cards.length === 0) return;
     // Kartu huruf selalu huruf -> cara baca; kebalikannya butuh keyboard aksara asing.
     const queue = buildQueue(cards, settings.direction).map(i => (isScriptSource(i.card.source) ? { ...i, direction: 'forward' as const } : i));
-    setSession({ mode, queue, index: 0, results: [] });
+    setSession({ mode, queue, index: 0, results: [], startLog: loadLog() });
     navigate('study');
   };
 
@@ -173,7 +182,7 @@ export default function App() {
       results: [...session.results, record],
       queue: record.correct ? session.queue : [...session.queue, { card: item.card, direction: item.direction, retry: true }],
     });
-    saveLog(recordAnswer(loadLog(), t, record.correct, record.ms));
+    saveLog(recordAnswer(loadLog(), t, record.correct, record.ms, { goal: settings.dailyGoal }));
     return updated;
   };
 
@@ -189,7 +198,7 @@ export default function App() {
       if (deck && s.mode === 'review' && deck.lang !== MIXED_DECK) {
         commit({ ...deck, lastAccuracy: s.results.filter(r => r.correct).length / s.results.length });
       }
-      setSummary({ mode: s.mode, results: s.results });
+      setSummary({ mode: s.mode, results: s.results, reward: sessionReward(s.startLog, loadLog(), Date.now()) });
       snapshotProgress();
     });
   };
@@ -202,8 +211,40 @@ export default function App() {
 
   const practiceWrongFromSummary = () => {
     if (!summary || !deck) return;
-    const wrong = summary.results.filter(r => !r.correct).map(r => r.card);
-    startSession('practice', shuffleArray(deck.cards.filter(c => wrong.some(w => sameCard(w, c)))));
+    startSession('practice', shuffleArray(currentCards(summary.results.filter(r => !r.correct).map(r => r.card))));
+  };
+
+  // --- Kuis kilat ---
+
+  // Kartu terbaru dari deck untuk kata-kata ini (progres bisa berubah selama sesi).
+  const currentCards = (cards: Card[]) => (deck ? deck.cards.filter(c => cards.some(w => sameCard(w, c))) : []);
+
+  const quizFor = (cards: Card[]) => (deck ? buildQuiz(cards, deck.cards, settings.direction) : []);
+
+  const startQuiz = (cards: Card[]) => {
+    const questions = quizFor(cards);
+    if (questions.length === 0) {
+      return showAlert('Kata belum cukup', 'Kuis kilat butuh paling sedikit dua kata dengan arti berbeda di bahasa yang sama.');
+    }
+    navigate('quiz', () => setQuiz({ cards, questions, startLog: loadLog(), run: (quiz?.run ?? 0) + 1 }));
+  };
+
+  const recordQuizAnswer = (a: QuizAnswer) => {
+    saveLog(recordAnswer(loadLog(), Date.now(), a.correct, a.ms, { goal: settings.dailyGoal, points: a.points }));
+  };
+
+  const finishQuiz = (answers: QuizAnswer[]) => {
+    if (!quiz) return;
+    const total = quiz.questions.length;
+    if (answers.length === total && total >= PERFECT_QUIZ_MIN && answers.every(a => a.correct)) {
+      saveLog(recordPerfectQuiz(loadLog(), Date.now()));
+    }
+    navigate('quizSummary', () => setQuizResult({ answers, total, reward: sessionReward(quiz.startLog, loadLog(), Date.now()) }));
+  };
+
+  const practiceWrongFromQuiz = () => {
+    if (!quizResult) return;
+    startSession('practice', shuffleArray(currentCards(quizResult.answers.filter(a => !a.correct).map(a => a.card))));
   };
 
   // --- Mengelola kata ---
@@ -330,7 +371,7 @@ export default function App() {
         {view === 'onboarding' || langs.length === 0 ? (
           <OnboardingView existingLangs={langs} onPick={pickLanguage} onCancel={langs.length > 0 ? () => navigate('decks') : undefined} onSettings={() => navigate('settings')} />
         ) : (
-          <DeckListView stats={stats} now={now} log={loadLog()} backupReminder={reminder} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => navigate('onboarding')} onSettings={() => navigate('settings')} />
+          <DeckListView stats={stats} now={now} log={loadLog()} dailyGoal={settings.dailyGoal} backupReminder={reminder} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => navigate('onboarding')} onSettings={() => navigate('settings')} />
         )}
       </>
     );
@@ -340,6 +381,9 @@ export default function App() {
   const due = nextDueAt(deck.cards, now);
   const nextDueIn = due === null ? null : due - now;
   const studyItem = session?.queue[session.index];
+  // Kuis dari kata sesi ini: hanya kata yang punya pengecoh di bahasanya yang bisa jadi soal.
+  const summaryCards = view === 'summary' && summary ? currentCards(summary.results.map(r => r.card)) : [];
+  const summaryQuizCount = summaryCards.length > 1 ? quizFor(summaryCards).length : 0;
 
   return (
     <div className="min-h-screen">
@@ -348,13 +392,14 @@ export default function App() {
         <PolyglotHomeView
           perLang={listDeckLangs().map(lang => ({ lang, active: deck.cards.filter(c => c.originLang === lang).length })).filter(l => l.active > 0)}
           onStart={() => startSession('practice', shuffleArray(deck.cards))}
+          onQuiz={() => startQuiz(deck.cards)}
           onExit={goToDecks}
         />
       )}
       {view === 'home' && deck.lang !== MIXED_DECK && (
         <HomeView
           stats={stats} now={now} relearnCount={deck.cards.filter(needsRelearn).length} lastAccuracy={deck.lastAccuracy} hasPresets={!!WORD_DATABASE[deck.lang]}
-          onStart={startReview} onAdd={() => navigate('add')} onList={() => navigate('list')} onRepeatAll={practiceAll} onRepeatWrong={practiceWrong}
+          onStart={startReview} onAdd={() => navigate('add')} onList={() => navigate('list')} onRepeatAll={practiceAll} onRepeatWrong={practiceWrong} onQuiz={() => startQuiz(activeCards)}
           onSmartAdd={smartAdd} onChangeLang={goToDecks} onManageMaterial={() => navigate('material')}
         />
       )}
@@ -365,7 +410,16 @@ export default function App() {
         />
       )}
       {view === 'summary' && summary && (
-        <SummaryView results={summary.results} mode={summary.mode} lang={deck.lang} nextDueIn={deck.lang === MIXED_DECK ? null : nextDueIn} onHome={() => navigate('home')} onPracticeWrong={practiceWrongFromSummary} />
+        <SummaryView results={summary.results} mode={summary.mode} lang={deck.lang} nextDueIn={deck.lang === MIXED_DECK ? null : nextDueIn} reward={summary.reward}
+          quizCount={summaryQuizCount} onHome={() => navigate('home')} onPracticeWrong={practiceWrongFromSummary} onQuiz={() => startQuiz(summaryCards)} />
+      )}
+      {view === 'quiz' && quiz && (
+        <QuizView key={quiz.run} questions={quiz.questions} lang={deck.lang} seconds={settings.quizSeconds} autoSpeak={settings.autoSpeak}
+          onAnswer={recordQuizAnswer} onFinish={finishQuiz} onBack={() => navigate('home')} />
+      )}
+      {view === 'quizSummary' && quiz && quizResult && (
+        <QuizSummaryView answers={quizResult.answers} total={quizResult.total} lang={deck.lang} reward={quizResult.reward}
+          onAgain={() => startQuiz(currentCards(quiz.cards))} onPracticeWrong={practiceWrongFromQuiz} onDone={() => navigate('home')} />
       )}
       {view === 'add' && (
         <AddView lang={deck.lang} onBack={() => navigate('home')} onSave={addCard} onBulkSave={bulkAdd}

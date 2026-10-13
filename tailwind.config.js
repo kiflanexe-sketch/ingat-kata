@@ -4,6 +4,8 @@ const v = name => `var(--${name})`;
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  // Efek hover hanya di perangkat yang benar-benar punya hover, supaya tidak "menempel" setelah diketuk di HP.
+  future: { hoverOnlyWhenSupported: true },
   theme: {
     extend: {
       colors: {

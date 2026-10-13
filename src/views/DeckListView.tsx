@@ -5,12 +5,15 @@ import { LinkRow, Page, Title, TopBar } from '../components/ui.tsx';
 import { IconChevronRight } from '../components/Icon.tsx';
 import { InstallPrompt } from '../components/InstallPrompt.tsx';
 import { StatsSection } from './StatsSection.tsx';
-import type { StudyLog } from '../lib/stats.ts';
+import { dayKey, type StudyLog } from '../lib/stats.ts';
+import { XP_CORRECT, XP_GOAL, XP_WRONG, badgeStates, levelInfo, totalXp } from '../lib/rewards.ts';
+import { BadgeGrid, DailyGoal, LevelBar } from '../components/Rewards.tsx';
 
 type Props = {
   stats: LangStats[];
   now: number;
   log: StudyLog;
+  dailyGoal: number;
   backupReminder: string | null;
   onOpen: (lang: string) => void;
   onPolyglot: () => void;
@@ -26,15 +29,21 @@ const deckMeta = (s: LangStats) => {
   return parts.join(' · ');
 };
 
-export const DeckListView = ({ stats, now, log, backupReminder, onOpen, onPolyglot, onNewLanguage, onSettings }: Props) => {
+export const DeckListView = ({ stats, now, log, dailyGoal, backupReminder, onOpen, onPolyglot, onNewLanguage, onSettings }: Props) => {
   const studied = stats.filter(s => s.active > 0);
   const totalActive = studied.reduce((n, s) => n + s.active, 0);
   const totalDue = stats.reduce((n, s) => n + s.due, 0);
+  const badges = badgeStates(log);
+  const earned = badges.filter(b => b.earned).length;
 
   return (
     <Page>
       <TopBar right={<button onClick={onSettings} className="min-h-11 px-1 text-secondary font-semibold text-primary hover:underline underline-offset-4">Pengaturan & data</button>} />
       <Title sub={totalDue > 0 ? `${totalDue} kartu jatuh tempo hari ini.` : 'Tidak ada kartu jatuh tempo saat ini.'}>Bahasamu</Title>
+      <section aria-label="Level dan target harian" className="mb-6 space-y-3">
+        <LevelBar info={levelInfo(totalXp(log))} />
+        <DailyGoal done={log[dayKey(now)]?.r ?? 0} goal={dailyGoal} />
+      </section>
       <InstallPrompt />
 
       <ul>
@@ -68,6 +77,12 @@ export const DeckListView = ({ stats, now, log, backupReminder, onOpen, onPolygl
       )}
 
       <StatsSection log={log} now={now} />
+
+      <section className="mt-12" aria-labelledby="badges-title">
+        <h2 id="badges-title" className="text-section text-ink">Lencana</h2>
+        <p className="mt-1 mb-3 text-secondary text-muted">{earned} dari {badges.length} didapat. XP datang dari tiap jawaban (benar {XP_CORRECT}, salah {XP_WRONG}), bonus kecepatan kuis kilat, dan target harian (+{XP_GOAL}).</p>
+        <BadgeGrid badges={badges} />
+      </section>
 
       {backupReminder && (
         <p className="mt-12 text-secondary text-muted">
