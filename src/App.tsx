@@ -15,6 +15,7 @@ import { recordAnswer, recordPerfectQuiz, recordSnapshot, type StudyLog } from '
 import { PERFECT_QUIZ_MIN, sessionReward, type SessionReward } from './lib/rewards.ts';
 import { buildQuiz, type QuizAnswer, type QuizQuestion } from './lib/quiz.ts';
 import { withTransition, type TransitionKind } from './lib/transition.ts';
+import { syncTheme } from './lib/theme.ts';
 import { Modal, type ModalConfig } from './components/Modal.tsx';
 import { DeckListView } from './views/DeckListView.tsx';
 import { OnboardingView } from './views/OnboardingView.tsx';
@@ -75,6 +76,8 @@ export default function App() {
     const timer = setInterval(() => setNow(Date.now()), 30 * 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => syncTheme(settings.theme), [settings.theme]);
 
   // Data hanya ada di browser; minta agar tidak dihapus otomatis saat ruang menipis.
   useEffect(() => {

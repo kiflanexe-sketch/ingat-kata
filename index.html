@@ -6,6 +6,18 @@
     <title>IngatKata</title>
     <meta name="description" content="Hafalan kosakata bahasa asing dari bahasa Indonesia dengan jadwal ulang FSRS. Data tersimpan di perangkatmu." />
     <meta name="theme-color" content="#faf7f0" />
+    <script>
+      // Pasang tema sebelum halaman tampil supaya mode gelap tidak berkedip putih.
+      // Nilai warna sama dengan THEME_COLOR di src/lib/theme.ts.
+      (function () {
+        try {
+          var t = JSON.parse(localStorage.getItem('ingatkata-settings') || '{}').theme;
+          var dark = t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#16181c' : '#faf7f0');
+        } catch (e) { /* penyimpanan tidak tersedia: pakai tema terang */ }
+      })();
+    </script>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />

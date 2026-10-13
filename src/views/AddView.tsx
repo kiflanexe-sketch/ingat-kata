@@ -74,7 +74,7 @@ export const AddView = ({ lang, onBack, onSave, onBulkSave, onConfirmLeave }: Pr
     <Page>
       <TopBar onBack={handleBack} backLabel={name} />
       <Title>Tambah kata</Title>
-      <div className="flex p-1 mb-6 rounded-control" style={{ backgroundColor: 'rgb(228 222 209 / 0.6)' }} role="tablist" aria-label="Cara menambah">
+      <div className="flex p-1 mb-6 rounded-control" style={{ backgroundColor: 'var(--segment)' }} role="tablist" aria-label="Cara menambah">
         {tab('single', 'Satu kata')}
         {tab('bulk', 'Sekaligus')}
       </div>

@@ -29,7 +29,7 @@ export const Modal = ({ config, onClose }: Props) => {
   const label = config.confirmLabel ?? (config.type === 'alert' ? 'Oke' : 'Lanjutkan');
 
   return (
-    <div className="backdrop-enter fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4" style={{ backgroundColor: 'rgb(36 38 43 / 0.4)' }} onClick={onClose}>
+    <div className="backdrop-enter fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4" style={{ backgroundColor: 'var(--scrim)' }} onClick={onClose}>
       <div
         role={config.type === 'alert' ? 'alertdialog' : 'dialog'} aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-message"
         className="sheet-enter w-full sm:max-w-sm bg-card rounded-t-sheet sm:rounded-sheet shadow-sheet px-5 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]"

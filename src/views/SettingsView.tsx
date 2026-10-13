@@ -4,6 +4,7 @@ import { RETENTION_CHOICES, type DirectionSetting } from '../lib/srs.ts';
 import { DAILY_GOALS } from '../lib/rewards.ts';
 import { QUIZ_SECONDS } from '../lib/quiz.ts';
 import { BACKUP_INTERVALS } from '../lib/reminder.ts';
+import type { ThemeSetting } from '../lib/theme.ts';
 import { displayLangName, sampleWord } from '../data/languages.ts';
 import { SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { speak, useVoices, voiceStatus } from '../lib/speech.ts';
@@ -26,6 +27,12 @@ const DIRECTIONS: { value: DirectionSetting; label: string; hint: string }[] = [
   { value: 'both', label: 'Bolak-balik', hint: 'Acak: kadang kata asing, kadang bahasa Indonesia.' },
   { value: 'forward', label: 'Bahasa asing → Indonesia', hint: 'Lebih mudah; melatih mengenali kata.' },
   { value: 'backward', label: 'Indonesia → bahasa asing', hint: 'Lebih sulit; melatih mengingat dan mengeja.' },
+];
+
+const THEME_CHOICES: { value: ThemeSetting; label: string; hint: string }[] = [
+  { value: 'system', label: 'Ikut sistem', hint: 'Terang atau gelap mengikuti pengaturan perangkat.' },
+  { value: 'light', label: 'Terang', hint: 'Kertas krem dengan tinta biru.' },
+  { value: 'dark', label: 'Gelap', hint: 'Lebih nyaman di ruangan redup dan lebih hemat baterai di layar OLED.' },
 ];
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -84,6 +91,18 @@ export const SettingsView = ({ settings, now, onChange, onBack, onDownload, onRe
     <Page>
       <TopBar onBack={onBack} backLabel="Bahasamu" />
       <Title>Pengaturan & data</Title>
+
+      <Section title="Tampilan">
+        <fieldset>
+          <legend className="sr-only">Tampilan</legend>
+          {THEME_CHOICES.map(t => (
+            <label key={t.value} className="flex items-start gap-3 py-3 border-t border-line cursor-pointer">
+              <input type="radio" name="theme" value={t.value} checked={settings.theme === t.value} onChange={() => onChange({ ...settings, theme: t.value })} className="mt-1 w-5 h-5 accent-primary" />
+              <span><span className="block text-ink">{t.label}</span><span className="block text-secondary text-muted">{t.hint}</span></span>
+            </label>
+          ))}
+        </fieldset>
+      </Section>
 
       <Section title="Arah pertanyaan">
         <fieldset>

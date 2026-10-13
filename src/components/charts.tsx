@@ -11,7 +11,7 @@ const INK_HOVER = 'var(--primary-hover)';
 const MUTED_LINE = 'var(--control)';
 const GRID = 'var(--line)';
 // Gradasi satu hue untuk kalender aktivitas (sudah lolos validator ordinal terhadap kertas).
-const HEAT = ['var(--line)', '#93acd8', '#6886bf', '#43629b', '#283f69'];
+const HEAT = ['var(--line)', 'var(--heat-1)', 'var(--heat-2)', 'var(--heat-3)', 'var(--heat-4)'];
 
 const fmtDay = (d: Date, now: Date) => {
   const sameDay = d.toDateString() === now.toDateString();

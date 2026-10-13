@@ -60,6 +60,9 @@ dan tanpa server.
   ulang yang memanjang; tersedia versi maskable untuk Android.
 - Transisi antarlayar dan antarkartu dengan View Transitions API (mati otomatis bila
   perangkat meminta gerak dikurangi).
+- Mode gelap dengan tiga pilihan di Pengaturan & data: Ikut sistem (bawaan, ikut berubah
+  saat mode perangkat berubah), Terang, dan Gelap. Tema dipasang sebelum halaman tampil
+  sehingga tidak berkedip putih; semua pasangan teks lolos WCAG AA di kedua tema.
 
 ## Data dan pindah perangkat
 

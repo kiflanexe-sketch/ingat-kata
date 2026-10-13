@@ -34,12 +34,73 @@
   --rule: #d3e1f0;
   --margin: #e3a29d;
 
+  /* Teks di atas tombol berwarna, latar modal, lintasan tombol segmen, tepi tipis. */
+  --on-primary: #ffffff;
+  --on-bad: #ffffff;
+  --scrim: rgb(36 38 43 / 0.4);
+  --segment: rgb(228 222 209 / 0.6);
+  --edge: rgb(36 38 43 / 0.15);
+
+  /* Kalender aktivitas: satu rona, makin gelap makin banyak (lolos validator ordinal). */
+  --heat-1: #93acd8;
+  --heat-2: #6886bf;
+  --heat-3: #43629b;
+  --heat-4: #283f69;
+
   --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Hiragino Sans", "Apple SD Gothic Neo",
     "Noto Sans JP", "Noto Sans KR", "Noto Sans Arabic", sans-serif;
   --font-word: "Iowan Old Style", Charter, "Noto Serif", Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP",
     AppleMyungjo, "Noto Serif KR", "Noto Naskh Arabic", "Geeza Pro", serif;
 
   color-scheme: light;
+}
+
+/* Mode gelap: "kertas di malam hari". Dipasang lewat <html data-theme="dark">, yang diatur
+   src/lib/theme.ts (pilihan Terang/Gelap/Ikut sistem) dan skrip kecil di index.html supaya
+   tidak berkedip putih saat dibuka. Semua pasangan teks lolos WCAG AA (lihat
+   docs/design-direction.md). */
+:root[data-theme='dark'] {
+  --paper: #16181c;
+  --card: #1f2227;
+  --ink: #ebe8e1;
+  --muted: #b7b2a8;
+  --subtle: #a8a297;
+  --line: #33363c;
+  --control: #7c776e;
+
+  --primary: #8db0e6;
+  --primary-hover: #a9c4ee;
+  --primary-soft: #233149;
+  --ok: #86d29f;
+  --ok-soft: #1b3325;
+  --bad: #f29b93;
+  --bad-soft: #3e2220;
+  --due: #e8bd6c;
+  --due-soft: #3a2f18;
+
+  --box-0: #4b2e2b;
+  --box-1: #4a3926;
+  --box-2: #423d26;
+  --box-3: #2b3f2e;
+  --box-4: #27393b;
+  --box-5: #2b3450;
+
+  --rule: #2a3546;
+  --margin: #7d4541;
+
+  --on-primary: #10203d;
+  --on-bad: #2a1210;
+  --scrim: rgb(0 0 0 / 0.6);
+  --segment: rgb(51 54 60 / 0.8);
+  --edge: rgb(255 255 255 / 0.14);
+
+  /* Di latar gelap, aktivitas makin banyak = makin terang. */
+  --heat-1: #3a5680;
+  --heat-2: #5072ad;
+  --heat-3: #7797d3;
+  --heat-4: #b0c8f0;
+
+  color-scheme: dark;
 }
 
 /* Hanzi memakai font Tiongkok (Song/Noto Serif SC), bukan Mincho Jepang yang bentuk

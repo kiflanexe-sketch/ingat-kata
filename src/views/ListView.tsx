@@ -61,7 +61,7 @@ const CardRow = ({ card: c, lang, now, selecting, selected, onToggle, onDelete, 
         {error && <p className="text-secondary text-bad" role="alert">{error}</p>}
         <div className="flex justify-end gap-2">
           <button type="button" onClick={() => { setEditing(false); setFront(c.front); setBack(c.back); setError(''); }} className="min-h-11 px-4 text-secondary font-semibold text-muted hover:text-ink">Batal</button>
-          <button type="submit" className="min-h-11 px-4 rounded-control bg-primary text-white text-secondary font-semibold hover:bg-primary-hover">Simpan</button>
+          <button type="submit" className="min-h-11 px-4 rounded-control bg-primary text-on-primary text-secondary font-semibold hover:bg-primary-hover">Simpan</button>
         </div>
       </form>
     );
@@ -83,7 +83,7 @@ const CardRow = ({ card: c, lang, now, selecting, selected, onToggle, onDelete, 
     return (
       <button type="button" role="checkbox" aria-checked={selected} onClick={onToggle} className={`w-full text-left py-3 px-2 -mx-2 border-t border-line flex items-center gap-3 ${selected ? 'bg-primary-soft' : ''}`}>
         <span className={`w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center shrink-0 ${selected ? 'border-primary bg-primary' : 'border-control bg-card'}`}>
-          {selected && <IconCheck size={14} className="text-white" />}
+          {selected && <IconCheck size={14} className="text-on-primary" />}
         </span>
         {body}
       </button>

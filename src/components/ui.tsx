@@ -5,9 +5,9 @@ import { IconArrowLeft, IconChevronRight } from './Icon.tsx';
 type ButtonProps = ComponentProps<'button'> & { variant?: 'primary' | 'secondary' | 'danger' };
 
 const BUTTON_STYLES = {
-  primary: 'bg-primary text-white hover:bg-primary-hover',
+  primary: 'bg-primary text-on-primary hover:bg-primary-hover',
   secondary: 'border-[1.5px] border-primary text-primary hover:bg-primary-soft',
-  danger: 'bg-bad text-white hover:opacity-90',
+  danger: 'bg-bad text-on-bad hover:opacity-90',
 };
 
 export const Button = ({ variant = 'primary', className = '', ...props }: ButtonProps) => (
@@ -68,7 +68,7 @@ export const BoxShelf = ({ counts }: { counts: number[] }) => {
     <figure>
       <div className="grid grid-cols-6 gap-1 items-end h-16" aria-hidden="true">
         {counts.map((n, i) => (
-          <span key={i} className={`rounded-t-[3px] border-t-2 border-black/15 ${BOX_BG[i]}`} style={{ height: `${Math.max(6, (n / max) * 100)}%` }} />
+          <span key={i} className={`rounded-t-[3px] border-t-2 border-[color:var(--edge)] ${BOX_BG[i]}`} style={{ height: `${Math.max(6, (n / max) * 100)}%` }} />
         ))}
       </div>
       <dl className="grid grid-cols-6 gap-1 mt-1 text-center">

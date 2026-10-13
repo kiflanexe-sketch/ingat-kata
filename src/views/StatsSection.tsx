@@ -62,7 +62,7 @@ export const StatsSection = ({ log, now }: Props) => {
       <section className="mt-12" aria-labelledby="stats-numbers">
         <div className="flex items-center justify-between gap-3">
           <h2 id="stats-numbers" className="text-section text-ink">Statistik</h2>
-          <div className="flex p-0.5 rounded-control" style={{ backgroundColor: 'rgb(228 222 209 / 0.6)' }} role="radiogroup" aria-label="Rentang waktu">
+          <div className="flex p-0.5 rounded-control" style={{ backgroundColor: 'var(--segment)' }} role="radiogroup" aria-label="Rentang waktu">
             {RANGES.map(r => (
               <button key={r} role="radio" aria-checked={range === r} onClick={() => setRange(r)}
                 className={`min-h-9 px-3 rounded-[6px] text-meta transition-colors duration-state ${range === r ? 'bg-card text-ink shadow-[0_1px_2px_rgb(36_38_43/0.12)]' : 'text-muted hover:text-ink'}`}>
