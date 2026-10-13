@@ -14,6 +14,8 @@ import { backupReminder } from './lib/reminder.ts';
 import { recordAnswer, recordPerfectQuiz, recordSnapshot, type StudyLog } from './lib/stats.ts';
 import { PERFECT_QUIZ_MIN, sessionReward, type SessionReward } from './lib/rewards.ts';
 import { buildQuiz, type QuizAnswer, type QuizQuestion } from './lib/quiz.ts';
+import { planManualWords, type ManualWord } from './lib/manual.ts';
+import { POS_LABEL, posOf, type PosCode } from './lib/pos.ts';
 import { withTransition, type TransitionKind } from './lib/transition.ts';
 import { syncTheme } from './lib/theme.ts';
 import { Modal, type ModalConfig } from './components/Modal.tsx';
@@ -273,25 +275,67 @@ export default function App() {
     navigate('home');
   };
 
-  const addCard = (front: string, back: string): SaveResult => {
+  // Kata sendiri dicek terhadap paket bahasa ini (lihat lib/manual.ts). Kata dari paket
+  // ditambahkan dengan sumber paketnya, supaya jenis katanya terbaca dan impor paket nanti tidak berganda.
+  const addManual = (cards: Card[], words: ManualWord[], allActive: boolean) => {
+    const plan = planManualWords(deck!.lang, cards, words);
+    const now = Date.now();
+    let next = cards;
+    const added: Card[] = [];
+    const byLevel = new Map<string, { front: string; back: string }[]>();
+    for (const p of plan.preset) byLevel.set(p.level, [...(byLevel.get(p.level) ?? []), { front: p.front, back: p.back }]);
+    for (const [level, list] of byLevel) {
+      const r = addWords(next, list, { source: `preset-${level}`, now, idPrefix: `preset-${level}`, allActive });
+      next = r.cards; added.push(...r.added);
+    }
+    const custom = addWords(next, plan.custom, { source: 'custom', now, idPrefix: 'custom', allActive });
+    const posFor = new Map(plan.custom.filter(w => w.pos).map(w => [`${w.front}\u0000${w.back}`, w.pos!]));
+    next = custom.cards.map(c => (c.source === 'custom' && posFor.has(`${c.front}\u0000${c.back}`) && custom.added.includes(c) ? { ...c, pos: posFor.get(`${c.front}\u0000${c.back}`) } : c));
+    added.push(...custom.added);
+    return { plan, cards: next, added };
+  };
+
+  const addCard = (front: string, back: string, pos: PosCode | null): SaveResult => {
     if (!deck) return { ok: false, reason: 'Deck tidak terbuka.' };
-    if (hasPair(deck.cards, front, back)) return { ok: false, reason: 'Kata dengan arti yang sama sudah ada di deck.' };
-    const r = addWords(deck.cards, [{ front, back }], { source: 'custom', now: Date.now(), idPrefix: 'custom', allActive: true });
+    const r = addManual(deck.cards, [{ front, back, ...(pos ? { pos } : {}) }], true);
+    const hit = r.plan.inDeck[0];
+    if (hit) {
+      const where = hit.card.status === 'active' ? 'aktif' : 'di antrian (akan dibuka bertahap)';
+      return { ok: false, reason: `"${front.trim()}" sudah ada di deck dari ${hit.card.source.replace('preset-', 'paket ')}: ${hit.card.front} = ${hit.card.back}, ${where}.` };
+    }
+    if (r.added.length === 0) return { ok: false, reason: 'Kata dengan arti yang sama sudah ada di deck.' };
     commit({ ...deck, cards: r.cards });
+    const preset = r.plan.preset[0];
+    if (preset) {
+      const label = posOf(r.added[0], deck.lang);
+      return { ok: true, note: `"${front.trim()}" sudah ada di paket ${preset.level}, jadi versi paket yang dipakai: ${preset.front} = ${preset.back}${label ? ` (${POS_LABEL[label]})` : ''}. Langsung aktif.` };
+    }
     return { ok: true };
   };
 
   const bulkAdd = (pairs: { front: string; back: string }[]) => {
-    if (!deck) return { added: 0, active: 0, skipped: 0 };
-    const r = addWords(deck.cards, shuffleArray(pairs), { source: 'custom', now: Date.now(), idPrefix: 'custom' });
+    if (!deck) return { added: 0, active: 0, fromPacks: 0, inDeck: 0, skipped: 0 };
+    const r = addManual(deck.cards, shuffleArray(pairs), false);
     if (r.added.length > 0) commit({ ...deck, cards: r.cards });
-    return { added: r.added.length, active: r.added.filter(c => c.status === 'active').length, skipped: r.skipped };
+    return {
+      added: r.added.length,
+      active: r.added.filter(c => c.status === 'active').length,
+      fromPacks: r.added.filter(c => c.source !== 'custom').length,
+      inDeck: r.plan.inDeck.length,
+      skipped: pairs.length - r.added.length - r.plan.inDeck.length,
+    };
   };
 
-  const editCard = (id: string, front: string, back: string): SaveResult => {
+  const editCard = (id: string, front: string, back: string, pos: PosCode | null): SaveResult => {
     if (!deck) return { ok: false, reason: 'Deck tidak terbuka.' };
     if (hasPair(deck.cards.filter(c => c.id !== id), front, back)) return { ok: false, reason: 'Kata dengan arti yang sama sudah ada di deck.' };
-    updateCards(cards => cards.map(c => (c.id === id ? { ...c, front: front.trim(), back: back.trim() } : c)));
+    updateCards(cards => cards.map(c => {
+      if (c.id !== id) return c;
+      const next: Card = { ...c, front: front.trim(), back: back.trim() };
+      delete next.pos;
+      // Jenis kata disimpan di kartu hanya bila berbeda dari data paketnya.
+      return pos && pos !== posOf(next, deck.lang) ? { ...next, pos } : next;
+    }));
     return { ok: true };
   };
 

@@ -12,7 +12,16 @@ dan tanpa server.
   level umum (CEFR, JLPT, TOPIK, HSK 1-6), dan paket tes resmi atau kerja (TOEIC, TOEFL,
   IELTS, GRE, JFT-Basic, EPS-TOPIK, BCT, Pflege, TestDaF, TOAFL). Kata Mandarin ditulis
   pinyin bernada dengan hanzi dalam kurung. Bahasa lain bisa diisi sendiri.
-- Tambah kata satu per satu atau sekaligus (pemisah `<>`, tab, ` = `, atau ` - `).
+- Jenis kata di setiap kartu (kata benda, kerja, sifat, keterangan, sambung, ganti, depan,
+  bilangan, partikel, ungkapan). Semua kata paket sudah berlabel; kata sendiri bisa diberi
+  jenis kata saat ditambah atau diedit.
+- Tambah kata satu per satu atau sekaligus (pemisah `<>`, tab, ` = `, atau ` - `). Kata
+  dicek dulu terhadap semua paket bahasa itu: yang sudah ada di deck dari paket (aktif atau
+  antrian) dilewati; yang ada di paket yang belum diimpor memakai versi paketnya (dengan
+  jenis kata dan aksara asli), sehingga tidak berganda saat paketnya diimpor; selebihnya
+  disimpan sebagai kata sendiri. Pencocokan memaafkan huruf besar, "to", artikel Jerman, dan
+  romanisasi tanpa aksara asli; bila aksara asli ada (kanji, hangul, hanzi, Arab), aksaranya
+  yang dibandingkan.
 - Sesi review dua arah (asing ke Indonesia dan sebaliknya), kartu yang salah diulang di
   akhir sesi, lalu ringkasan berisi daftar kata yang perlu diulang.
 - Pemeriksa jawaban yang memaafkan: beberapa arti (`Perlu/Penting`), aksara asli dalam

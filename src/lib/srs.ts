@@ -1,4 +1,5 @@
 import { Rating, State, createEmptyCard, fsrs, generatorParameters, type Card as FsrsCard, type FSRS } from 'ts-fsrs';
+import { wordIndex } from './match.ts';
 import type { Card, Grade, SessionMode, StudyItem } from '../types.ts';
 
 export const ONE_MINUTE = 60 * 1000;
@@ -137,14 +138,15 @@ export function addWords(
   words: { front: string; back: string }[],
   opts: { source: string; now: number; idPrefix: string; allActive?: boolean },
 ): { cards: Card[]; added: Card[]; skipped: number } {
-  const seen = new Set(cards.map(c => pairKey(c.front, c.back)));
+  // Kata yang sama (kata asing dan salah satu artinya sama) dilewati, termasuk beda huruf
+  // besar, artikel, atau ejaan latin yang sudah diperbaiki di paket.
+  const seen = wordIndex(cards);
   let slots = Math.max(0, ACTIVE_FILL_TARGET - cards.filter(c => c.status === 'active').length);
   const added: Card[] = [];
   let skipped = 0;
   words.forEach((w, i) => {
-    const key = pairKey(w.front, w.back);
-    if (seen.has(key)) { skipped++; return; }
-    seen.add(key);
+    if (seen.has(w)) { skipped++; return; }
+    seen.add(w);
     const active = opts.allActive || slots > 0;
     if (active && !opts.allActive) slots--;
     added.push({

@@ -4,6 +4,7 @@ import { DAILY_GOALS, DEFAULT_DAILY_GOAL } from './rewards.ts';
 import { DEFAULT_QUIZ_SECONDS, QUIZ_SECONDS } from './quiz.ts';
 import { BACKUP_INTERVALS, DEFAULT_BACKUP_DAYS } from './reminder.ts';
 import { DEFAULT_THEME, THEMES, type ThemeSetting } from './theme.ts';
+import { isPos } from './pos.ts';
 import { DEFAULT_RETENTION, MAX_BOX, RETENTION_CHOICES, isDue, isMastered, mergeCards, nextDueAt, type DirectionSetting } from './srs.ts';
 
 const DECK_PREFIX = 'ingatkata-deck-';
@@ -40,6 +41,7 @@ export function migrateCard(raw: unknown, index: number): Card | null {
     source: typeof c.source === 'string' && c.source ? c.source : 'legacy',
     lapses: Math.max(0, Math.round(num(c.lapses, 0))),
     ...(migrateFsrs(c.fsrs) ? { fsrs: migrateFsrs(c.fsrs) } : {}),
+    ...(isPos(c.pos) ? { pos: c.pos } : {}),
   };
 }
 

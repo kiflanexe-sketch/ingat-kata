@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PACK_NOTES, SCRIPT_LEVELS, WORD_DATABASE } from '../src/data/words.ts';
 import { pairKey } from '../src/lib/srs.ts';
+import { isPos } from '../src/lib/pos.ts';
 
 const NATIVE_IN_PARENS = /\([^)]*[^\s -ɏ][^)]*\)/;
 const NEEDS_NATIVE = new Set(['Jepang 🇯🇵', 'Korea 🇰🇷', 'Arab 🇸🇦', 'Mandarin 🇨🇳']);
@@ -38,4 +39,15 @@ test('setiap bahasa bawaan punya keterangan untuk semua paket dan tidak lebih', 
   for (const lang of Object.keys(WORD_DATABASE)) {
     assert.deepEqual(Object.keys(PACK_NOTES[lang]).sort(), Object.keys(WORD_DATABASE[lang]).sort());
   }
+});
+
+test('setiap kata paket (selain paket huruf) punya jenis kata yang sah', () => {
+  const missing: string[] = [];
+  for (const [lang, packs] of Object.entries(WORD_DATABASE)) {
+    for (const [level, words] of Object.entries(packs)) {
+      if (SCRIPT_LEVELS.has(level)) continue;
+      for (const w of words) if (!isPos(w.p)) missing.push(`${lang} ${level}: ${w.f}`);
+    }
+  }
+  assert.deepEqual(missing, []);
 });

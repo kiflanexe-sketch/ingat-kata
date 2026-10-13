@@ -4,14 +4,17 @@ import { displayLangName, speechCodeFor } from '../data/languages.ts';
 import { WORD_DATABASE } from '../data/words.ts';
 import { Button, Page, Title, TopBar } from '../components/ui.tsx';
 import { withTransition } from '../lib/transition.ts';
+import { PosSelect } from '../components/PosSelect.tsx';
+import type { PosCode } from '../lib/pos.ts';
 
-export type SaveResult = { ok: true } | { ok: false; reason: string };
-export type BulkResult = { added: number; active: number; skipped: number; invalidLines: number[] };
+// note: keterangan bila kata tidak disimpan persis seperti yang diketik (mis. diambil dari paket).
+export type SaveResult = { ok: true; note?: string } | { ok: false; reason: string };
+export type BulkResult = { added: number; active: number; fromPacks: number; inDeck: number; skipped: number; invalidLines: number[] };
 
 type Props = {
   lang: string;
   onBack: () => void;
-  onSave: (front: string, back: string) => SaveResult;
+  onSave: (front: string, back: string, pos: PosCode | null) => SaveResult;
   onBulkSave: (pairs: { front: string; back: string }[]) => Omit<BulkResult, 'invalidLines'>;
   onConfirmLeave: (onLeave: () => void) => void;
 };
@@ -20,6 +23,7 @@ export const AddView = ({ lang, onBack, onSave, onBulkSave, onConfirmLeave }: Pr
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
   const [front, setFront] = useState('');
   const [back, setBack] = useState('');
+  const [pos, setPos] = useState<PosCode | null>(null);
   const [bulkText, setBulkText] = useState('');
   const [message, setMessage] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
   const name = displayLangName(lang);
@@ -41,11 +45,12 @@ export const AddView = ({ lang, onBack, onSave, onBulkSave, onConfirmLeave }: Pr
   const handleSaveSingle = (e: React.FormEvent) => {
     e.preventDefault();
     if (!front.trim() || !back.trim()) return;
-    const result = onSave(front, back);
+    const result = onSave(front, back, pos);
     if (!result.ok) { setMessage({ tone: 'error', text: result.reason }); return; }
-    setMessage({ tone: 'ok', text: `"${front.trim()}" tersimpan dan langsung aktif.` });
+    setMessage({ tone: 'ok', text: result.note ?? `"${front.trim()}" tersimpan dan langsung aktif.` });
     setFront('');
     setBack('');
+    setPos(null);
   };
 
   const handleBulk = (e: React.FormEvent) => {
@@ -57,6 +62,8 @@ export const AddView = ({ lang, onBack, onSave, onBulkSave, onConfirmLeave }: Pr
     }
     const r = onBulkSave(pairs);
     const parts = [`${r.added} kata ditambahkan (${r.active} langsung aktif, sisanya ke antrian).`];
+    if (r.fromPacks > 0) parts.push(`${r.fromPacks} di antaranya sudah ada di paket ${name}, jadi versi paket yang dipakai.`);
+    if (r.inDeck > 0) parts.push(`${r.inDeck} dilewati karena sudah ada di deck dari paket.`);
     if (r.skipped > 0) parts.push(`${r.skipped} dilewati karena sudah ada.`);
     if (invalidLines.length > 0) parts.push(`Baris tidak terbaca: ${invalidLines.slice(0, 8).join(', ')}${invalidLines.length > 8 ? ', ...' : ''}.`);
     setMessage({ tone: r.added > 0 ? 'ok' : 'error', text: parts.join(' ') });
@@ -89,6 +96,13 @@ export const AddView = ({ lang, onBack, onSave, onBulkSave, onConfirmLeave }: Pr
             <input id="add-back" lang="id" className={field} value={back} onChange={e => setBack(e.target.value)} placeholder={example ? `Mis. ${example.b}` : 'Arti'} required />
             <p className="mt-1 text-meta text-subtle">Beberapa arti dipisah garis miring, mis. Perlu/Penting.</p>
           </div>
+          <div>
+            <label htmlFor="add-pos" className="block text-secondary font-semibold text-ink mb-1">Jenis kata <span className="font-normal text-muted">(opsional)</span></label>
+            <PosSelect id="add-pos" value={pos} onChange={setPos} className={field} />
+          </div>
+          {presetLevels.length > 0 && (
+            <p className="text-meta text-subtle">Kata yang sudah ada di paket {name} memakai versi paketnya, lengkap dengan jenis kata.</p>
+          )}
           <Button type="submit">Simpan</Button>
         </form>
       ) : (
