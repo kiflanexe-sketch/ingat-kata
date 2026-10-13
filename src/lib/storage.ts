@@ -1,5 +1,7 @@
 import type { Card, FsrsState, LangStats } from '../types.ts';
 import { mergeLogs, sanitizeLog, type StudyLog } from './stats.ts';
+import { DAILY_GOALS, DEFAULT_DAILY_GOAL } from './rewards.ts';
+import { DEFAULT_QUIZ_SECONDS, QUIZ_SECONDS } from './quiz.ts';
 import { DEFAULT_RETENTION, MAX_BOX, RETENTION_CHOICES, isDue, isMastered, mergeCards, nextDueAt, type DirectionSetting } from './srs.ts';
 
 const DECK_PREFIX = 'ingatkata-deck-';
@@ -131,10 +133,14 @@ export type Settings = {
   direction: DirectionSetting; // arah pertanyaan
   autoSpeak: boolean; // ucapkan kata asing otomatis setelah menjawab
   retention: number; // target peluang ingat FSRS (0,85 / 0,9 / 0,95)
+  dailyGoal: number; // target kartu dijawab per hari
+  quizSeconds: number; // waktu per soal kuis kilat
   lastBackupAt: number | null;
 };
 
-export const DEFAULT_SETTINGS: Settings = { direction: 'both', autoSpeak: true, retention: DEFAULT_RETENTION, lastBackupAt: null };
+export const DEFAULT_SETTINGS: Settings = {
+  direction: 'both', autoSpeak: true, retention: DEFAULT_RETENTION, dailyGoal: DEFAULT_DAILY_GOAL, quizSeconds: DEFAULT_QUIZ_SECONDS, lastBackupAt: null,
+};
 
 function sanitizeSettings(raw: unknown): Omit<Settings, 'lastBackupAt'> {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
@@ -142,6 +148,8 @@ function sanitizeSettings(raw: unknown): Omit<Settings, 'lastBackupAt'> {
     direction: r.direction === 'forward' || r.direction === 'backward' ? r.direction : 'both',
     autoSpeak: typeof r.autoSpeak === 'boolean' ? r.autoSpeak : DEFAULT_SETTINGS.autoSpeak,
     retention: typeof r.retention === 'number' && RETENTION_CHOICES.includes(r.retention) ? r.retention : DEFAULT_RETENTION,
+    dailyGoal: typeof r.dailyGoal === 'number' && DAILY_GOALS.includes(r.dailyGoal) ? r.dailyGoal : DEFAULT_DAILY_GOAL,
+    quizSeconds: typeof r.quizSeconds === 'number' && QUIZ_SECONDS.includes(r.quizSeconds) ? r.quizSeconds : DEFAULT_QUIZ_SECONDS,
   };
 }
 
@@ -187,8 +195,7 @@ export function exportBackup(): string {
     decks[lang] = loadDeck(lang);
     meta[lang] = loadMeta(lang);
   }
-  const { direction, autoSpeak, retention } = loadSettings();
-  const settings = { direction, autoSpeak, retention };
+  const settings = sanitizeSettings(loadSettings());
   const backup: BackupFile = { app: 'ingatkata', version: 2, exportedAt: new Date().toISOString(), decks, meta, settings, log: loadLog() };
   return JSON.stringify(backup);
 }

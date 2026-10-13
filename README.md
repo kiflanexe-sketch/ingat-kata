@@ -28,6 +28,19 @@ dan tanpa server.
   (>= 80%: 5 kata, >= 50%: 2 kata, di bawahnya: fokus dulu).
 - Mode latihan (latih semua, latih yang salah, latihan campuran lintas bahasa) yang
   tidak menaikkan kotak, supaya jadwal tetap jujur.
+- Kuis kilat: pilihan ganda berwaktu (5, 8, atau 12 detik per soal) untuk melatih kecepatan
+  mengingat. Bisa dimulai dari ringkasan sesi (mengulas kata sesi itu), dari halaman bahasa,
+  dan dari latihan campuran. Pengecoh diambil dari deck bahasa yang sama, diutamakan dari
+  paket yang sama; sinonim tidak pernah dijadikan pengecoh. Jawaban cepat dapat poin
+  tambahan, ada penanda beruntun, dan bisa dimainkan dengan tombol 1-4. Kuis tidak mengubah
+  jadwal FSRS (mengenali pilihan lebih mudah daripada mengingat), kata yang salah bisa
+  langsung dilatih dengan mengetik.
+- XP, level, target harian, dan lencana. XP dari tiap jawaban (benar 10, salah 2), bonus
+  kecepatan kuis, +25 saat target harian tercapai, +20 untuk kuis sempurna. Level 2 di
+  100 XP, tiap level berikutnya butuh 100 XP lebih banyak, dengan sebutan Pemula sampai
+  Maestro. 15 lencana untuk hari beruntun, jumlah jawaban, kata hafal, target harian, dan
+  kuis sempurna. Semuanya dihitung dari riwayat harian, jadi ikut tersimpan di file cadangan
+  dan aman digabung antarperangkat.
 - Daftar kata dengan pencarian, edit, pindah aktif/antrian, dan hapus massal.
 - Pengaturan arah pertanyaan (bolak-balik, asing ke Indonesia, Indonesia ke asing) dan
   suara otomatis.

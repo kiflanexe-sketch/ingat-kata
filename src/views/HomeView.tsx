@@ -16,6 +16,7 @@ type Props = {
   onList: () => void;
   onRepeatAll: () => void;
   onRepeatWrong: () => void;
+  onQuiz: () => void;
   onSmartAdd: () => void;
   onChangeLang: () => void;
   onManageMaterial: () => void;
@@ -23,7 +24,7 @@ type Props = {
 
 type Action = { label: string; hint?: string; run: () => void };
 
-export const HomeView = ({ stats, now, relearnCount, lastAccuracy, hasPresets, onStart, onAdd, onList, onRepeatAll, onRepeatWrong, onSmartAdd, onChangeLang, onManageMaterial }: Props) => {
+export const HomeView = ({ stats, now, relearnCount, lastAccuracy, hasPresets, onStart, onAdd, onList, onRepeatAll, onRepeatWrong, onQuiz, onSmartAdd, onChangeLang, onManageMaterial }: Props) => {
   const name = displayLangName(stats.lang);
   const header = <TopBar onBack={onChangeLang} backLabel="Bahasamu" right={stats.total > 0 && <button onClick={onList} className="min-h-11 px-1 text-secondary font-semibold text-primary hover:underline underline-offset-4">Daftar kata</button>} />;
 
@@ -80,6 +81,7 @@ export const HomeView = ({ stats, now, relearnCount, lastAccuracy, hasPresets, o
   }
 
   if (relearnCount > 0) secondary.push({ label: `Latih kata yang salah (${relearnCount})`, run: onRepeatWrong });
+  if (stats.active > 1) secondary.push({ label: 'Kuis kilat', hint: 'Pilihan ganda berwaktu dari kata aktif. Tidak mengubah jadwal.', run: onQuiz });
   if (stats.active > 0) secondary.push({ label: 'Latih semua kata aktif', hint: 'Latihan tidak menaikkan kotak.', run: onRepeatAll });
   secondary.push({ label: 'Tambah kata', run: onAdd });
   if (hasPresets) secondary.push({ label: 'Paket kata', run: onManageMaterial });
@@ -112,9 +114,9 @@ export const HomeView = ({ stats, now, relearnCount, lastAccuracy, hasPresets, o
   );
 };
 
-type PolyglotProps = { perLang: { lang: string; active: number }[]; onStart: () => void; onExit: () => void };
+type PolyglotProps = { perLang: { lang: string; active: number }[]; onStart: () => void; onQuiz: () => void; onExit: () => void };
 
-export const PolyglotHomeView = ({ perLang, onStart, onExit }: PolyglotProps) => {
+export const PolyglotHomeView = ({ perLang, onStart, onQuiz, onExit }: PolyglotProps) => {
   const total = perLang.reduce((n, l) => n + l.active, 0);
   return (
     <Page>
@@ -132,6 +134,8 @@ export const PolyglotHomeView = ({ perLang, onStart, onExit }: PolyglotProps) =>
         </li>
       </ul>
       <Button onClick={onStart}>Mulai latihan campuran</Button>
+      <Button variant="secondary" className="mt-2" onClick={onQuiz}>Kuis kilat campuran</Button>
+      <p className="mt-2 text-meta text-subtle">Kuis kilat: pilihan ganda berwaktu, pengecoh dari bahasa yang sama. Tidak mengubah jadwal.</p>
     </Page>
   );
 };

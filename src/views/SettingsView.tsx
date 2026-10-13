@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ParsedBackup, RestoreMode, Settings } from '../lib/storage.ts';
 import { RETENTION_CHOICES, type DirectionSetting } from '../lib/srs.ts';
+import { DAILY_GOALS } from '../lib/rewards.ts';
+import { QUIZ_SECONDS } from '../lib/quiz.ts';
 import { displayLangName, sampleWord } from '../data/languages.ts';
 import { SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { speak, useVoices, voiceStatus } from '../lib/speech.ts';
@@ -30,6 +32,21 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
     <h2 className="text-section text-ink mb-3">{title}</h2>
     {children}
   </section>
+);
+
+// Deret pilihan angka kecil (target, waktu) sebagai tombol radio sejajar.
+const Choices = ({ name, label, value, options, unit, onChange }: { name: string; label: string; value: number; options: number[]; unit: string; onChange: (v: number) => void }) => (
+  <fieldset>
+    <legend className="sr-only">{label}</legend>
+    <div className="flex flex-wrap gap-2">
+      {options.map(o => (
+        <label key={o} className={`min-h-11 px-4 inline-flex items-center rounded-control border-[1.5px] cursor-pointer transition-colors duration-state has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-primary ${value === o ? 'border-primary bg-primary-soft text-primary font-semibold' : 'border-control text-ink hover:border-primary'}`}>
+          <input type="radio" name={name} checked={value === o} onChange={() => onChange(o)} className="sr-only" />
+          {o} {unit}
+        </label>
+      ))}
+    </div>
+  </fieldset>
 );
 
 export const SettingsView = ({ settings, now, onChange, onBack, onDownload, onReadFile, onRestore }: Props) => {
@@ -98,6 +115,16 @@ export const SettingsView = ({ settings, now, onChange, onBack, onDownload, onRe
           ))}
         </fieldset>
         <p className="mt-2 text-meta text-subtle">Berlaku untuk jawaban berikutnya; jadwal yang sudah ada tidak dihitung ulang.</p>
+      </Section>
+
+      <Section title="Target harian">
+        <p className="text-secondary text-muted mb-3">Jumlah kartu yang ingin kamu jawab tiap hari. Mencapainya memberi bonus XP dan dihitung untuk lencana.</p>
+        <Choices name="daily-goal" label="Target harian" value={settings.dailyGoal} options={DAILY_GOALS} unit="kartu" onChange={v => onChange({ ...settings, dailyGoal: v })} />
+      </Section>
+
+      <Section title="Kuis kilat">
+        <p className="text-secondary text-muted mb-3">Waktu menjawab tiap soal pilihan ganda. Pilih yang lebih lama untuk anak-anak atau aksara yang baru dipelajari.</p>
+        <Choices name="quiz-seconds" label="Waktu per soal" value={settings.quizSeconds} options={QUIZ_SECONDS} unit="detik" onChange={v => onChange({ ...settings, quizSeconds: v })} />
       </Section>
 
       <Section title="Suara">
