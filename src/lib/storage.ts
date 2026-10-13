@@ -2,6 +2,7 @@ import type { Card, FsrsState, LangStats } from '../types.ts';
 import { mergeLogs, sanitizeLog, type StudyLog } from './stats.ts';
 import { DAILY_GOALS, DEFAULT_DAILY_GOAL } from './rewards.ts';
 import { DEFAULT_QUIZ_SECONDS, QUIZ_SECONDS } from './quiz.ts';
+import { BACKUP_INTERVALS, DEFAULT_BACKUP_DAYS } from './reminder.ts';
 import { DEFAULT_RETENTION, MAX_BOX, RETENTION_CHOICES, isDue, isMastered, mergeCards, nextDueAt, type DirectionSetting } from './srs.ts';
 
 const DECK_PREFIX = 'ingatkata-deck-';
@@ -135,11 +136,13 @@ export type Settings = {
   retention: number; // target peluang ingat FSRS (0,85 / 0,9 / 0,95)
   dailyGoal: number; // target kartu dijawab per hari
   quizSeconds: number; // waktu per soal kuis kilat
+  quizSfx: boolean; // efek suara benar/salah/perayaan di kuis kilat
+  backupEveryDays: number; // jarak pengingat cadangan
   lastBackupAt: number | null;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  direction: 'both', autoSpeak: true, retention: DEFAULT_RETENTION, dailyGoal: DEFAULT_DAILY_GOAL, quizSeconds: DEFAULT_QUIZ_SECONDS, lastBackupAt: null,
+  direction: 'both', autoSpeak: true, retention: DEFAULT_RETENTION, dailyGoal: DEFAULT_DAILY_GOAL, quizSeconds: DEFAULT_QUIZ_SECONDS, quizSfx: true, backupEveryDays: DEFAULT_BACKUP_DAYS, lastBackupAt: null,
 };
 
 function sanitizeSettings(raw: unknown): Omit<Settings, 'lastBackupAt'> {
@@ -150,6 +153,8 @@ function sanitizeSettings(raw: unknown): Omit<Settings, 'lastBackupAt'> {
     retention: typeof r.retention === 'number' && RETENTION_CHOICES.includes(r.retention) ? r.retention : DEFAULT_RETENTION,
     dailyGoal: typeof r.dailyGoal === 'number' && DAILY_GOALS.includes(r.dailyGoal) ? r.dailyGoal : DEFAULT_DAILY_GOAL,
     quizSeconds: typeof r.quizSeconds === 'number' && QUIZ_SECONDS.includes(r.quizSeconds) ? r.quizSeconds : DEFAULT_QUIZ_SECONDS,
+    quizSfx: typeof r.quizSfx === 'boolean' ? r.quizSfx : DEFAULT_SETTINGS.quizSfx,
+    backupEveryDays: typeof r.backupEveryDays === 'number' && BACKUP_INTERVALS.includes(r.backupEveryDays) ? r.backupEveryDays : DEFAULT_BACKUP_DAYS,
   };
 }
 

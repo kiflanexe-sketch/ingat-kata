@@ -3,6 +3,7 @@ import type { ParsedBackup, RestoreMode, Settings } from '../lib/storage.ts';
 import { RETENTION_CHOICES, type DirectionSetting } from '../lib/srs.ts';
 import { DAILY_GOALS } from '../lib/rewards.ts';
 import { QUIZ_SECONDS } from '../lib/quiz.ts';
+import { BACKUP_INTERVALS } from '../lib/reminder.ts';
 import { displayLangName, sampleWord } from '../data/languages.ts';
 import { SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { speak, useVoices, voiceStatus } from '../lib/speech.ts';
@@ -125,6 +126,13 @@ export const SettingsView = ({ settings, now, onChange, onBack, onDownload, onRe
       <Section title="Kuis kilat">
         <p className="text-secondary text-muted mb-3">Waktu menjawab tiap soal pilihan ganda. Pilih yang lebih lama untuk anak-anak atau aksara yang baru dipelajari.</p>
         <Choices name="quiz-seconds" label="Waktu per soal" value={settings.quizSeconds} options={QUIZ_SECONDS} unit="detik" onChange={v => onChange({ ...settings, quizSeconds: v })} />
+        <label className="mt-3 flex items-start gap-3 py-3 border-t border-line cursor-pointer">
+          <input type="checkbox" checked={settings.quizSfx} onChange={e => onChange({ ...settings, quizSfx: e.target.checked })} className="mt-1 w-5 h-5 accent-primary" />
+          <span>
+            <span className="block text-ink">Efek suara</span>
+            <span className="block text-secondary text-muted">Bunyi untuk jawaban benar, salah, waktu habis, dan perayaan saat semua benar.</span>
+          </span>
+        </label>
       </Section>
 
       <Section title="Suara">
@@ -173,6 +181,12 @@ export const SettingsView = ({ settings, now, onChange, onBack, onDownload, onRe
         <p className="mt-2 text-secondary text-muted">{lastBackup} File berisi semua bahasa, kotak tiap kartu, dan pengaturan ini.</p>
         <div className="mt-4 space-y-2">
           <Button onClick={onDownload}>Simpan file cadangan</Button>
+        </div>
+
+        <div className="mt-6">
+          <h3 className="font-semibold text-ink">Pengingat</h3>
+          <p className="text-secondary text-muted mb-3">Ingatkan di halaman depan dan di akhir sesi bila cadangan terakhir sudah lebih lama dari:</p>
+          <Choices name="backup-every" label="Jarak pengingat cadangan" value={settings.backupEveryDays} options={BACKUP_INTERVALS} unit="hari" onChange={v => onChange({ ...settings, backupEveryDays: v })} />
         </div>
 
         <div className="mt-8">

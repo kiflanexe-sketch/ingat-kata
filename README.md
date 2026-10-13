@@ -35,6 +35,10 @@ dan tanpa server.
   tambahan, ada penanda beruntun, dan bisa dimainkan dengan tombol 1-4. Kuis tidak mengubah
   jadwal FSRS (mengenali pilihan lebih mudah daripada mengingat), kata yang salah bisa
   langsung dilatih dengan mengetik.
+  Efek suara untuk jawaban benar, salah, dan waktu habis, plus fanfare, konfeti, dan medali
+  saat semua soal benar. Suara disintesis dengan Web Audio API (tanpa file audio, tetap
+  jalan offline) dan bisa dimatikan di Pengaturan; konfeti mati bila perangkat meminta gerak
+  dikurangi.
 - XP, level, target harian, dan lencana. XP dari tiap jawaban (benar 10, salah 2), bonus
   kecepatan kuis, +25 saat target harian tercapai, +20 untuk kuis sempurna. Level 2 di
   100 XP, tiap level berikutnya butuh 100 XP lebih banyak, dengan sebutan Pemula sampai
@@ -68,7 +72,12 @@ browser. Karena itu:
 - Di perangkat baru, buka IngatKata lalu **Pulihkan dari file cadangan** (tautannya ada di
   layar pertama). Pilih **Gabungkan** (data di kedua perangkat disatukan; untuk kartu yang
   sama, progres yang terakhir diulang yang dipakai) atau **Ganti semua**.
-- Dashboard mengingatkan bila ada 10 kata atau lebih dan belum dicadangkan lebih dari 7 hari.
+- Bila ada 10 kata atau lebih dan cadangan terakhir lebih lama dari jarak pengingat (3, 7,
+  atau 14 hari; bawaan 7, diatur di Pengaturan & data), halaman depan, ringkasan sesi, dan
+  ringkasan kuis kilat menampilkan pengingat dengan tombol **Simpan cadangan**. Satu ketukan
+  langsung menyimpan file, lalu muncul saran menyimpan salinannya di luar perangkat.
+  Pencadangan tidak bisa sepenuhnya otomatis karena browser di HP selalu meminta ketukan
+  pengguna sebelum menyimpan file.
 - Aplikasi meminta penyimpanan persisten ke browser. Di iOS, memasang aplikasi ke Layar
   Utama juga mencegah Safari menghapus data situs yang lama tidak dibuka.
 

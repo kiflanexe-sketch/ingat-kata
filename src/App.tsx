@@ -10,8 +10,7 @@ import {
   deckExists, deckStats, deleteDeck, exportBackup, listDeckLangs, loadDeck, loadLog, loadMeta, loadSettings, saveLog, parseBackup, requestPersistentStorage,
   restoreBackup, saveDeck, saveMeta, saveSettings, type ParsedBackup, type RestoreMode, type Settings,
 } from './lib/storage.ts';
-import { ONE_DAY } from './lib/srs.ts';
-import { formatAgo } from './lib/format.ts';
+import { backupReminder } from './lib/reminder.ts';
 import { recordAnswer, recordPerfectQuiz, recordSnapshot, type StudyLog } from './lib/stats.ts';
 import { PERFECT_QUIZ_MIN, sessionReward, type SessionReward } from './lib/rewards.ts';
 import { buildQuiz, type QuizAnswer, type QuizQuestion } from './lib/quiz.ts';
@@ -26,6 +25,7 @@ import { AddView, type SaveResult } from './views/AddView.tsx';
 import { ListView } from './views/ListView.tsx';
 import { MaterialView } from './views/MaterialView.tsx';
 import { SettingsView } from './views/SettingsView.tsx';
+import { BackupNudge } from './components/BackupNudge.tsx';
 import { QuizView } from './views/QuizView.tsx';
 import { QuizSummaryView } from './views/QuizSummaryView.tsx';
 
@@ -42,8 +42,6 @@ const sameCard = (a: Card, b: Card) => a.id === b.id && a.originLang === b.origi
 
 // Kedalaman layar menentukan arah geser: lebih dalam = maju (dari kanan), lebih dangkal = kembali.
 const VIEW_DEPTH: Record<string, number> = { onboarding: 0, decks: 0, settings: 1, home: 1, material: 2, list: 2, add: 2, summary: 3, study: 3, quiz: 3, quizSummary: 3 };
-
-const BACKUP_REMINDER_AFTER = 7 * ONE_DAY;
 
 const backupFileName = () => `ingatkata-cadangan-${new Date().toISOString().slice(0, 10)}.json`;
 
@@ -70,6 +68,7 @@ export default function App() {
   const [modal, setModal] = useState<ModalConfig | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [settings, setSettings] = useState<Settings>(loadSettings);
+  const [savedBackup, setSavedBackup] = useState<string | null>(null); // nama file cadangan yang baru disimpan
 
   // Jumlah kartu jatuh tempo ikut bergerak walau layar dibiarkan terbuka.
   useEffect(() => {
@@ -87,7 +86,7 @@ export default function App() {
     const from = VIEW_DEPTH[view];
     const to = VIEW_DEPTH[next];
     const kind: TransitionKind = to > from ? 'forward' : to < from ? 'back' : 'fade';
-    withTransition(() => { update?.(); setView(next); }, kind);
+    withTransition(() => { update?.(); setSavedBackup(null); setView(next); }, kind);
   };
 
   const updateSettings = (next: Settings) => { setSettings(next); saveSettings(next); };
@@ -321,14 +320,25 @@ export default function App() {
   const markBackedUp = () => updateSettings({ ...settings, lastBackupAt: Date.now() });
 
   const downloadBackup = () => {
+    const name = backupFileName();
     const url = URL.createObjectURL(new Blob([exportBackup()], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = backupFileName();
+    a.download = name;
     a.click();
-    URL.revokeObjectURL(url);
+    // Safari dan Firefox masih membaca URL sesaat setelah klik; jangan langsung dicabut.
+    setTimeout(() => URL.revokeObjectURL(url), 60 * 1000);
     markBackedUp();
+    setSavedBackup(name);
   };
+
+  // null bila tidak ada yang perlu ditampilkan, supaya layar tidak menyisakan ruang kosong.
+  const backupNudge = (totalCards: number, className?: string) => {
+    const reminder = backupReminder(settings.lastBackupAt, totalCards, now, settings.backupEveryDays);
+    if (!reminder && !savedBackup) return null;
+    return <BackupNudge reminder={reminder} savedFile={savedBackup} onBackup={downloadBackup} className={className} />;
+  };
+  const countAllCards = () => listDeckLangs().reduce((n, l) => n + loadDeck(l).length, 0);
 
   const readBackupFile = async (file: File) => parseBackup(await file.text());
 
@@ -361,17 +371,13 @@ export default function App() {
     const langs = listDeckLangs();
     const stats = langs.map(l => deckStats(l, loadDeck(l), now));
     const totalCards = stats.reduce((n, s) => n + s.total, 0);
-    const stale = settings.lastBackupAt === null || now - settings.lastBackupAt > BACKUP_REMINDER_AFTER;
-    const reminder = totalCards >= 10 && stale
-      ? (settings.lastBackupAt === null ? `${totalCards} katamu belum pernah dicadangkan.` : `Cadangan terakhir ${formatAgo(settings.lastBackupAt, now)}.`)
-      : null;
     return (
       <>
         {modalEl}
         {view === 'onboarding' || langs.length === 0 ? (
           <OnboardingView existingLangs={langs} onPick={pickLanguage} onCancel={langs.length > 0 ? () => navigate('decks') : undefined} onSettings={() => navigate('settings')} />
         ) : (
-          <DeckListView stats={stats} now={now} log={loadLog()} dailyGoal={settings.dailyGoal} backupReminder={reminder} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => navigate('onboarding')} onSettings={() => navigate('settings')} />
+          <DeckListView stats={stats} now={now} log={loadLog()} dailyGoal={settings.dailyGoal} backupNudge={backupNudge(totalCards, 'mt-6')} onOpen={openDeck} onPolyglot={startPolyglot} onNewLanguage={() => navigate('onboarding')} onSettings={() => navigate('settings')} />
         )}
       </>
     );
@@ -411,14 +417,14 @@ export default function App() {
       )}
       {view === 'summary' && summary && (
         <SummaryView results={summary.results} mode={summary.mode} lang={deck.lang} nextDueIn={deck.lang === MIXED_DECK ? null : nextDueIn} reward={summary.reward}
-          quizCount={summaryQuizCount} onHome={() => navigate('home')} onPracticeWrong={practiceWrongFromSummary} onQuiz={() => startQuiz(summaryCards)} />
+          quizCount={summaryQuizCount} backupNudge={backupNudge(countAllCards())} onHome={() => navigate('home')} onPracticeWrong={practiceWrongFromSummary} onQuiz={() => startQuiz(summaryCards)} />
       )}
       {view === 'quiz' && quiz && (
-        <QuizView key={quiz.run} questions={quiz.questions} lang={deck.lang} seconds={settings.quizSeconds} autoSpeak={settings.autoSpeak}
+        <QuizView key={quiz.run} questions={quiz.questions} lang={deck.lang} seconds={settings.quizSeconds} autoSpeak={settings.autoSpeak} sfx={settings.quizSfx}
           onAnswer={recordQuizAnswer} onFinish={finishQuiz} onBack={() => navigate('home')} />
       )}
       {view === 'quizSummary' && quiz && quizResult && (
-        <QuizSummaryView answers={quizResult.answers} total={quizResult.total} lang={deck.lang} reward={quizResult.reward}
+        <QuizSummaryView answers={quizResult.answers} total={quizResult.total} lang={deck.lang} reward={quizResult.reward} sfx={settings.quizSfx} backupNudge={backupNudge(countAllCards())}
           onAgain={() => startQuiz(currentCards(quiz.cards))} onPracticeWrong={practiceWrongFromQuiz} onDone={() => navigate('home')} />
       )}
       {view === 'add' && (

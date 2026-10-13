@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { AnswerRecord, SessionMode } from '../types.ts';
 import { formatDueIn, percent } from '../lib/format.ts';
 import type { SessionReward } from '../lib/rewards.ts';
@@ -11,12 +12,13 @@ type Props = {
   nextDueIn: number | null;
   reward: SessionReward;
   quizCount: number; // soal kuis kilat yang bisa dibuat dari kata sesi ini (0 = tidak ada)
+  backupNudge: ReactNode;
   onHome: () => void;
   onPracticeWrong: () => void;
   onQuiz: () => void;
 };
 
-export const SummaryView = ({ results, mode, lang, nextDueIn, reward, quizCount, onHome, onPracticeWrong, onQuiz }: Props) => {
+export const SummaryView = ({ results, mode, lang, nextDueIn, reward, quizCount, backupNudge, onHome, onPracticeWrong, onQuiz }: Props) => {
   const correct = results.filter(r => r.correct).length;
   const wrong = results.filter(r => !r.correct);
   const accuracy = results.length > 0 ? correct / results.length : 0;
@@ -53,6 +55,8 @@ export const SummaryView = ({ results, mode, lang, nextDueIn, reward, quizCount,
           <p className="text-body text-ok">Semua kartu dijawab benar.</p>
         )}
       </section>
+
+      {backupNudge && <div className="mt-8">{backupNudge}</div>}
 
       <div className="mt-8 space-y-2">
         <Button onClick={onHome} autoFocus>Selesai</Button>
