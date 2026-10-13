@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { QuizAnswer, QuizQuestion } from '../lib/quiz.ts';
 import { speedPoints, XP_CORRECT } from '../lib/rewards.ts';
 import { canSpeak, speak } from '../lib/speech.ts';
+import { playSfx, sfxDuration, unlockSfx } from '../lib/sfx.ts';
 import { withTransition } from '../lib/transition.ts';
 import { displayLangName } from '../data/languages.ts';
 import { isScriptSource } from '../data/words.ts';
@@ -13,6 +14,7 @@ type Props = {
   lang: string;
   seconds: number;
   autoSpeak: boolean;
+  sfx: boolean;
   onAnswer: (answer: QuizAnswer) => void;
   onFinish: (answers: QuizAnswer[]) => void;
   onBack: () => void;
@@ -35,7 +37,7 @@ function useLatest<T>(value: T) {
   return ref;
 }
 
-export const QuizView = ({ questions, lang, seconds, autoSpeak, onAnswer, onFinish, onBack }: Props) => {
+export const QuizView = ({ questions, lang, seconds, autoSpeak, sfx, onAnswer, onFinish, onBack }: Props) => {
   const [started, setStarted] = useState(false);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
@@ -53,7 +55,7 @@ export const QuizView = ({ questions, lang, seconds, autoSpeak, onAnswer, onFini
           <li>Kuis tidak mengubah jadwal ulang kartu. Kata yang salah bisa kamu latih sesudahnya.</li>
         </ul>
         <p className="mt-3 text-secondary text-muted">Di keyboard, tekan 1-{maxOptions} untuk memilih.</p>
-        <Button className="mt-8" autoFocus onClick={() => setStarted(true)}>Mulai</Button>
+        <Button className="mt-8" autoFocus onClick={() => { if (sfx) unlockSfx(); setStarted(true); }}>Mulai</Button>
       </Page>
     );
   }
@@ -70,7 +72,7 @@ export const QuizView = ({ questions, lang, seconds, autoSpeak, onAnswer, onFini
 
   return (
     <QuizRound
-      key={index} q={questions[index]} index={index} total={questions.length} lang={lang} seconds={seconds} autoSpeak={autoSpeak}
+      key={index} q={questions[index]} index={index} total={questions.length} lang={lang} seconds={seconds} autoSpeak={autoSpeak} sfx={sfx}
       score={score} combo={combo} onAnswer={answered} onNext={next}
       onQuit={() => (answers.length > 0 ? onFinish(answers) : onBack())}
     />
@@ -84,6 +86,7 @@ type RoundProps = {
   lang: string;
   seconds: number;
   autoSpeak: boolean;
+  sfx: boolean;
   score: number;
   combo: number;
   onAnswer: (a: QuizAnswer) => void;
@@ -92,7 +95,7 @@ type RoundProps = {
 };
 
 // Satu soal. Dipasang ulang per soal (key = index), jadi jam dan pilihan selalu mulai bersih.
-const QuizRound = ({ q, index, total, lang, seconds, autoSpeak, score, combo, onAnswer, onNext, onQuit }: RoundProps) => {
+const QuizRound = ({ q, index, total, lang, seconds, autoSpeak, sfx, score, combo, onAnswer, onNext, onQuit }: RoundProps) => {
   const [result, setResult] = useState<{ chosen: number | null; answer: QuizAnswer } | null>(null);
   const [left, setLeft] = useState(seconds);
   const startedAt = useRef(0);
@@ -108,7 +111,13 @@ const QuizRound = ({ q, index, total, lang, seconds, autoSpeak, score, combo, on
     const answer: QuizAnswer = { card: q.card, direction: q.direction, correct, ms, points: correct ? speedPoints(limit - ms, limit) : 0, timedOut: option === null };
     setResult({ chosen: option, answer });
     onAnswer(answer);
-    if (!correct && autoSpeak && speakable) void speak(q.card.front, cardLang);
+    const effect = correct ? 'correct' : option === null ? 'timeout' : 'wrong';
+    if (sfx) playSfx(effect);
+    // Kata diucapkan setelah bunyi salah selesai, supaya keduanya tidak bertumpuk.
+    if (!correct && autoSpeak && speakable) {
+      const say = () => void speak(q.card.front, cardLang);
+      if (sfx) setTimeout(say, sfxDuration(effect) + 80); else say();
+    }
   };
   const latest = useLatest({ choose, onNext, result });
 

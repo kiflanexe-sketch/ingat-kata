@@ -35,6 +35,10 @@ dan tanpa server.
   tambahan, ada penanda beruntun, dan bisa dimainkan dengan tombol 1-4. Kuis tidak mengubah
   jadwal FSRS (mengenali pilihan lebih mudah daripada mengingat), kata yang salah bisa
   langsung dilatih dengan mengetik.
+  Efek suara untuk jawaban benar, salah, dan waktu habis, plus fanfare, konfeti, dan medali
+  saat semua soal benar. Suara disintesis dengan Web Audio API (tanpa file audio, tetap
+  jalan offline) dan bisa dimatikan di Pengaturan; konfeti mati bila perangkat meminta gerak
+  dikurangi.
 - XP, level, target harian, dan lencana. XP dari tiap jawaban (benar 10, salah 2), bonus
   kecepatan kuis, +25 saat target harian tercapai, +20 untuk kuis sempurna. Level 2 di
   100 XP, tiap level berikutnya butuh 100 XP lebih banyak, dengan sebutan Pemula sampai

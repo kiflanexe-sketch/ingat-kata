@@ -414,11 +414,11 @@ export default function App() {
           quizCount={summaryQuizCount} onHome={() => navigate('home')} onPracticeWrong={practiceWrongFromSummary} onQuiz={() => startQuiz(summaryCards)} />
       )}
       {view === 'quiz' && quiz && (
-        <QuizView key={quiz.run} questions={quiz.questions} lang={deck.lang} seconds={settings.quizSeconds} autoSpeak={settings.autoSpeak}
+        <QuizView key={quiz.run} questions={quiz.questions} lang={deck.lang} seconds={settings.quizSeconds} autoSpeak={settings.autoSpeak} sfx={settings.quizSfx}
           onAnswer={recordQuizAnswer} onFinish={finishQuiz} onBack={() => navigate('home')} />
       )}
       {view === 'quizSummary' && quiz && quizResult && (
-        <QuizSummaryView answers={quizResult.answers} total={quizResult.total} lang={deck.lang} reward={quizResult.reward}
+        <QuizSummaryView answers={quizResult.answers} total={quizResult.total} lang={deck.lang} reward={quizResult.reward} sfx={settings.quizSfx}
           onAgain={() => startQuiz(currentCards(quiz.cards))} onPracticeWrong={practiceWrongFromQuiz} onDone={() => navigate('home')} />
       )}
       {view === 'add' && (

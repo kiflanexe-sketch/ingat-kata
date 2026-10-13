@@ -64,7 +64,7 @@ test('keadaan FSRS kartu ikut tersimpan dan terpulihkan; nilai rusak dibuang', (
 test('cadangan lalu pulihkan "ganti semua" menyamakan isi perangkat', () => {
   storage.saveDeck('Inggris 🇬🇧', [card({ id: 'a', box: 2, lastReviewed: 10 })]);
   storage.saveMeta('Inggris 🇬🇧', { lastAccuracy: 0.9 });
-  storage.saveSettings({ direction: 'backward', autoSpeak: false, retention: 0.95, dailyGoal: 50, quizSeconds: 12, lastBackupAt: 5 });
+  storage.saveSettings({ direction: 'backward', autoSpeak: false, retention: 0.95, dailyGoal: 50, quizSeconds: 12, quizSfx: false, lastBackupAt: 5 });
   const file = storage.exportBackup();
 
   localStorage.clear();
@@ -80,6 +80,7 @@ test('cadangan lalu pulihkan "ganti semua" menyamakan isi perangkat', () => {
   assert.equal(s.direction, 'backward');
   assert.equal(s.dailyGoal, 50);
   assert.equal(s.quizSeconds, 12);
+  assert.equal(s.quizSfx, false);
   assert.equal(s.autoSpeak, false);
   assert.equal(s.retention, 0.95);
 });

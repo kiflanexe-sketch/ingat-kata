@@ -125,6 +125,13 @@ export const SettingsView = ({ settings, now, onChange, onBack, onDownload, onRe
       <Section title="Kuis kilat">
         <p className="text-secondary text-muted mb-3">Waktu menjawab tiap soal pilihan ganda. Pilih yang lebih lama untuk anak-anak atau aksara yang baru dipelajari.</p>
         <Choices name="quiz-seconds" label="Waktu per soal" value={settings.quizSeconds} options={QUIZ_SECONDS} unit="detik" onChange={v => onChange({ ...settings, quizSeconds: v })} />
+        <label className="mt-3 flex items-start gap-3 py-3 border-t border-line cursor-pointer">
+          <input type="checkbox" checked={settings.quizSfx} onChange={e => onChange({ ...settings, quizSfx: e.target.checked })} className="mt-1 w-5 h-5 accent-primary" />
+          <span>
+            <span className="block text-ink">Efek suara</span>
+            <span className="block text-secondary text-muted">Bunyi untuk jawaban benar, salah, waktu habis, dan perayaan saat semua benar.</span>
+          </span>
+        </label>
       </Section>
 
       <Section title="Suara">

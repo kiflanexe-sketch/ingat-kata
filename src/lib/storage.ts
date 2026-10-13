@@ -135,11 +135,12 @@ export type Settings = {
   retention: number; // target peluang ingat FSRS (0,85 / 0,9 / 0,95)
   dailyGoal: number; // target kartu dijawab per hari
   quizSeconds: number; // waktu per soal kuis kilat
+  quizSfx: boolean; // efek suara benar/salah/perayaan di kuis kilat
   lastBackupAt: number | null;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  direction: 'both', autoSpeak: true, retention: DEFAULT_RETENTION, dailyGoal: DEFAULT_DAILY_GOAL, quizSeconds: DEFAULT_QUIZ_SECONDS, lastBackupAt: null,
+  direction: 'both', autoSpeak: true, retention: DEFAULT_RETENTION, dailyGoal: DEFAULT_DAILY_GOAL, quizSeconds: DEFAULT_QUIZ_SECONDS, quizSfx: true, lastBackupAt: null,
 };
 
 function sanitizeSettings(raw: unknown): Omit<Settings, 'lastBackupAt'> {
@@ -150,6 +151,7 @@ function sanitizeSettings(raw: unknown): Omit<Settings, 'lastBackupAt'> {
     retention: typeof r.retention === 'number' && RETENTION_CHOICES.includes(r.retention) ? r.retention : DEFAULT_RETENTION,
     dailyGoal: typeof r.dailyGoal === 'number' && DAILY_GOALS.includes(r.dailyGoal) ? r.dailyGoal : DEFAULT_DAILY_GOAL,
     quizSeconds: typeof r.quizSeconds === 'number' && QUIZ_SECONDS.includes(r.quizSeconds) ? r.quizSeconds : DEFAULT_QUIZ_SECONDS,
+    quizSfx: typeof r.quizSfx === 'boolean' ? r.quizSfx : DEFAULT_SETTINGS.quizSfx,
   };
 }
 

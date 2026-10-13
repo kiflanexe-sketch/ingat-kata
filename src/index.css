@@ -168,3 +168,21 @@ html[data-nav='card']::view-transition-group(study-progress) { animation-duratio
 /* Poin yang baru didapat naik pelan lalu hilang. */
 .points-pop { animation: points-pop 700ms ease-out both; }
 @keyframes points-pop { from { transform: translateY(4px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(-10px); opacity: 0; } }
+
+/* Perayaan kuis sempurna: konfeti jatuh sekali, medali muncul memantul. */
+.confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 40; }
+.confetti i {
+  position: absolute;
+  top: -16px;
+  animation: confetti-fall var(--dur) cubic-bezier(0.25, 0.6, 0.4, 1) var(--delay) both;
+}
+@keyframes confetti-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate3d(var(--drift), 105vh, 0) rotate(var(--spin)); opacity: 0; }
+}
+.celebrate-pop { animation: celebrate-pop 650ms cubic-bezier(0.2, 1.5, 0.4, 1) 150ms both; }
+@keyframes celebrate-pop { from { transform: scale(0.3) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .confetti { display: none; }
+}
