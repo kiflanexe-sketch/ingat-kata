@@ -3,6 +3,7 @@ import type { ParsedBackup, RestoreMode, Settings } from '../lib/storage.ts';
 import { RETENTION_CHOICES, type DirectionSetting } from '../lib/srs.ts';
 import { DAILY_GOALS } from '../lib/rewards.ts';
 import { QUIZ_SECONDS } from '../lib/quiz.ts';
+import { BACKUP_INTERVALS } from '../lib/reminder.ts';
 import { displayLangName, sampleWord } from '../data/languages.ts';
 import { SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { speak, useVoices, voiceStatus } from '../lib/speech.ts';
@@ -180,6 +181,12 @@ export const SettingsView = ({ settings, now, onChange, onBack, onDownload, onRe
         <p className="mt-2 text-secondary text-muted">{lastBackup} File berisi semua bahasa, kotak tiap kartu, dan pengaturan ini.</p>
         <div className="mt-4 space-y-2">
           <Button onClick={onDownload}>Simpan file cadangan</Button>
+        </div>
+
+        <div className="mt-6">
+          <h3 className="font-semibold text-ink">Pengingat</h3>
+          <p className="text-secondary text-muted mb-3">Ingatkan di halaman depan dan di akhir sesi bila cadangan terakhir sudah lebih lama dari:</p>
+          <Choices name="backup-every" label="Jarak pengingat cadangan" value={settings.backupEveryDays} options={BACKUP_INTERVALS} unit="hari" onChange={v => onChange({ ...settings, backupEveryDays: v })} />
         </div>
 
         <div className="mt-8">

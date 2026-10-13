@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { LangStats } from '../types.ts';
 import { displayLangName } from '../data/languages.ts';
 import { formatDueIn } from '../lib/format.ts';
@@ -14,7 +15,7 @@ type Props = {
   now: number;
   log: StudyLog;
   dailyGoal: number;
-  backupReminder: string | null;
+  backupNudge: ReactNode;
   onOpen: (lang: string) => void;
   onPolyglot: () => void;
   onNewLanguage: () => void;
@@ -29,7 +30,7 @@ const deckMeta = (s: LangStats) => {
   return parts.join(' · ');
 };
 
-export const DeckListView = ({ stats, now, log, dailyGoal, backupReminder, onOpen, onPolyglot, onNewLanguage, onSettings }: Props) => {
+export const DeckListView = ({ stats, now, log, dailyGoal, backupNudge, onOpen, onPolyglot, onNewLanguage, onSettings }: Props) => {
   const studied = stats.filter(s => s.active > 0);
   const totalActive = studied.reduce((n, s) => n + s.active, 0);
   const totalDue = stats.reduce((n, s) => n + s.due, 0);
@@ -65,6 +66,7 @@ export const DeckListView = ({ stats, now, log, dailyGoal, backupReminder, onOpe
         ))}
       </ul>
       <LinkRow onClick={onNewLanguage}>Tambah bahasa</LinkRow>
+      {backupNudge}
 
       {studied.length > 1 && (
         <section className="mt-12">
@@ -83,13 +85,6 @@ export const DeckListView = ({ stats, now, log, dailyGoal, backupReminder, onOpe
         <p className="mt-1 mb-3 text-secondary text-muted">{earned} dari {badges.length} didapat. XP datang dari tiap jawaban (benar {XP_CORRECT}, salah {XP_WRONG}), bonus kecepatan kuis kilat, dan target harian (+{XP_GOAL}).</p>
         <BadgeGrid badges={badges} />
       </section>
-
-      {backupReminder && (
-        <p className="mt-12 text-secondary text-muted">
-          {backupReminder}{' '}
-          <button onClick={onSettings} className="font-semibold text-primary hover:underline underline-offset-4">Cadangkan</button>
-        </p>
-      )}
     </Page>
   );
 };

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import type { QuizAnswer } from '../lib/quiz.ts';
 import type { SessionReward } from '../lib/rewards.ts';
 import { PERFECT_QUIZ_MIN, XP_CORRECT } from '../lib/rewards.ts';
@@ -13,6 +13,7 @@ type Props = {
   lang: string;
   reward: SessionReward;
   sfx: boolean;
+  backupNudge: ReactNode;
   onAgain: () => void;
   onPracticeWrong: () => void;
   onDone: () => void;
@@ -25,7 +26,7 @@ const bestRun = (answers: QuizAnswer[]) => {
   return best;
 };
 
-export const QuizSummaryView = ({ answers, total, lang, reward, sfx, onAgain, onPracticeWrong, onDone }: Props) => {
+export const QuizSummaryView = ({ answers, total, lang, reward, sfx, backupNudge, onAgain, onPracticeWrong, onDone }: Props) => {
   const correct = answers.filter(a => a.correct);
   const wrong = answers.filter(a => !a.correct);
   const score = correct.reduce((n, a) => n + XP_CORRECT + a.points, 0);
@@ -80,6 +81,8 @@ export const QuizSummaryView = ({ answers, total, lang, reward, sfx, onAgain, on
           </ul>
         </section>
       )}
+
+      {backupNudge && <div className="mt-8">{backupNudge}</div>}
 
       <div className="mt-8 space-y-2">
         <Button onClick={onAgain} autoFocus>Main lagi</Button>

@@ -72,7 +72,12 @@ browser. Karena itu:
 - Di perangkat baru, buka IngatKata lalu **Pulihkan dari file cadangan** (tautannya ada di
   layar pertama). Pilih **Gabungkan** (data di kedua perangkat disatukan; untuk kartu yang
   sama, progres yang terakhir diulang yang dipakai) atau **Ganti semua**.
-- Dashboard mengingatkan bila ada 10 kata atau lebih dan belum dicadangkan lebih dari 7 hari.
+- Bila ada 10 kata atau lebih dan cadangan terakhir lebih lama dari jarak pengingat (3, 7,
+  atau 14 hari; bawaan 7, diatur di Pengaturan & data), halaman depan, ringkasan sesi, dan
+  ringkasan kuis kilat menampilkan pengingat dengan tombol **Simpan cadangan**. Satu ketukan
+  langsung menyimpan file, lalu muncul saran menyimpan salinannya di luar perangkat.
+  Pencadangan tidak bisa sepenuhnya otomatis karena browser di HP selalu meminta ketukan
+  pengguna sebelum menyimpan file.
 - Aplikasi meminta penyimpanan persisten ke browser. Di iOS, memasang aplikasi ke Layar
   Utama juga mencegah Safari menghapus data situs yang lama tidak dibuka.
 
