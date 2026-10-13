@@ -11,11 +11,9 @@ import { Button, Page, Title, TopBar } from '../components/ui.tsx';
 type Props = {
   settings: Settings;
   now: number;
-  canShareBackup: boolean;
   onChange: (next: Settings) => void;
   onBack: () => void;
   onDownload: () => void;
-  onShare: () => void;
   onReadFile: (file: File) => Promise<ParsedBackup | null>;
   onRestore: (backup: ParsedBackup, mode: RestoreMode) => void;
 };
@@ -33,7 +31,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   </section>
 );
 
-export const SettingsView = ({ settings, now, canShareBackup, onChange, onBack, onDownload, onShare, onReadFile, onRestore }: Props) => {
+export const SettingsView = ({ settings, now, onChange, onBack, onDownload, onReadFile, onRestore }: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<ParsedBackup | null>(null);
   const [fileError, setFileError] = useState('');
@@ -148,7 +146,6 @@ export const SettingsView = ({ settings, now, canShareBackup, onChange, onBack, 
         <p className="mt-2 text-secondary text-muted">{lastBackup} File berisi semua bahasa, kotak tiap kartu, dan pengaturan ini.</p>
         <div className="mt-4 space-y-2">
           <Button onClick={onDownload}>Simpan file cadangan</Button>
-          {canShareBackup && <Button variant="secondary" onClick={onShare}>Kirim cadangan (WhatsApp, Drive, email)</Button>}
         </div>
 
         <div className="mt-8">

@@ -30,4 +30,3 @@ export const IconSearch = (p: IconProps) => <Svg size={18} {...p}><circle cx="11
 export const IconX = (p: IconProps) => <Svg size={20} {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>;
 export const IconUpload = (p: IconProps) => <Svg size={20} {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></Svg>;
 export const IconChevronRight = (p: IconProps) => <Svg size={20} {...p}><path d="m9 18 6-6-6-6"/></Svg>;
-export const IconShare = (p: IconProps) => <Svg size={20} {...p}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></Svg>;

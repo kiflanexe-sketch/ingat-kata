@@ -54,6 +54,8 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
   const speakable = canSpeak(cardLang);
   const voice = useVoiceStatus(speakable ? cardLang : undefined);
   const speech = useRef<Promise<void>>(Promise.resolve());
+  const shownAt = useRef(0);
+  useEffect(() => { shownAt.current = Date.now(); }, []);
 
   // Jawaban benar lanjut otomatis setelah jeda baca dan setelah pengucapan selesai,
   // supaya suara kata ini tidak terpotong oleh kartu berikutnya.
@@ -70,7 +72,7 @@ export const StudyView = ({ item, index, total, mode, lang, alternatives, autoSp
     const g: Grade = !correct ? 'again' : quality === 'close' ? 'hard' : 'good';
     setPhase(correct ? 'correct' : 'wrong');
     setNote(resultNote);
-    setResult({ grade: g, card: onGrade({ card, direction, correct, grade: g, given }) });
+    setResult({ grade: g, card: onGrade({ card, direction, correct, grade: g, given, ms: Date.now() - shownAt.current }) });
     // Selalu ucapkan kata asingnya setelah menjawab, benar maupun salah, dari arah mana pun.
     if (autoSpeak && speakable) {
       const spoken = speak(card.front, cardLang);

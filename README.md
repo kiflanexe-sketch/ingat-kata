@@ -30,7 +30,13 @@ dan tanpa server.
 - Daftar kata dengan pencarian, edit, pindah aktif/antrian, dan hapus massal.
 - Pengaturan arah pertanyaan (bolak-balik, asing ke Indonesia, Indonesia ke asing) dan
   suara otomatis.
+- Statistik di halaman depan: hari beruntun dan kalender aktivitas 16 minggu (konsistensi),
+  kartu dijawab per hari, akurasi, waktu belajar, dan hari aktif dalam 7/30/90 hari
+  (statistik), serta grafik kata hafal dibanding kata aktif (progres). Riwayat dicatat per
+  hari sejak versi ini dan ikut tersimpan di file cadangan.
 - Bisa dipasang sebagai aplikasi (PWA) di Android, iOS, dan desktop, dan dibuka offline.
+  Halaman depan menampilkan ajakan pasang (tombol Pasang di Chrome/Android, petunjuk Safari
+  di iPhone/iPad) yang bisa ditutup.
 - Transisi antarlayar dan antarkartu dengan View Transitions API (mati otomatis bila
   perangkat meminta gerak dikurangi).
 
@@ -40,8 +46,8 @@ Tidak ada server atau akun: semua kata, progres, dan pengaturan ada di localStor
 browser. Karena itu:
 
 - **Pengaturan & data → Simpan file cadangan** mengunduh satu file JSON berisi semua
-  bahasa, kotak tiap kartu, akurasi terakhir, dan pengaturan. Di HP ada juga **Kirim
-  cadangan** lewat share sheet (WhatsApp, Google Drive, email).
+  bahasa, kotak tiap kartu, akurasi terakhir, riwayat belajar, dan pengaturan. File tersimpan
+  di folder unduhan perangkat; pindahkan sendiri bila ingin menyimpannya di tempat lain.
 - Di perangkat baru, buka IngatKata lalu **Pulihkan dari file cadangan** (tautannya ada di
   layar pertama). Pilih **Gabungkan** (data di kedua perangkat disatukan; untuk kartu yang
   sama, progres yang terakhir diulang yang dipakai) atau **Ganti semua**.

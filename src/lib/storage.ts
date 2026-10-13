@@ -1,4 +1,5 @@
 import type { Card, FsrsState, LangStats } from '../types.ts';
+import { mergeLogs, sanitizeLog, type StudyLog } from './stats.ts';
 import { DEFAULT_RETENTION, MAX_BOX, RETENTION_CHOICES, isDue, isMastered, mergeCards, nextDueAt, type DirectionSetting } from './srs.ts';
 
 const DECK_PREFIX = 'ingatkata-deck-';
@@ -110,6 +111,18 @@ export function deckStats(lang: string, cards: Card[], now: number): LangStats {
   };
 }
 
+// --- Riwayat belajar ---
+
+const LOG_KEY = 'ingatkata-log';
+
+export function loadLog(): StudyLog {
+  try { return sanitizeLog(JSON.parse(localStorage.getItem(LOG_KEY) || '{}')); } catch { return {}; }
+}
+
+export function saveLog(log: StudyLog) {
+  try { localStorage.setItem(LOG_KEY, JSON.stringify(log)); } catch { /* abaikan */ }
+}
+
 // --- Pengaturan ---
 
 const SETTINGS_KEY = 'ingatkata-settings';
@@ -164,6 +177,7 @@ type BackupFile = {
   decks: Record<string, Card[]>;
   meta: Record<string, DeckMeta>;
   settings: Omit<Settings, 'lastBackupAt'>;
+  log: StudyLog;
 };
 
 export function exportBackup(): string {
@@ -175,7 +189,7 @@ export function exportBackup(): string {
   }
   const { direction, autoSpeak, retention } = loadSettings();
   const settings = { direction, autoSpeak, retention };
-  const backup: BackupFile = { app: 'ingatkata', version: 2, exportedAt: new Date().toISOString(), decks, meta, settings };
+  const backup: BackupFile = { app: 'ingatkata', version: 2, exportedAt: new Date().toISOString(), decks, meta, settings, log: loadLog() };
   return JSON.stringify(backup);
 }
 
@@ -183,6 +197,7 @@ export type ParsedBackup = {
   decks: Record<string, Card[]>;
   meta: Record<string, DeckMeta>;
   settings: Omit<Settings, 'lastBackupAt'> | null; // null untuk cadangan versi 1
+  log: StudyLog;
   exportedAt: string | null;
 };
 
@@ -204,6 +219,7 @@ export function parseBackup(text: string): ParsedBackup | null {
       meta,
       settings: data.settings ? sanitizeSettings(data.settings) : null,
       exportedAt: typeof data.exportedAt === 'string' ? data.exportedAt : null,
+      log: sanitizeLog(data.log),
     };
   } catch {
     return null;
@@ -231,5 +247,6 @@ export function restoreBackup(backup: ParsedBackup, mode: RestoreMode): boolean 
     }
   }
   if (backup.settings) saveSettings({ ...loadSettings(), ...backup.settings });
+  saveLog(mode === 'merge' ? mergeLogs(loadLog(), backup.log) : backup.log);
   return ok;
 }

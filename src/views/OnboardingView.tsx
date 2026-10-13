@@ -3,6 +3,7 @@ import { SCRIPT_LEVELS, WORD_DATABASE } from '../data/words.ts';
 import { displayLangName, levelShortName, sampleWord } from '../data/languages.ts';
 import { Page, TopBar, Title, Word } from '../components/ui.tsx';
 import { IconChevronRight } from '../components/Icon.tsx';
+import { InstallPrompt } from '../components/InstallPrompt.tsx';
 
 type Props = {
   existingLangs: string[];
@@ -31,6 +32,7 @@ export const OnboardingView = ({ existingLangs, onPick, onCancel, onSettings }: 
       <Title sub="Kata ditanyakan bolak-balik dari bahasa Indonesia. Tiap kata dijadwalkan ulang tepat sebelum kamu cenderung lupa: yang sudah dikuasai makin jarang muncul, yang sering salah lebih sering.">
         Pilih bahasa
       </Title>
+      <InstallPrompt />
 
       <ul>
         {languages.map(lang => {
